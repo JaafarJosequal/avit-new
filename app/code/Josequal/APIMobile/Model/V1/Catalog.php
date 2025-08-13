@@ -1006,7 +1006,7 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
         $info = $this->successStatus("Main categories");
         $info['data'] = $categoriesData;
-        $info['data']['total_count'] = count($categoriesData);
+        $info['total_count'] = count($categoriesData);
         return $info;
     }
 }
