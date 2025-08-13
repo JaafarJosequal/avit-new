@@ -1,0 +1,24 @@
+<!--@subject Sending email from Sm_Form module @-->
+
+{{template config_path="design/email/header_template"}}
+<table>
+    <tr class="email-smform">
+        <td>
+            Email: {{var email}}
+        </td>
+        <td>
+            Name: {{var name}}
+        </td>
+        <td>
+            Product link: {{var product}}
+        </td>
+        <td>
+            Quantity: {{var quantity}}
+        </td>
+        <td>
+            Request: {{var comment}}
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

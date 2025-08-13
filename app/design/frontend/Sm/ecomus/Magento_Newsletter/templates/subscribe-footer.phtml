@@ -1,0 +1,39 @@
+<?php
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<div class="block-subscribe-footer">
+    <form class="form subscribe"
+          novalidate
+          action="<?php /* @escapeNotVerified */
+          echo $block->getFormActionUrl() ?>"
+          method="post"
+          data-mage-init='{"validation": {"errorClass": "mage-error"}}'
+          id="newsletter-footer-validate-detail">
+
+        <div class="newsletter-content">
+            <div class="input-box">
+                <input name="email" type="email" id="newsletter-footer"
+                       onfocus="if(this.value=='<?php echo __("Your email address") ?>') this.value='';"
+                       onblur="if(this.value=='') this.value='<?php echo __('Your email address') ?>';"
+                       value="<?php echo __('Your email address') ?>"
+                       data-validate="{required:true, 'validate-email':true}"/>
+            </div>
+
+            <div class="action-button">
+                <button class="action subscribe primary" title="<?php /* @escapeNotVerified */
+                echo __('Subscribe') ?>" type="submit">
+					<span><?php /* @escapeNotVerified */
+                        echo __('Subscribe') ?>
+				<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z"></path></svg>
+				</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

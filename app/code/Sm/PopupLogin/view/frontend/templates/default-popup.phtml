@@ -1,0 +1,52 @@
+<?php
+/**
+ * @category Magentech
+ * @package Sm_PopupLogin
+ * @version 1.0.0
+ * @copyright Copyright (c) 2022 Magentech Company. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * @author Magentech Company <contact@sm.com>
+ * @link https://sm.com
+ */
+$_config        = $this->helper('Sm\PopupLogin\Helper\Data');
+$currentPageUrl = $_config->getUrlPage();
+$logoConfig     = $_config->getPopupLoginConfig('general/popup_logo');
+?>
+
+<?php if (!$block->isLoggedIn()) { ?>
+    <?php if ($_config->getPopupLoginConfig('general/popup_type') === 'modal') { ?>
+        <div id="sm-popup-login-modal" style="display:none;">
+    <?php } else { ?>
+        <div class="sm-overlay-popuplogin"></div>
+        <div class="sm-popup-login-sidebar">
+        <a class="sm-close-popuplogin" href="javascript:void(0)"
+           title="<?php echo __('Close') ?>"><span><?php echo __('Close') ?></span></a>
+    <?php } ?>
+
+    <?php if ($logoConfig) { ?>
+        <div class="sm-popup-logo">
+            <a href="<?= $this->getBaseUrl() ?>">
+                <img src="<?php echo $_config->getMediaUrl() . 'sm_popuplogin/' . $logoConfig ?>">
+            </a>
+        </div>
+    <?php } ?>
+
+    <?php if (!str_contains($currentPageUrl, 'customer/account/login')) { ?>
+        <div id="sm-login-popup" class="sm-popup-modal sm-login-container">
+            <?= $block->getChildHtml('sm.popup.login') ?>
+        </div>
+    <?php } ?>
+
+    <?php if (!str_contains($currentPageUrl, 'customer/account/create')) { ?>
+        <div id="sm-login-create" class="sm-popup-modal sm-register-container">
+            <?= $block->getChildHtml('sm.popup.register') ?>
+        </div>
+    <?php } ?>
+
+    <?php if (!str_contains($currentPageUrl, 'customer/account/forgotpassword')) { ?>
+        <div id="sm-login-forgot" class="sm-popup-modal sm-forgot-container">
+            <?= $block->getChildHtml('sm.popup.forgotPassword') ?>
+        </div>
+    <?php } ?>
+    </div>
+<?php } ?>

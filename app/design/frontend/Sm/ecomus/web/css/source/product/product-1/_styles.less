@@ -1,0 +1,291 @@
+.product-labels {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1;
+    .product-label {
+        text-transform: capitalize;
+        font-size: 1.4rem;
+        text-align: center;
+        z-index: 100;
+        .border-radius(25px);
+        margin-bottom: 10px;
+		padding: 0 10px;
+        min-width: 59px;
+        line-height: 29px;
+        &.sale-label {   
+            background-color:#fc5732;
+            color:#fff;
+        }
+        &.new-label{
+            background-color: #fff;
+            color:#000;
+        }
+    }
+}
+.products-grid:not(.wishlist) {
+    .product-item-info {
+        width: 100% !important;
+        margin-bottom: 0px;
+        border:0;
+        .transition(.3s);
+		position:relative;
+		height: 100%;
+		
+        .reviews-actions {
+            display: none !important;
+        }
+
+        .image-product {
+            position: relative;
+			text-align:center;
+			.product-image-wrapper{
+				.border-radius(1rem);
+				overflow:hidden;
+			}
+            .quickview-handler {
+				display:none;
+			}
+			
+        }
+        .deals-countdown {
+            position: absolute;
+            width: 40px;
+            bottom: 10px;
+            z-index: 999;
+            background: #fff;
+            left: 10px;
+            .border-radius(3px);
+            margin: 0;
+            padding: 8px 0;
+            text-align: center;
+            .deals-time {
+                    padding: 0 0 8px;
+                    border: 0;
+                    text-align: center;
+                    margin: 0 auto;
+                    border-bottom: 1px solid #ddd;
+                    min-width: 25px;
+                    margin-bottom: 8px;
+                    line-height: 15px;
+                .num-time {
+                    font-size:1.4rem;
+                    font-weight:500;
+                }
+                .title-time {
+                    color:#888888;
+                    font-size:11px;
+                    text-transform: capitalize;
+                }
+                &:last-child{
+                    border-bottom:0px;
+                    margin:0;
+                    padding:0;
+                }
+            }
+        }
+
+        .product-item-details {
+            padding: 10px 0px 15px;
+            text-align: left;
+            position: relative;
+            .product-item-name {
+                margin: 0 0 6px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 1.6rem;
+                a {
+                    padding: 6px 0;
+                    font-weight: 400;
+                }
+            }
+            .swatch-attribute {
+				&.size .swatch-option.text {
+					border: 1px solid #eeeeee !important;
+					min-width: 26px;
+					padding: 3px 0px;
+					color: #000;
+					border-radius: 2px !important;
+					height: 26px !important;
+					&:hover, &.selected,&:focus {
+						background: transparent !important;
+						.box-shadow(0 0 0) !important;
+						border-color:#000 !important;
+					}
+				}
+
+            }
+			
+            .price-box {
+                margin: 5px 0;
+				line-height:20px;
+                .price{
+                    font-size: 100%;
+					color:#000;
+					font-weight: 600;
+                }
+            }
+
+			.swatch-attribute-options {
+				margin: 7px 0;
+			}
+           
+			.product-reviews-summary {
+				display:none !important;
+			}
+            .product-item-actions {
+					position: absolute;
+                    width: 100%;
+                    text-align: center;
+                    margin-top: 0;
+                    z-index: 1;
+                    right: 0px;
+					display: flex;
+					justify-content: center;
+                    top: -25px;
+                   .transform(translateY(-100%));
+                    
+					.actions-secondary{
+						display: flex;
+						align-items: center;
+					}
+                    .action {
+                        display: flex;
+						align-items: center;
+                        margin:0 3px;
+                        width: 40px;
+                        height: 40px;
+                        text-align: center;
+                        line-height: 40px;
+                        color: #000;
+                        .border-radius(3px);
+                        .opacity(0);
+                        visibility: hidden;
+                        .transition(.3s);
+                        background:#fff;
+                        .transform(translateY(20px));
+                        .box-shadow(0 2px 3px rgba(0,0,0,0.05));
+                        border:0;
+                        span {
+                            clip: unset;
+							height: auto;
+							width: auto;
+							overflow: visible;
+							position: absolute;
+							font-size: 12px;
+							padding: 5px 10px;
+							background: #232323;
+							color: #ffffff;
+							line-height: 1;
+							.border-radius(3px);
+							.transform(translateX(-50%));
+							visibility: hidden;
+							.opacity(0);
+							pointer-events: none;
+							.transition(.3s);
+							white-space: nowrap;
+							top: -50%;
+							left: 50%;
+							&:after{
+								left: 50%;
+								bottom: -12px;
+								content: "";
+								position: absolute;
+								background: transparent;
+								border: 7px solid transparent;
+								border-top-color: #232323;
+								margin-left: -7px;
+							}
+                        }
+						&:after{
+							display: block;
+							background: #363638;
+							font-size: 0px;
+							content:"";
+							margin: 0 auto;
+						}
+                        &:hover {
+                            background:#000 !important; 
+							
+                            &:after{
+                                background:#fff !important;
+                            }
+							 span {
+								visibility: visible;
+								.opacity(1);
+								top: -30px;
+								margin-top: 0;
+							 }
+
+                        }
+                        &:before {
+                            display: none;
+                        }
+                        &.tocart {
+                            padding: 0px;
+                            transition: transform .4s ease 0s, opacity .4s ease 0s;
+                            &:after {
+                                mask-image: url("../images/icon-cart.svg");
+								width: 14px;
+								height: 16px;
+								
+                            }
+                        }
+
+                        &.towishlist{
+                            transition: transform .4s ease .2s, opacity .4s ease 0s;
+                            &:after {
+								mask-image: url("../images/icon-heart.svg");
+								width: 18px;
+								height: 16px;
+                            }
+                        }
+
+                        &.tocompare{
+                            transition: transform .4s ease .3s, opacity .4s ease 0s;
+                            &:after {
+                                 mask-image: url("../images/icon-compare.svg");
+								width: 16px;
+								height: 16px;
+                            }
+                        }
+                        &.quickview-handler {
+                            transition: transform .4s ease .4s, opacity .4s ease 0s;
+                            &:after{
+                                mask-image: url("../images/icon-view.svg");
+								width: 19px;
+								height: 12px; 
+                            }
+                        }
+                    }
+
+            }
+
+            .swatch-option.color {
+                margin: 0 7px 5px 3px;
+            }
+        }
+
+        &:hover {
+            position: relative;
+			
+            .product-item-details .product-item-actions .action{
+                .opacity(1);
+                visibility: visible;
+                background-color:#fff;
+                color: #000;
+                 .transform(translateY(0px));
+            }
+        }
+    }
+}
+@media (max-width: 1024px) {
+	.products-grid:not(.wishlist) .product-item-info .product-item-details .product-item-actions .action{
+		opacity: 1 !important;
+		visibility: visible !important;
+		background-color: #fff !important;
+		color: #000 !important;
+		.transform(translateY(0px)) !important;
+	}
+}

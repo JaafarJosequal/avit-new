@@ -1,0 +1,43 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php /* @var $block \Magento\Catalog\Block\Product\View\AbstractView */?>
+<?php $_product = $block->getProduct() ?>
+
+<?php if ($block->displayProductStockStatus()) :?>
+    <?php if ($_product->isAvailable()) :?>
+        <div class="stock available" title="<?= $block->escapeHtmlAttr(__('Availability')) ?>">
+            <span><?= $block->escapeHtml(__('In stock')) ?></span>
+        </div>
+    <?php else :?>
+        <div class="stock unavailable" title="<?= $block->escapeHtmlAttr(__('Availability')) ?>">
+            <span><?= $block->escapeHtml(__('Out of stock')) ?></span>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
+<div class="percent-price">
+<?php
+$simplePrice = 0;
+$_savingPercent = 0;
+if($_product->getTypeId() == "simple") {
+   $simplePrice = $_product->getPrice();
+} else {
+   $_children = $_product->getTypeInstance()->getUsedProducts($_product);
+    foreach ($_children as $child){
+    $simplePrice = $child->getPrice();
+    break;
+   }
+}
+
+$_finalPrice =$_product->getFinalPrice();
+$_price = $simplePrice;
+if($_finalPrice < $_price) {
+   $_savingPercent = 100 - round(($_finalPrice / $_price)*100);
+   echo $_savingPercent . '% OFF';
+
+}
+?>
+</div>

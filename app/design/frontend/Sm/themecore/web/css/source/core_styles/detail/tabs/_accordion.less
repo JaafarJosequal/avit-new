@@ -1,0 +1,71 @@
+﻿.product.data.items.accordion-style {
+    .item.title.resp-accordion {
+        border:0;
+        display: block;
+        float: none !important;
+        width: 100%;
+        font-size: 1.8rem;
+        padding: 15px 20px !important;
+        cursor: pointer;
+        margin: 20px 0 0 !important;
+        height: unset !important;
+        line-height: unset !important;
+        position: relative;
+		background:rgba(0,0,0,0.05); 
+		.border-radius(0.5rem);
+        a {
+            background: none !important;
+            border: none !important;
+            height: auto !important;
+            padding: 0 !important;
+            line-height: unset !important;
+            font-size: inherit; 
+			text-transform: capitalize !important;
+			color:#000; 
+			&:after {
+				margin-top: -2px;
+				float: right;
+				 content: "\e980";
+				  display: inline-block;
+				  font-family: "icomoon" !important;
+				  speak: none;
+				  font-style: normal;
+				  font-weight: normal;
+				  font-variant: normal;
+				  text-transform: none;
+				  -webkit-font-smoothing: antialiased;
+				  -moz-osx-font-smoothing: grayscale;
+				  text-align: center;
+				  font-size:18px;
+			}
+
+        }
+		&.active a:after{
+			content:"";
+			width:12px;
+			height:1px;
+			background:#000;
+			display: inline-block;
+			position:relative;
+			top:12px;
+		} 
+        .resp-arrow {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            right: 10px;
+            top: 50%;
+            margin-top: -15px;
+            text-align: center;
+			
+        }
+    }
+    .resp-tab-content {
+        border: 1px solid #ebebeb !important;
+        float: none !important;
+        padding: 20px !important;
+        margin: 1.8rem 0  0 !important;
+    }
+
+}

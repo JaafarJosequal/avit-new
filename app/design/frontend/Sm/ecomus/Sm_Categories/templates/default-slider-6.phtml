@@ -1,0 +1,113 @@
+<?php
+/*------------------------------------------------------------------------
+# SM Categories - Version 3.2.0
+# Copyright (c) 2016 YouTech Company. All Rights Reserved.
+# @license - Copyrighted Commercial Software
+# Author: YouTech Company
+# Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+$list = $this->_getList();
+?>
+
+<div class="block block-categories">
+    <div class="block-title">
+        <strong><?php echo $this->_getConfig('title_module'); ?></strong>
+    </div>
+
+    <div class="block-content">
+        <?php if (!empty($list)) {
+            $_config           = $this->helper('Sm\Themecore\Helper\Data');
+            $enableLadyLoading = $_config->getAdvanced('lazyload_group/enable_ladyloading');
+            $mediaSrc          = $_config->getMediaUrl();
+
+            if ($enableLadyLoading) {
+                $imgClass = 'lazyload';
+            } else {
+                $imgClass = '';
+            }
+            ?>
+            <div class="row">
+                <div class="col-md-12"> 
+                <div class="cat-wrap"> 
+                <div class="owl-carousel owl-theme">
+                    <?php 
+                    $i = 0;
+                    foreach ($list as $item) { 
+                    $i++;
+                    ?>
+                        <div class="item <?php echo 'item'.$i?>">
+                            <div class="content-box">
+                                <?php if ($item['cat_image']) { ?>
+                                    <div class="image-cat">
+                                        <a href="<?php echo $item['url'] ?>" title="<?php echo $item['name'] ?>">
+                                            <img class="<?php echo $imgClass; ?>"
+                                                <?php if ($enableLadyLoading) { ?>
+                                                    src="<?php echo $mediaSrc . 'lazyloading/blank.png'; ?>"
+                                                    data-src="<?php echo $item['cat_image']; ?>"
+                                                    width="1" height="1"
+                                                <?php } else { ?>
+                                                    src="<?php echo $item['cat_image']; ?>"
+                                                <?php } ?>
+                                                 alt="<?php echo $item['name'] ?>"/>
+                                        </a>
+                                    </div>
+                                <?php } ?>
+
+                                <div class="cats-info">
+									<div class="cats-info-top">
+										<h2 class="cat-title" title="<?php echo $item['name']; ?>">
+											<a href="<?php echo $item['url'] ?>" >
+												<?php echo $item['name']; ?>												
+											</a>
+										</h2>
+										<span class="count"><?php echo $item['product_count'].' '.'Items'; ?></span>
+									
+										<div class="child-cat hidden">
+											<ul class="sub-cats">
+												<?php
+												if (isset($item['children_info']) && !empty($item['children_info'])) {
+													$children_cats = $item['children_info'];
+													foreach ($children_cats as $children) { ?>
+														<li class="child-title">
+															<a href="<?php echo $children['url'] ?>"
+															   title="<?php echo $children['name'] ?>">
+																<?php echo $children['name']; ?>
+																<span class="count">(<?php echo $children['product_count']; ?>)</span>
+															</a>
+														</li>
+														<?php
+													}
+												} ?>
+											</ul>                                        
+										</div>
+									</div>
+									<div class="cats-info-bottom">										
+										<a href="<?php echo $item['url'] ?>" class="cats-btn">
+											<?php echo 'Shop now'; ?>
+											<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.07692 10L0 8.92308L7.38462 1.53846H0.769231V0H10V9.23077H8.46154V2.61538L1.07692 10Z" fill="currentColor"></path></svg>
+										</a>									
+									</div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+                </div>
+                </div>              
+            </div>
+        <?php } else { ?>
+            <div class="message info empty">
+                <div><?php /* @escapeNotVerified */
+                    echo __('We can\'t find categories matching the selection.') ?></div>
+            </div>
+        <?php } ?>
+    </div>
+    <?php
+        if($this->_getConfig('link_href') != ""){
+    ?>
+    <a href="<?php echo $this->_getConfig('link_href'); ?>">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.07692 10L0 8.92308L7.38462 1.53846H0.769231V0H10V9.23077H8.46154V2.61538L1.07692 10Z" fill="currentColor"></path></svg>
+    </a>
+    <?php } ?>
+</div>

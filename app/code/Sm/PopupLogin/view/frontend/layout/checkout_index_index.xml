@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category Magentech
+ * @package Sm_PopupLogin
+ * @version 1.0.0
+ * @copyright Copyright (c) 2022 Magentech Company. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * @author Magentech Company <contact@sm.com>
+ * @link https://sm.com
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="checkout"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="sm.popup.login.default" remove="true"/>
+        <referenceBlock name="sm.popup.login.js" remove="true"/>
+    </body>
+</page>

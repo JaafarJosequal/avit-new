@@ -1,0 +1,102 @@
+<?php
+/*------------------------------------------------------------------------
+# SM Categories - Version 3.2.0
+# Copyright (c) 2016 YouTech Company. All Rights Reserved.
+# @license - Copyrighted Commercial Software
+# Author: YouTech Company
+# Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+$list = $this->_getList();
+$tag_id = rand();
+?>
+
+<div class="list-categories-mobile <?php echo $tag_id;?>">
+        <?php if (!empty($list)) {
+            $_config           = $this->helper('Sm\Themecore\Helper\Data');
+            $enableLadyLoading = $_config->getAdvanced('lazyload_group/enable_ladyloading');
+            $mediaSrc          = $_config->getMediaUrl();
+
+            if ($enableLadyLoading) {
+                $imgClass = 'lazyload';
+            } else {
+                $imgClass = '';
+            }
+            ?>
+            <div class="cat-wrap">
+                <?php foreach ($list as $item) { ?>
+					<?php if ($item['cat_image']) { ?>
+                    <div class="item">
+                        <div class="content-box">
+                                <div class="image-cat">
+                                    <a href="<?php echo $item['url'] ?>" title="<?php echo $item['name'] ?>">
+                                        <img src="<?php echo $item['cat_image']; ?>" alt="<?php echo $item['name'] ?>"/> 
+                                    </a>
+                                </div>
+                            <div class="child-cat">
+                                <div class="cat-title">
+                                    <a href="<?php echo $item['url'] ?>" title="<?php echo __($item['name']) ?>">
+                                       <span> <?php echo $item['name']; ?></span>	
+                                    </a>
+                                </div> 
+								<?php   if (isset($item['children_info']) && !empty($item['children_info'])) { ?>
+								<ul class="sub-cats">
+                                    <?php
+                                        $children_cats = $item['children_info'];
+                                        foreach ($children_cats as $children) { 
+										$catImg =  explode('/media/catalog/category/', $children['image']);
+										if($catImg[0] !="")
+											$catImgUrl = $mediaSrc.'catalog/category/'.$catImg[0];
+										else 
+											$catImgUrl = $mediaSrc.'catalog/category/'.$catImg[1]; 
+										?>
+                                            <li class="child-title item">
+												<div class="content-box">
+													<div class="image-cat">
+														<a href="<?php echo __($children['url']) ?>"
+														   title="<?php echo $children['name'] ?>">
+															  <img src="<?php echo $catImgUrl; ?>"
+															 alt="<?php echo $item['name'] ?>"/>
+														</a>
+													</div>
+												<div class="cat-title">
+													<a href="<?php echo __($children['url']) ?>"
+														   title="<?php echo $children['name'] ?>">
+															<?php echo __($children['name']); ?>
+													</a>
+													</div>
+											</div>
+												
+                                            </li>
+                                            <?php
+                                        }  
+									?>										
+                                </ul>
+								<?php } ?>
+                            </div>
+                        </div>
+                    </div>
+					<?php } ?>
+                <?php } ?>
+            </div>
+        <?php } else { ?>
+            <div class="message info empty">
+                <div><?php /* @escapeNotVerified */
+                    echo __('We can\'t find categories matching the selection.') ?></div>
+            </div>
+        <?php } ?>
+	  
+</div>
+<script type="text/javascript">
+        require([
+            'jquery'
+        ], function ($) {
+            $('.<?php echo $tag_id;?>.list-categories-mobile .cat-wrap .item .content-box > .child-cat').has('ul.sub-cats').append('<span class="touch-button-cat"><span>open</span></span>');
+            $('.<?php echo $tag_id;?>.list-categories-mobile .touch-button-cat').click(function () { 
+                $(this).prev().slideToggle(200);
+                $(this).toggleClass('active');
+                $(this).parent().toggleClass('parent-active');  
+            });
+        });
+</script>
+

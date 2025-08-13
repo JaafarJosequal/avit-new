@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="head.additional">
+            <block class="Sm\Ecomus\Block\Template" name="theme.config"/>
+        </referenceContainer>
+
+        <referenceBlock name="logo">
+            <arguments>
+                <argument name="logo_width" xsi:type="number">142</argument>
+                <argument name="logo_height" xsi:type="number">42</argument>
+            </arguments>
+        </referenceBlock>
+		<referenceContainer name="page.top">
+            <container name="title.breadcrumbs" label="Title Breadcrumbs" htmlTag="div" htmlClass="breadcrumbs-title"/>
+        </referenceContainer>
+
+        <referenceBlock name="top.links">
+            <block class="Magento\Customer\Block\Account\Customer" name="custom.links"
+                   template="Sm_Ecomus::html/custom-links.phtml"/>
+        </referenceBlock>
+
+        <referenceContainer name="page.wrapper">
+            <block class="Sm\Ecomus\Block\Header" name="theme_header"
+                   template="Sm_Ecomus::html/header.phtml" before="-">
+               
+				<block class="Magento\Customer\Block\Form\Login" name="customer_form_login_sticky"
+                   template="form/login_mobile.phtml">
+					<container name="form.additional.info" as="form_additional_info"/>
+				</block>
+           
+                <block class="Magento\Theme\Block\Html\Header" name="welcome-customer" as="welcome-customer"
+                       template="Sm_Ecomus::html/customer.phtml">
+                    <arguments>
+                        <argument name="show_part" xsi:type="string">welcome</argument>
+                    </arguments>
+                </block>
+
+                <block class="Magento\Theme\Block\Html\Header" name="name-customer" as="name-customer"
+                       template="Sm_Ecomus::html/name-customer.phtml">
+                    <arguments>
+                        <argument name="show_part" xsi:type="string">welcome</argument>
+                    </arguments>
+                </block>
+
+                <block class="Magento\Framework\View\Element\Html\Links" name="header.links">
+                    <arguments>
+                        <argument name="css_class" xsi:type="string">header links</argument>
+                    </arguments>
+                </block>
+
+                <block class="Magento\Wishlist\Block\Customer\Sidebar" name="wishlist_header" as="wishlist.header"
+                       template="Magento_Wishlist::wishlist-header.phtml"/>
+
+                <block class="Magento\Framework\View\Element\Template" name="top.search.mobile" as="topSearchMobile"
+                       template="Magento_Search::form.mini.mobile.phtml"/>
+                <block class="Magento\Store\Block\Switcher" name="store.settings.language"
+                       template="switch/languages.phtml">
+                    <arguments>
+                        <argument name="id_modifier" xsi:type="string">nav</argument>
+                    </arguments>
+                </block>
+              
+
+                <block class="Magento\Theme\Block\Html\Topmenu" name="nav.mobile" as="nav.mobile"
+                       template="Sm_Ecomus::html/mobile/nav-mobile.phtml"/>
+
+                <block class="Magento\Theme\Block\Html\Topmenu" name="vertical-css"
+                       template="Sm_Ecomus::html/menu-css/vertical-css.phtml"/>
+
+                <block class="Magento\Theme\Block\Html\Topmenu" name="horizontal-css"
+                       template="Sm_Ecomus::html/menu-css/horizontal-css.phtml"/>
+            </block>
+        </referenceContainer>
+
+        <move element="catalog.compare.link" destination="theme_header" before="-"/>
+        <move element="top.search" destination="theme_header"/>
+        <move element="minicart" destination="theme_header"/>
+        <move element="currency" destination="footer_block"/>
+        <move element="logo" destination="theme_header"/>
+        <move element="skip_to_content" destination="theme_header"/>
+		<move element="copyright" destination="footer_block"/>
+        
+		<move element="page.main.title" destination="title.breadcrumbs" before="-"/>
+        <move element="breadcrumbs" destination="title.breadcrumbs" after="page.main.title"/>
+
+        <referenceContainer name="catalog.topnav" remove="1"/>
+        <referenceContainer name="header.container" remove="1"/>
+        <referenceContainer name="header.panel" remove="1"/>
+        <referenceContainer name="header-wrapper" remove="1"/>
+        <referenceBlock name="header" remove="true"/>
+        <referenceBlock name="navigation.sections" remove="true"/>
+        <referenceBlock name="wishlist_sidebar" remove="true"/>
+        <referenceBlock name="sale.reorder.sidebar" remove="true"/>
+        <referenceContainer name="footer" remove="true"/>
+        <referenceBlock name="report.bugs" remove="true"/>
+		<referenceBlock name="catalog.compare.sidebar" remove="true"/>
+
+        <referenceContainer name="footer-container">
+            <block class="Magento\Framework\View\Element\Template" name="footer_block"
+                   template="Sm_Ecomus::html/footer.phtml">
+				 <block class="Magento\Store\Block\Switcher" name="store_language" as="store_language"
+                       template="switch/languages.phtml"/>   
+                <block class="Magento\Theme\Block\Html\Footer" name="copyright" template="html/copyright.phtml"/>
+				
+            </block>
+			
+        </referenceContainer>
+    </body>
+</page>

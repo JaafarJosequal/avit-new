@@ -1,0 +1,38 @@
+<?php 
+$data = $this->getRequests();
+?>
+
+<?php if(!empty($data)): ?>
+<table class="data-grid data-grid-draggable">
+    <thead>
+        <tr>
+            <th class="data-grid-th"><span><?php echo __('Field');?></span></th>
+            <th class="data-grid-th"><span><?php echo __('Content');?></span></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="data-row">
+            <td><?php echo __('Name');?></td>
+            <td><?php echo $data['name'];?></td>
+        </tr>
+        <tr class="data-row _odd-row">
+            <td><?php echo __('Phone');?></td>
+            <td><?php echo $data['telephone'];?></td>
+        </tr>
+        <tr class="data-row">
+            <td><?php echo __('Email');?></td>
+            <td><?php echo $data['email'];?></td>
+        </tr>
+        <tr class="data-row _odd-row">
+            <td><?php echo __('Product');?></td>
+            <td><?php echo $data['product'];?></td>
+        </tr>
+        <tr class="data-row">
+            <td><?php echo __('Request');?></td>
+            <td><?php echo $data['comment'];?></td>
+        </tr>
+    </tbody>
+</table>
+<?php else: ?>
+    <?php echo __('Has no data to show');?>
+<?php endif; ?>

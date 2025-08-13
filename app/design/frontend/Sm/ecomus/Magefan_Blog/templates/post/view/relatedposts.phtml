@@ -1,0 +1,50 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * Please visit Magefan.com for license details (https://magefan.com/end-user-license-agreement).
+ *
+ * Glory to Ukraine! Glory to the heroes!
+ */
+?>
+<?php
+/**
+ * Blog related posts template
+ *
+ * @var $block \Magefan\Blog\Block\Post\View\RelatedPosts
+ * @var $block \Magefan\Blog\Block\Catalog\Product\RelatedPosts
+ */
+?>
+<?php
+    $_postCollection = $block->getPostCollection();
+?>
+<?php if ($block->displayPosts()) { ?>
+    <?php $postCollection = $block->getPostCollection(); ?>
+    <?php if (count($postCollection)) { ?>
+    <div class="mfblog-related-posts-block block related">
+        <?php if (!$block->getHideTitle()) { ?>
+        <div class="block-title title">
+            <strong id="block-relatedposts-heading" role="heading" aria-level="2">
+                <?= $block->escapeHtml(__('Related Posts')) ?>
+            </strong>
+        </div>
+        <?php } ?>
+        <div class="block-content">
+            <?php foreach ($_postCollection as $_post) {
+				//var_dump($post); die;
+			?>
+			<?php
+                $_postUrl = $block->escapeUrl($_post->getPostUrl());
+                $_postName = $block->escapeHtml($_post->getTitle());
+            ?>
+                <div class="item">
+					
+                   <a class="post-item-link" title="<?= $_postName ?>" href="<?= $_postUrl ?>">
+                    <?= $_postName ?>
+                </a>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+    <?php } ?>
+<?php } ?>
+

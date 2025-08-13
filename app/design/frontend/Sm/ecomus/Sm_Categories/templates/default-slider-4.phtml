@@ -1,0 +1,112 @@
+<?php
+/*------------------------------------------------------------------------
+# SM Categories - Version 3.2.0
+# Copyright (c) 2016 YouTech Company. All Rights Reserved.
+# @license - Copyrighted Commercial Software
+# Author: YouTech Company
+# Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+$list = $this->_getList();
+?>
+
+<div class="block block-categories-4">
+    <div class="block-title hdt-flex hdt-align-center hdt-justify-between">
+        <strong><?php echo $this->_getConfig('title_module'); ?></strong>
+		
+		<?php
+			if($this->_getConfig('link_href') != ""){
+		?>
+		<a href="<?php echo $this->_getConfig('link_href'); ?>">
+			<span><?php echo __('View all categories');?></span>
+			<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none">
+				 <path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"></path>
+			</svg>
+		</a>
+		<?php } ?>	
+    </div>
+
+    <div class="block-content">
+        <?php if (!empty($list)) {
+            $_config           = $this->helper('Sm\Themecore\Helper\Data');
+            $enableLadyLoading = $_config->getAdvanced('lazyload_group/enable_ladyloading');
+            $mediaSrc          = $_config->getMediaUrl();
+
+            if ($enableLadyLoading) {
+                $imgClass = 'lazyload';
+            } else {
+                $imgClass = '';
+            }
+            ?>
+            <div class="row">
+				<div class="col-md-12"> 
+					<div class="cat-wrap"> 
+						<div class="owl-carousel owl-theme">
+							<?php 
+							$i = 0;
+							foreach ($list as $item) { 
+							$i++;
+							?>
+								<div class="item <?php echo 'item'.$i?>">
+									<div class="content-box">
+										<?php if ($item['cat_image']) { ?>
+											<div class="image-cat">
+												<a href="<?php echo $item['url'] ?>" title="<?php echo $item['name'] ?>">
+													<img class="<?php echo $imgClass; ?>"
+														<?php if ($enableLadyLoading) { ?>
+															src="<?php echo $mediaSrc . 'lazyloading/blank.png'; ?>"
+															data-src="<?php echo $item['cat_image']; ?>"
+															width="1" height="1"
+														<?php } else { ?>
+															src="<?php echo $item['cat_image']; ?>"
+														<?php } ?>
+														 alt="<?php echo $item['name'] ?>"/>
+												</a>
+											</div>
+										<?php } ?>
+
+										<div class="cats-info">
+											<h2 class="cat-title" title="<?php echo $item['name']; ?>">
+												<a href="<?php echo $item['url'] ?>" >
+													<?php echo $item['name']; ?>													
+												</a>
+											</h2>
+											<span class="count"><?php echo $item['product_count'].' '.'Items'; ?></span>
+											<div class="child-cat">
+												<ul class="sub-cats">
+													<?php
+													if (isset($item['children_info']) && !empty($item['children_info'])) {
+														$children_cats = $item['children_info'];
+														foreach ($children_cats as $children) { ?>
+															<li class="child-title">
+																<a href="<?php echo $children['url'] ?>"
+																   title="<?php echo $children['name'] ?>">
+																	<?php echo $children['name']; ?>
+																	<span class="count">(<?php echo $children['product_count']; ?>)</span>
+																</a>
+															</li>
+															<?php
+														}
+													} ?>
+												</ul>
+
+												
+											</div>
+										</div>
+									</div>
+								</div>
+							<?php } ?>
+						</div>
+					</div>
+				</div>
+            </div>
+        <?php } else { ?>
+            <div class="message info empty">
+                <div><?php /* @escapeNotVerified */
+                    echo __('We can\'t find categories matching the selection.') ?></div>
+            </div>
+        <?php } ?>
+    </div>
+</div>
+
+

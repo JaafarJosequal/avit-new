@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Interfaces to Implementations -->
+    <preference for="Josequal\APIMobile\Api\Data\SignUpResponseInterface" type="Josequal\APIMobile\Model\Data\SignUpResponse"/>
+    <preference for="Josequal\APIMobile\Api\Data\ApiResponseInterface" type="Josequal\APIMobile\Model\Data\ApiResponse"/>
+    <preference for="Josequal\APIMobile\Api\Data\AuthResponseInterface" type="Josequal\APIMobile\Model\Data\AuthResponse"/>
+    <preference for="Josequal\APIMobile\Api\Data\ProfileResponseInterface" type="Josequal\APIMobile\Model\Data\ProfileResponse"/>
+    <preference for="Josequal\APIMobile\Api\Data\PasswordResponseInterface" type="Josequal\APIMobile\Model\Data\PasswordResponse"/>
+
+    <preference for="Josequal\APIMobile\Api\Data\UserDataInterface" type="Josequal\APIMobile\Model\Data\UserData"/>
+	    <preference for="Josequal\APIMobile\Api\Data\CustomerLoginDataInterface" type="Josequal\APIMobile\Model\Data\CustomerLoginData"/>
+
+    <!-- Factory Type Definitions -->
+
+    <type name="Josequal\APIMobile\Api\Data\UserDataInterfaceFactory">
+        <arguments>
+            <argument name="objectManager" xsi:type="object">Magento\Framework\ObjectManagerInterface</argument>
+            <argument name="instanceName" xsi:type="string">Josequal\APIMobile\Api\Data\UserDataInterface</argument>
+        </arguments>
+    </type>
+
+
+    <type name="Josequal\APIMobile\Api\Data\ProfileResponseInterfaceFactory">
+        <arguments>
+            <argument name="objectManager" xsi:type="object">Magento\Framework\ObjectManagerInterface</argument>
+            <argument name="instanceName" xsi:type="string">Josequal\APIMobile\Api\Data\ProfileResponseInterface</argument>
+        </arguments>
+    </type>
+
+
+
+
+
+    <type name="Josequal\APIMobile\Api\Data\AuthResponseInterfaceFactory">
+        <arguments>
+            <argument name="objectManager" xsi:type="object">Magento\Framework\ObjectManagerInterface</argument>
+            <argument name="instanceName" xsi:type="string">Josequal\APIMobile\Api\Data\AuthResponseInterface</argument>
+        </arguments>
+    </type>
+
+    <type name="Josequal\APIMobile\Api\Data\CustomerLoginDataInterfaceFactory">
+        <arguments>
+            <argument name="objectManager" xsi:type="object">Magento\Framework\ObjectManagerInterface</argument>
+            <argument name="instanceName" xsi:type="string">Josequal\APIMobile\Api\Data\CustomerLoginDataInterface</argument>
+        </arguments>
+    </type>
+
+    <preference for="Josequal\APIMobile\Api\V1\AuthenticationInterface" type="Josequal\APIMobile\Model\Authentication"/>
+    <preference for="Josequal\APIMobile\Api\V1\ProfileInterface" type="Josequal\APIMobile\Model\Profile"/>
+    <preference for="Josequal\APIMobile\Api\V1\PasswordInterface" type="Josequal\APIMobile\Model\V1\Password"/>
+
+    <!-- Dependency Injection Configuration -->
+    <type name="Josequal\APIMobile\Service\ProfileService">
+        <arguments>
+            <argument name="customerRepository" xsi:type="object">Magento\Customer\Api\CustomerRepositoryInterface</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session</argument>
+            <argument name="tokenFactory" xsi:type="object">Magento\Integration\Model\Oauth\TokenFactory</argument>
+            <argument name="request" xsi:type="object">Magento\Framework\Webapi\Rest\Request</argument>
+            <argument name="responseFactory" xsi:type="object">Josequal\APIMobile\Api\Data\ProfileResponseInterfaceFactory</argument>
+            <argument name="customerDataFactory" xsi:type="object">Josequal\APIMobile\Api\Data\CustomerLoginDataInterfaceFactory</argument>
+            <argument name="customerFactory" xsi:type="object">Magento\Customer\Model\CustomerFactory</argument>
+            <argument name="addressRepository" xsi:type="object">Magento\Customer\Api\AddressRepositoryInterface</argument>
+        </arguments>
+    </type>
+
+
+
+
+
+
+
+
+    <type name="Josequal\APIMobile\Service\AuthService">
+        <arguments>
+            <argument name="customerFactory" xsi:type="object">Magento\Customer\Model\CustomerFactory</argument>
+            <argument name="customerRepository" xsi:type="object">Magento\Customer\Api\CustomerRepositoryInterface</argument>
+            <argument name="accountManagement" xsi:type="object">Magento\Customer\Api\AccountManagementInterface</argument>
+            <argument name="customerDataFactory" xsi:type="object">Magento\Customer\Api\Data\CustomerInterfaceFactory</argument>
+            <argument name="encryptor" xsi:type="object">Magento\Framework\Encryption\EncryptorInterface</argument>
+            <argument name="session" xsi:type="object">Magento\Customer\Model\Session</argument>
+            <argument name="customerTokenService" xsi:type="object">Magento\Integration\Api\CustomerTokenServiceInterface</argument>
+            <argument name="addressRepository" xsi:type="object">Magento\Customer\Api\AddressRepositoryInterface</argument>
+            <argument name="addressFactory" xsi:type="object">Magento\Customer\Api\Data\AddressInterfaceFactory</argument>
+            <argument name="attributeValueFactory" xsi:type="object">Magento\Framework\Api\AttributeValueFactory</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Customer\Api\Data\CustomerExtensionInterface">
+        <plugin name="add_custom_attributes_to_customer" type="Josequal\APIMobile\Plugin\CustomerExtension" />
+    </type>
+</config>

@@ -1,0 +1,13 @@
+"Sign In","Login"
+"Compare Products","Compare"
+"Create an Account","Register"
+"%1 items","%1",module,Magento_Wishlist
+"1 item","1",module,Magento_Wishlist
+"Cart Subtotal","Cart subtotal",module,Magento_Checkout
+"View and Edit Cart","View and edit cart",module,Magento_Checkout
+"Shop By","Filter"
+"The coupon code ""%1"" is not valid.","The discount code ""%1"" is not valid."
+"The coupon code isn't valid. Verify the code and try again.","The discount code isn't valid. Verify the code and try again." 
+"per page","item per page"
+"No Result","No Results"
+

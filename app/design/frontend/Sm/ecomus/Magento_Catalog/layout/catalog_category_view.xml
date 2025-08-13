@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <move element="category.image" destination="content" before="category.products" />
+		<referenceContainer name="main"> 
+			 <block class="Magento\Catalog\Block\Product\View" name="btn-sidebar-category" template="Magento_Catalog::product/view/btn-sidebar-category.phtml" />
+		</referenceContainer> 
+		<referenceBlock name="catalog.compare.sidebar" remove="true"/>
+		  <referenceContainer name="sidebar.main">
+            <block class="Magento\Cms\Block\Block" name="title-sidebar" before="-">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">title-sidebar</argument>
+                </arguments>
+            </block>
+		   <block class="Magento\Cms\Block\Block" name="product-sidebar">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">product-sidebar</argument>
+                </arguments>
+            </block>
+            <block class="Magento\Cms\Block\Block" name="banner-sidebar" after="-">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">banner-sidebar</argument>
+                </arguments>
+            </block>
+			<block class="Magento\Cms\Block\Block" name="policy-sidebar">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">policy-sidebar</argument>
+                </arguments>
+            </block>
+			<block class="Magento\Cms\Block\Block" name="gallery-sidebar">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">gallery-sidebar</argument>
+                </arguments>
+            </block>
+			
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,20 @@
+<?php 
+$_product    = $block->getProduct();
+$productid = $_product->getId();
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$product = $objectManager->get('Magento\Catalog\Api\ProductRepositoryInterface')->getById($productid);
+$store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
+ 
+$productImageUrl = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getData('thumbnail');
+$productUrl  = $product->getProductUrl();
+
+
+?>
+<div class="sticky-product-info">
+	<div class="product-image">
+	<img src="<?php echo $productImageUrl;  ?>"/>  
+	</div>
+	<h2 class="product-title">
+	<?php echo $_product->getName(); ?> 
+	</h2>
+</div>

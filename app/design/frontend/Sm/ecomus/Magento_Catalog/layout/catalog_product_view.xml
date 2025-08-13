@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <move element="page.main.title" destination="product.info.main" before="-"/>
+        <move element="catalog.compare.sidebar" destination="sidebar.additional" after="-"/>
+		<move element="countdown-product" destination="product.info.main" before="product.price.tier"/>  
+		<move element="bundle.options.container" destination="content" after="product.info.main"/>  
+		<move element="product.info.overview" destination="product.info.main" before="product.price.tier"/>
+		<move element="extrahint" destination="product.info.addtocart" after="-"/>
+
+
+        <referenceBlock name="product.info.upsell" remove="true"/>
+		<referenceBlock name="catalog.product.related" remove="true"/>
+		<referenceBlock name="catalog.compare.sidebar" remove="true"/>
+		<referenceContainer name="main"> 
+			 <block class="Magento\Catalog\Block\Product\View" name="btn-sidebar" template="Magento_Catalog::product/view/btn-sidebar.phtml" />
+		</referenceContainer> 
+       <referenceContainer name="sidebar.main">
+		   <block class="Magento\Cms\Block\Block" name="title-sidebar" before="-">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">title-sidebar</argument>
+                </arguments>
+            </block>
+		    <block class="Magento\Cms\Block\Block" name="policy-sidebar">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">policy-sidebar</argument>
+                </arguments>
+            </block>
+            <block class="Magento\Cms\Block\Block" name="product-sidebar">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">product-sidebar</argument>
+                </arguments>
+            </block>
+			<block class="Magento\Cms\Block\Block" name="gallery-sidebar">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">gallery-sidebar</argument>
+                </arguments>
+            </block>
+			
+        </referenceContainer>
+
+		
+		
+        <referenceContainer name="product.info.main">
+			<block class="Magento\Catalog\Block\Product\View" name="countdown-product" template="Magento_Catalog::product/view/countdown.phtml" />
+			<block class="Magento\Catalog\Block\Product\View" name="extra-link" template="Magento_Catalog::product/view/extra-link.phtml"  before="delivery-return"/>
+            <block class="Magento\Cms\Block\Block" name="delivery-return" after="-">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">delivery-return</argument>
+                </arguments>
+            </block>
+			
+        </referenceContainer>
+		
+		 <referenceBlock name="product.info.details">
+           <block class="Magento\Catalog\Block\Product\View" name="custom.tab"  as ="custom_tab" template="Magento_Catalog::product/view/custom_tabs.phtml" group="detailed_info" >
+               <arguments>
+                   <argument translate="true" name="title" xsi:type="string">Return Policies</argument> 
+               </arguments>
+           </block>
+		   
+       </referenceBlock>
+        <referenceContainer name="page.bottom.container">
+            <container name="div.container.detail" htmlTag="div" htmlClass="container">
+                <block class="Magento\Catalog\Block\Product\ProductList\Related" name="catalog.product.related.theme"
+                       template="Magento_Catalog::product/list/items-slider.phtml"
+                       ifconfig="themecore/product_detail/related_upsell_group/show_related">
+                    <arguments>
+                        <argument name="type" xsi:type="string">related</argument>
+                    </arguments>
+                    <block class="Magento\Catalog\Block\Product\ProductList\Item\Container" name="related.product.addto"
+                           as="addto">
+                        <block class="Magento\Catalog\Block\Product\ProductList\Item\AddTo\Compare"
+                               name="related.product.addto.compare" as="compare"
+                               template="Magento_Catalog::product/list/addto/compare.phtml"/>
+                    </block>
+                </block>
+                <block class="Magento\Catalog\Block\Product\ProductList\Upsell" name="product.info.upsell.theme"
+                       template="Magento_Catalog::product/list/items-slider.phtml"
+                       ifconfig="themecore/product_detail/related_upsell_group/show_upsell">
+                    <arguments>
+                        <argument name="type" xsi:type="string">upsell</argument>
+                    </arguments>
+                    <block class="Magento\Catalog\Block\Product\ProductList\Item\Container" name="upsell.product.addto"
+                           as="addto">
+                        <block class="Magento\Catalog\Block\Product\ProductList\Item\AddTo\Compare"
+                               name="upsell.product.addto.compare" as="compare"
+                               template="Magento_Catalog::product/list/addto/compare.phtml"/>
+                    </block>
+                </block>
+            </container>
+        </referenceContainer>
+    </body>
+</page>

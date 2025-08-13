@@ -1,0 +1,205 @@
+@media (min-width: 1150px) {
+   .home-page-4  .hdt-container {
+        padding: 0 4rem;
+		.container{
+			width:100% !important;
+		}
+    }
+}
+@media (min-width: 1200px) and (max-width: 1441px) {
+	.home-page-4 {
+		.slidershow .slidershow-type-2 .owl-dots{
+			bottom:3.6rem;
+			left: 0;
+			padding-inline-start: 5rem;
+			padding-inline-end: 5rem; 
+		}
+		.slidershow .slidershow-type-2 .owl-stage-outer .owl-item .item .caption-panel{
+			left:0px;
+			padding-inline-start: 5rem;
+			padding-inline-end: 5rem;
+		}
+	}
+}
+@media (min-width: 992px) and (max-width: 1199px){
+	.id4-block-categories .owl-theme .owl-nav [class*='owl-']{
+		margin-top: 10px !important;
+	}
+}
+@media  (max-width: 1199px){
+	.home-page-4 {
+		.slidershow .slidershow-type-2 .owl-dots{
+			bottom:3.6rem;
+			left: 0;
+			padding-inline-start: 15px;
+			padding-inline-end: 15px; 
+		}
+		.slidershow .slidershow-type-2 .owl-stage-outer .owl-item .item .caption-panel{
+			left:0px;
+			padding-inline-start: 15px;
+			padding-inline-end: 15px;
+		}
+		.block .owl-theme .owl-dots .owl-dot, 
+		.block-home .owl-theme .owl-dots .owl-dot{
+			width: 2rem;
+			height: 2rem;
+			.border-radius(50%);
+			border:1px solid transparent !important;
+			text-align: center !important;
+			margin: 0 2px; 
+			span{
+				width: 0.6rem;
+				height: 0.6rem;
+				background:rgba(0,0,0,0.2);
+				.border-radius(50%);
+				margin: 0 auto;
+			}
+			&:hover, &.active {
+				border-color:#000 !important;  
+				span {
+					background-color:#000 !important; 
+					width: 0.4rem;
+					height: 0.4rem;
+				}
+			}
+			
+		}
+	}
+}
+@media  (max-width: 1024px){
+	.home-page-4 {
+		.slidershow .slidershow-type-2 .owl-stage-outer .owl-item .item .caption-panel {
+			max-width:50%;
+			p.slide-text{
+				font-size: 4rem;
+				line-height: 4rem;
+			}
+		}
+	}
+}
+@media  (max-width: 991px){
+	.home-page-4 .slidershow .slidershow-type-2 {
+		.owl-stage-outer .owl-item .item .caption-panel p.slide-subtitle{
+		    margin-bottom: 1.5rem;
+		}
+		.owl-dots{
+			bottom:2rem;
+		}
+	}
+	.home-page-4 .sm-listing-tabs {
+		.ltabs-wrap .ltabs-tabs-container{
+			margin-bottom: 45px;
+			.products.wrapper.products-grid .product-items .product-item{
+			    margin-bottom: 15px;
+			}
+		}
+		.products.wrapper.products-grid .product-items .product-item{
+			margin-bottom:15px;
+		}
+	}
+	.block-map-info {
+		.hdt-map {
+			display: contents;
+			img{
+				grid-area: full-r-start / full-c-start / full-r-end / full-c-end;
+				height: 450px;
+				min-height: 100%;
+				max-height: 100%;
+				min-width: 100%;
+				overflow-wrap: anywhere;
+				object-fit: cover;
+				object-position: center;
+				border-radius: inherit;
+				-webkit-user-select: none;
+				user-select: none;
+				pointer-events: none;
+			}
+		}
+		.hdt-block-info {
+			padding:2rem;
+			.hdt-rte{
+				margin-bottom: 20px;
+			}
+		}
+	}
+	.id4-block-categories .cat-wrap .item .image-cat img{
+		max-height: inherit;
+	}
+}
+@media (max-width: 767px){
+.home-page-4 .sm-listing-tabs .ltabs-wrap .ltabs-tabs-container .ltabs-tabs {
+		li{
+			text-align: left;
+			font-size: 1.6rem;
+			&.tab-sel:after {
+				display:none;
+			}
+		}
+	}
+}
+@media (max-width: 575px){
+	.home-page-4{
+		.slidershow .slidershow-type-2{
+			.owl-stage-outer .owl-item .item {
+				a {					
+					img {						
+						overflow-wrap: anywhere;
+						object-fit: cover;
+						object-position: center;
+						border-radius: inherit;
+						-webkit-user-select: none;
+						user-select: none;
+						pointer-events: none;
+						min-height:300px;
+					}
+				}
+			}
+			.owl-stage-outer .owl-item .item .caption-panel {
+				p.slide-text{
+					font-size: 2.6rem;
+					line-height: 3rem;
+				}
+				p.slide-subtitle{
+					display:none;
+				}
+				a.slide-btn {
+					display:inline-block;
+					padding:12px;
+					font-size:12px;
+				}
+			}
+		}
+		.products.wrapper.products-grid .product-items {
+			margin-left: -8px;
+			margin-right: -8px;
+			.product-item{
+				padding: 0 8px;
+				margin-bottom: 15px;
+			}
+		}
+	}
+	.id4-block-categories .block-title{
+		flex-wrap: wrap;
+        text-align: center;
+        justify-content: center;
+        gap: 2px;
+        flex-direction: column;
+		strong {
+			font-size: 2.2rem !important;
+		}
+	}
+	.home-page-4 .sm-listing-tabs .ltabs-wrap .ltabs-tabs-container{
+		 margin-bottom: 30px;
+	}
+	.block-map-info .hdt-block-info{
+		padding: 2rem;
+		min-width: 100%;
+		position: static;
+		text-align: center;
+		.transform(translateY(0));
+	}
+	.home-page-4 .masonry-collections .hdt-collection-inner{
+		margin-bottom:30px;
+	}
+}
+

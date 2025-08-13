@@ -1,0 +1,114 @@
+<?php
+/*------------------------------------------------------------------------
+# SM Form - Version 1.0.0
+# Copyright (c) 2024 YouTech Company. All Rights Reserved.
+# @license - Copyrighted Commercial Software
+# Author: YouTech Company
+# Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+if($this->isModuleEnable())
+{
+$action_url = $this->getFormAction(); 
+$current_url = $this->getCurrentUrl();
+?>
+<form id="sm-form" class="form-horizontal" method="post" enctype="multipart/form-data" action="<?php echo $action_url; ?>">
+  
+    <div class="message-success success message cform-success cform-mess"><div><?php echo __('You sent the request successfull');?></div></div>
+    <div class="message-error error message cform-error cform-mess"><div><?php echo __('You sent the request not successfull');?></div></div>
+  <!-- <div class="message-success success message cform-success-mail cform-mess"><div><?php echo __('Sent mail successfull');?></div></div>
+    <div class="message-error error message cform-error-mail cform-mess"><div><?php echo __('Unable to send mail. Please try again later.');?></div></div>
+  -->
+  <fieldset class="fieldset">
+        <div class="field name">
+            <label class="label" for="name"><span><?= $block->escapeHtml(__('Name')) ?></span></label>
+            <div class="control">
+                <input name="name" id="name" class="input-text" type="text" />
+            </div>
+        </div>
+        <div class="field email required">
+            <label class="label" for="email"><span><?= $block->escapeHtml(__('Email')) ?></span></label>
+            <div class="control">
+                <input name="email" id="email1" class="input-text" type="email" data-validate="{required:true, 'validate-email':true}"/>
+            </div>
+        </div>
+        <div class="field telephone required">
+            <label class="label" for="telephone"><span><?= $block->escapeHtml(__('Phone Number')) ?></span></label>
+            <div class="control">
+                <input name="telephone" id="telephone" class="input-text" type="text" data-validate="{required:true, 'validate-number':true}"/>
+            </div>
+        </div>
+
+        <input type="hidden" name="product" id="product" class="input-text" type="text" value="<?php echo $current_url;?>"/>
+<!--
+        <div class="field quantity">
+            <label class="label" for="quantity"><span><?= $block->escapeHtml(__('Quantity')) ?></span></label>
+            <div class="control">
+                <input name="quantity" id="quantity" class="input-text" type="text" />
+            </div>
+        </div>-->
+        <div class="field comment">
+            <label class="label" for="comment"><span><?= $block->escapeHtml(__('Comment')) ?></span></label>
+            <div class="control">
+                <textarea name="comment" id="comment" class="input-text" cols="5" rows="2" ></textarea>
+            </div>
+        </div>
+
+
+        <?= $block->getChildHtml('form.additional.info') ?>
+    </fieldset>
+    <div class="actions-toolbar">
+        <div class="primary">
+            <input type="hidden" name="hideit" id="hideit" value="" />
+            <button type="submit" id="add" title="" class="action submit primary">
+                <span><?= $block->escapeHtml(__('Send Request')) ?></span>
+            </button>
+        </div>
+    </div>
+</form>
+<script>
+    require(['jquery'],function($){
+        $(document).ready(function(){
+            $("#add").click(function(){
+                if ( $('#sm-form').validation() && $('#sm-form').validation('isValid') === true) {
+                    var customurl = "<?php echo $action_url; ?>";
+                    $.ajax({
+                        url: customurl,
+                        type: "POST",
+                        data: $(this).closest('form').serialize(),
+                        dataType: "json",
+                        success: function(result){
+                            if(result.status == 'success'){
+                                $('.cform-success').show();
+                                $('.cform-error').hide();
+                            } else {
+                                $('.cform-success').hide();
+                                $('.cform-error').show();
+                            }
+
+                            if(result.sendmail == 'success'){
+                                $('.cform-success-mail').show();
+                                $('.cform-error-mail').hide();
+                            } else {
+                                $('.cform-success-mail').hide();
+                                $('.cform-error-mail').show();
+                            }
+                            //console.log(result.status);
+
+                        }
+                    });
+                    $('#sm-form')[0].reset(); 
+                }
+                return false;
+            });
+        });
+    }); 
+</script>
+<script type="text/x-magento-init">
+    {
+        "#sm-form": {
+            "validation": {}
+        }
+    }
+</script>
+<?php } ?>

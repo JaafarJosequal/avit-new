@@ -1,0 +1,259 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var $block \Magento\Checkout\Block\Cart\Sidebar */
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$priceHelper   = $objectManager->create('Magento\Framework\Pricing\Helper\Data');
+$value         = 0;
+$priceEmpty    = $priceHelper->currency($value, true, false);
+?>
+
+<div data-block="minicart" class="minicart-wrapper">
+    <a class="action showcart" href="<?= /* @escapeNotVerified */
+    $block->getShoppingCartUrl() ?>"
+       data-bind="scope: 'minicart_content'">
+        <span class="text"><?= /* @escapeNotVerified */
+            __('Shopping Cart') ?></span>
+        <span class="text-min-cart"><?= /* @escapeNotVerified */
+            __('My Cart') ?></span>
+        <span class="counter qty empty"
+              data-bind="css: { empty: !!getCartParam('summary_count') == false }, blockLoader: isLoading">
+			  
+			<!-- ko if: getCartParam('summary_count') -->
+            <span class="counter-number"><!-- ko text: getCartParam('summary_count') --><!-- /ko --></span>
+            <!-- /ko -->
+
+            <!-- ko ifnot: getCartParam('summary_count') -->
+				<span class="counter-number">0</span>
+            <!-- /ko -->
+
+            <span class="counter-label">
+                <!-- ko if: getCartParam('summary_count') -->
+                <!-- ko text: getCartParam('summary_count') --><!-- /ko -->
+                <!-- ko i18n: 'items' --><!-- /ko -->
+                <!-- /ko -->
+
+                <!-- ko ifnot: getCartParam('summary_count') -->
+                <!-- ko i18n: '0' --><!-- /ko -->
+                <!-- ko i18n: 'item' --><!-- /ko -->
+                <!-- /ko -->
+            </span>
+
+            <!-- ko if: getCartParam('summary_count') -->
+            <span class="price-minicart">
+                <!-- ko foreach: getRegion('subtotalContainer') -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+                <!-- /ko -->
+            </span>
+                <!-- /ko -->
+
+                <!-- ko ifnot: getCartParam('summary_count') -->
+            <span class="price-minicart">
+                <div class="subtotal">
+                    <div class="amount price-container">
+                        <span class="price-wrapper">
+                            <span class="price"><?php echo $priceEmpty; ?></span>
+                        </span>
+                    </div>
+                </div>
+            </span>
+                <!-- /ko -->
+        </span>
+
+
+    </a>
+    <?php if ($block->getIsNeedToDisplaySideBar()): ?>
+        <div class="block block-minicart"
+             data-role="dropdownDialog"
+             data-mage-init='{"dropdownDialog":{
+                "appendTo":"[data-block=minicart]",
+                "triggerTarget":".showcart",
+                "timeout": "2000",
+                "closeOnMouseLeave": false,
+                "closeOnEscape": true,
+                "triggerClass":"active",
+                "parentClass":"active",
+                "buttons":[]}}'>
+            <div id="minicart-content-wrapper" data-bind="scope: 'minicart_content'">
+                <!-- ko template: getTemplate() --><!-- /ko -->
+				<?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('product-list-cart')->toHtml();?> 
+				
+			</div>
+            <?= $block->getChildHtml('minicart.addons') ?>
+			
+        </div>
+    <?php else: ?>
+        <script>
+            require(['jquery'], function ($) {
+                $('a.action.showcart').click(function () {
+                    $(document.body).trigger('processStart');
+                });
+            });
+        </script>
+    <?php endif ?>
+    <script>
+        window.checkout = <?= /* @escapeNotVerified */ $block->getSerializedConfig() ?>;
+    </script>
+    <script type="text/x-magento-init">
+    {
+        "[data-block='minicart']": {
+            "Magento_Ui/js/core/app": <?= /* @escapeNotVerified */
+        $block->getJsLayout() ?>
+        },
+        "*": {
+            "Magento_Ui/js/block-loader": "<?= /* @escapeNotVerified */
+        $block->getViewFileUrl('images/loader-1.gif') ?>"
+        }
+    }
+
+
+    </script>
+	
+<div class="minicart-overlay"></div>	
+</div>
+<script>
+    require(['jquery'], function ($) {
+        
+        var check_status_opened = false;
+
+        const moveSliderCart = setInterval(moveSliderCartAfterPro, 500);
+
+        function moveSliderCartAfterPro() {
+            if($('#mini-cart').length){
+                var mini_cart = $('#mini-cart').parent();
+                var slider_cart = $( '#slider_minicart' ).parent();
+                slider_cart.insertAfter(mini_cart);
+                clearInterval(moveSliderCart);
+            }
+        }
+        
+        $('a.action.showcart').click(function () {
+            
+            var slider_cart = $( '#slider_minicart' ).parent();
+            
+            if( $('#minicart-content-wrapper').find('#slider_minicart').length && !$('#minicart-content-wrapper .block-content').find('#slider_minicart').length ){    
+                const moveSliderCartAfterAdd = setInterval(function(){
+                    var mini_cart = $('#mini-cart').parent();
+                    if(mini_cart.length){
+                        clearInterval(moveSliderCartAfterAdd);
+                        slider_cart.insertAfter(mini_cart);
+                    } 
+                }, 500);
+            }
+            
+            if( !check_status_opened ){
+                check_status_opened = true;
+                var owlSliderMnicart = $( '#slider_minicart' ).parent();
+                var dotsMobile = owlSliderMnicart.data('mobile-dots') == undefined ? false : owlSliderMnicart.data('mobile-dots');
+                var marginMobile = owlSliderMnicart.data('mobile-margin') == undefined ? 30 : owlSliderMnicart.data('mobile-margin');
+                if (dotsMobile && marginMobile) {
+                    
+                     $('#mini_cart_carousel').addClass('owl-carousel');
+                     $('#mini_cart_carousel').owlCarousel({
+                        autoplay: owlSliderMnicart.data('autoplay') == undefined ? false : owlSliderMnicart.data('autoplay'),
+                        autoplayHoverPause: owlSliderMnicart.data('autoplayhoverpause') == undefined ? false : owlSliderMnicart.data('autoplayhoverpause'),
+                        loop: owlSliderMnicart.data('loop') == undefined ? false : owlSliderMnicart.data('loop'),
+                        center: owlSliderMnicart.data('center') == undefined ? false : owlSliderMnicart.data('center'),
+                        margin: owlSliderMnicart.data('margin') == undefined ? 0 : owlSliderMnicart.data('margin'),
+                        stagePadding: owlSliderMnicart.data('stagepadding') == undefined ? 0 : owlSliderMnicart.data('stagepadding'),
+                        nav: owlSliderMnicart.data('nav') == undefined ? false : owlSliderMnicart.data('nav'),
+                        dots: owlSliderMnicart.data('dots') == undefined ? false : owlSliderMnicart.data('dots'),
+                        mouseDrag: owlSliderMnicart.data('mousedrag') == undefined ? false : owlSliderMnicart.data('mousedrag'),
+                        touchDrag: owlSliderMnicart.data('touchdrag') == undefined ? false : owlSliderMnicart.data('touchdrag'),
+
+                        responsive: {
+                            0: {
+                                items: owlSliderMnicart.data('screen0') == undefined ? 1 : owlSliderMnicart.data('screen0'),
+                                margin:owlSliderMnicart.data('mobile-margin') == undefined ? 30 : owlSliderMnicart.data('mobile-margin'),
+                                nav: false,
+                                dots: true
+                            },
+                            481: {
+                                items: owlSliderMnicart.data('screen481') == undefined ? 1 : owlSliderMnicart.data('screen481'),
+                                margin:owlSliderMnicart.data('mobile-margin') == undefined ? 30 : owlSliderMnicart.data('mobile-margin'),
+                                nav: false,
+                                dots: true
+                            },
+                            768: {
+                                items: owlSliderMnicart.data('screen768') == undefined ? 1 : owlSliderMnicart.data('screen768'),
+                                margin:owlSliderMnicart.data('mobile-margin') == undefined ? 30 : owlSliderMnicart.data('mobile-margin'),
+                                nav: false,
+                                dots: true
+                            },
+                            992: {
+                                items: owlSliderMnicart.data('screen992') == undefined ? 1 : owlSliderMnicart.data('screen992'),
+                                margin:owlSliderMnicart.data('mobile-margin') == undefined ? 30 : owlSliderMnicart.data('mobile-margin'),
+                                nav: false,
+                                dots: true
+                            },
+                            1200: {
+                                items: owlSliderMnicart.data('screen1200') == undefined ? 1 : owlSliderMnicart.data('screen1200')
+                            },
+                            1441: {
+                                items: owlSliderMnicart.data('screen1441') == undefined ? 1 : owlSliderMnicart.data('screen1441')
+                            },
+                            1681: {
+                                items: owlSliderMnicart.data('screen1681') == undefined ? 1 : owlSliderMnicart.data('screen1681')
+                            },
+                            1920: {
+                                items: owlSliderMnicart.data('screen1920') == undefined ? 1 : owlSliderMnicart.data('screen1920')
+                            },
+                        }
+                    })
+                } else {
+                    $('#mini_cart_carousel').addClass('owl-carousel');
+                    $('#mini_cart_carousel').owlCarousel({
+                        autoplay: owlSliderMnicart.data('autoplay') == undefined ? false : owlSliderMnicart.data('autoplay'),
+                        autoplayHoverPause: owlSliderMnicart.data('autoplayhoverpause') == undefined ? false : owlSliderMnicart.data('autoplayhoverpause'),
+                        loop: owlSliderMnicart.data('loop') == undefined ? false : owlSliderMnicart.data('loop'),
+                        center: owlSliderMnicart.data('center') == undefined ? false : owlSliderMnicart.data('center'),
+                        margin: owlSliderMnicart.data('margin') == undefined ? 0 : owlSliderMnicart.data('margin'),
+                        stagePadding: owlSliderMnicart.data('stagepadding') == undefined ? 0 : owlSliderMnicart.data('stagepadding'),
+                        nav: owlSliderMnicart.data('nav') == undefined ? false : owlSliderMnicart.data('nav'),
+                        dots: owlSliderMnicart.data('dots') == undefined ? false : owlSliderMnicart.data('dots'),
+                        mouseDrag: owlSliderMnicart.data('mousedrag') == undefined ? false : owlSliderMnicart.data('mousedrag'),
+                        touchDrag: owlSliderMnicart.data('touchdrag') == undefined ? false : owlSliderMnicart.data('touchdrag'),
+
+                        responsive: {
+                            0: {
+                                items: owlSliderMnicart.data('screen0') == undefined ? 1 : owlSliderMnicart.data('screen0')
+                            },
+                            481: {
+                                items: owlSliderMnicart.data('screen481') == undefined ? 1 : owlSliderMnicart.data('screen481')
+                            },
+                            768: {
+                                items: owlSliderMnicart.data('screen768') == undefined ? 1 : owlSliderMnicart.data('screen768')
+                            },
+                            992: {
+                                items: owlSliderMnicart.data('screen992') == undefined ? 1 : owlSliderMnicart.data('screen992')
+                            },
+                            1200: {
+                                items: owlSliderMnicart.data('screen1200') == undefined ? 1 : owlSliderMnicart.data('screen1200')
+                            },
+                            1441: {
+                                items: owlSliderMnicart.data('screen1441') == undefined ? 1 : owlSliderMnicart.data('screen1441')
+                            },
+                            1681: {
+                                items: owlSliderMnicart.data('screen1681') == undefined ? 1 : owlSliderMnicart.data('screen1681')
+                            },
+                            1920: {
+                                items: owlSliderMnicart.data('screen1920') == undefined ? 1 : owlSliderMnicart.data('screen1920')
+                            },
+                        }
+                    })
+                }
+                //console.log('done mini slider');
+            }    
+            
+        });
+    });
+</script>
+
+
+
+

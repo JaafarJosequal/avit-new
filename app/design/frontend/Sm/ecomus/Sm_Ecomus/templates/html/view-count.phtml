@@ -1,0 +1,8 @@
+<?php
+$_product = $block->getProduct();
+$blockObj = $block->getLayout()->createBlock('Sm\Ecomus\Block\Template');
+?> 
+<div class="viewcount-content">
+	<div class="viewcount"><?php echo $blockObj->getProductCount($_product->getId())?> </div>
+	<?php echo __('People are viewed'); ?>
+</div>

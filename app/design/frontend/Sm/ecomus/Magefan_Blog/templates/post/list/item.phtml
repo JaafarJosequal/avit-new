@@ -1,0 +1,71 @@
+<?php
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+ *
+ * Glory to Ukraine! Glory to the heroes!
+ */
+?>
+<?php
+/**
+ * Blog post list item template
+ *
+ * @var $block \Magefan\Blog\Block\Post\AbstractPost
+ */
+?>
+<?php
+$_post     = $this->getPost();
+$_postUrl  = $_post->getPostUrl();
+$_postName = $block->escapeHtml($_post->getTitle(), null, true);
+?>
+<li class="post-holder  post-holder-<?php echo $_post->getId() ?>">
+    <div class="post-content post-custom">
+        <div class="post-description clearfix">
+            <?php if ($featuredImage = $_post->getFeaturedImage()) { ?>
+                <div class="post-ftimg-hld">
+                    <a href="<?php echo $_postUrl ?>" title="<?php echo $_postName ?>">
+                        <img src="<?php echo $featuredImage ?>" alt="<?php echo $_postName ?>"/>
+                    </a>
+					 <div class="post-date">
+                                <?php
+                                $date_post = $_post->getPublishDate('Y-m-d');
+                                $day       = date('d', strtotime($date_post));
+                                $month     = date('F', strtotime($date_post));
+                                $year      = date('Y', strtotime($date_post));
+                                ?>
+                                <?php echo $month.' '.$day.', '.$year; ?>
+
+            </div>
+                </div>
+            <?php } ?>
+
+            <div class="post-info-blog">
+
+                <div class="post-header">
+                    <div class="post-title-holder clearfix">
+                        <h2 class="post-title">
+                            <a class="post-item-link"
+                               href="<?php echo $_postUrl ?>">
+                                <?php echo $_postName; ?>
+                            </a>
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="post-text-hld clearfix">
+                    <?php echo $block->getShorContent() ?>
+                </div>
+				<div class="read-more">
+					 <a href="<?php echo $_postUrl ?>" title="<?php echo __('Read more');?>">
+						<?php echo __('Read more');?>
+						<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none" class="hdt-inline-block hdt-icon hdt-icon-2"><path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"></path></svg>
+                    </a>
+				</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="post-footer">
+
+    </div>
+</li>

@@ -1,0 +1,51 @@
+<?php
+/**
+ *
+ * SM CartQuickPro - Version 1.0.0
+ * Copyright (c) 2017 YouTech Company. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: YouTech Company
+ * Websites: http://www.magentech.com
+ */
+
+if (!(int)$this->_getConfig('isenabled', 1))
+    return;
+
+$_config            = $this->helper('Sm\Ecomus\Helper\Data');
+$productStyle       = $_config->getThemeLayout('product_style');
+$classListContainer = ', .product-item-info[data-container="product-list"] .product-item-details .actions-secondary';
+$customContainer    = ', .box-quickview, .box-quickview-inline';
+
+if ($productStyle == 'product-2') {
+    $buttonContainer = '.product-item-info[data-container="product-grid"] .product-item-details .actions-primary' . $classListContainer . $customContainer;
+}
+else {
+	
+	$buttonContainer = '.product-item-info[data-container="product-grid"] .product-item-details .actions-secondary' . $classListContainer .$customContainer;
+}
+
+?>
+
+<script>
+    require([
+        'jquery',
+        'quickView',
+        'domReady!'
+    ], function ($, cartQuickView) {
+        var quickViewCf = {
+            isQuickView: <?php echo $this->_isQuickView() ? 'true' : 'false'; ?>,
+            isAjaxCart: <?php echo $this->_isAjaxCart() ? 'true' : 'false'; ?>,
+            product_container: '.product-item',
+            button_container: '<?php echo $buttonContainer; ?>',
+            label_button: '<?php echo $this->_getConfig('label_button'); ?>',
+            base_url: '<?php echo $this->getUrl();?>'
+        }
+        $(quickViewCf.product_container).cartQuickView(quickViewCf);
+        $(document).on("afterAjaxProductsLoaded", function (event) {
+            $(quickViewCf.product_container).cartQuickView(quickViewCf);
+        });
+        $(document).on("afterAjaxLazyLoad", function (event) {
+            $(quickViewCf.product_container).cartQuickView(quickViewCf);
+        });
+    });
+</script>	

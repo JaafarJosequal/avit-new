@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category Magentech
+ * @package Sm_PopupLogin
+ * @version 1.0.0
+ * @copyright Copyright (c) 2022 Magentech Company. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * @author Magentech Company <contact@sm.com>
+ * @link https://sm.com
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="magentech" translate="label" sortOrder="1" class="sm-config-system">
+            <label>Magentech.com</label>
+        </tab>
+        <section id="popuplogin" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>SM PopupLogin</label>
+            <tab>magentech</tab>
+            <resource>Sm_PopupLogin::config_popuplogin</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>General</label>
+
+                <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enable Popup Login</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="popup_logo" translate="label" type="image" sortOrder="12" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Logo</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Image</backend_model>
+                    <upload_dir config="system/filesystem/media" scope_info="1">sm_popuplogin</upload_dir>
+                    <base_url type="media" scope_info="1">sm_popuplogin</base_url>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+
+                <field id="redirect" translate="label" type="select" sortOrder="15" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>After Logging in, redirect Customer to</label>
+                    <source_model>Sm\PopupLogin\Model\Config\Source\Redirect</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+
+                <field id="custom_page" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Custom Page Url</label>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="redirect">custom</field>
+                    </depends>
+                </field>
+
+                <field id="popup_type" translate="label" type="select" sortOrder="25" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Popup Type</label>
+                    <source_model>Sm\PopupLogin\Model\Config\Source\Type</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

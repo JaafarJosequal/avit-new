@@ -1,0 +1,41 @@
+<?php
+$_config = $this->helper('Sm\Themecore\Helper\Data');
+?>
+
+<div class="footer-style-4">
+	<div class="container">
+        <div class="footer-top">
+			<div class="row no-gutters">
+				<div class="col-xl-3 col-md-6">
+				<?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer-4-contact')->toHtml(); ?>
+				</div>	
+				<div class="col-xl-3 col-md-6">
+					<?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer-1-help')->toHtml(); ?>
+				</div>	
+				<div class="col-xl-3 col-md-6">
+					<?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer-4-about')->toHtml(); ?>
+				</div>	
+				<div class="col-xl-3 col-md-6">
+					<?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer-4-followus')->toHtml(); ?>					
+				</div>	
+			</div>
+           
+        </div>
+	</div>
+	<div class="container">
+		<div class="footer-bottom">
+            <div class="row align-items-center">    
+                    <div class="col-md-6 payment-footer">
+                        <?php if ($_config->getAdvanced('copyright_group/custom_copyright')) { ?>
+                            <address><?php echo $_config->getAdvanced('copyright_group/copyright_content') ?></address>
+                        <?php } else { ?>
+                            <address><?php echo $this->getChildHtml("copyright"); ?></address>
+                        <?php } ?>
+                    </div>
+                    <div class="col-md-6">
+                        <?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('payment-footer')->toHtml(); ?>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,180 @@
+/**
+ * Login - Register
+ */
+.captcha-reload {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    vertical-align: top;
+    line-height: 50px;
+    border: none !important;
+    background-color: #ddd;
+    color: #222;
+    .border-radius(2px);
+
+    &:before {
+        .icomoon(e901, 26px);
+    }
+
+    span {
+        display: none;
+    }
+}
+
+.login-container .block .login .actions-toolbar > .primary {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.customer-account-login .login-container {
+    .block-new-customer,
+    .block-customer-login {
+       
+        .block-title {
+            font-size: 3rem;
+            text-transform: capitalize;
+            color: #000;
+            padding-bottom: 10px;
+            font-weight: normal;
+            border-bottom: 0;
+            strong {
+                font-weight: normal;
+            }
+        }
+        .fieldset>.field {
+            >.label {
+                font-weight: normal;
+                color: #000;
+                font-size: 1.6rem;
+            }
+           .control input {
+                height: 48px;
+                border: 1px solid #e5e5e5;
+                &:focus{
+                    border-color:#000;
+                    color:#000;
+                }
+            }
+        }
+
+    }
+
+    .fieldset:after {
+        display: none;
+    }
+    .actions-toolbar .primary button, .actions-toolbar .create.primary {
+        height: 48px;
+        line-height: 48px;
+        background: #000;
+        color: #fff;
+        font-size: 1.6rem;
+        padding: 0 35px;
+    }
+}
+
+.customer-account-create .form-create-account {
+    width: 100% !important;
+
+    .legend {
+            font-size: 3rem;
+            text-transform: capitalize;
+            color: #000;
+            padding-bottom: 10px;
+            font-weight: normal;
+            border-bottom: 0;
+            span {
+                font-weight: normal;
+            }
+    }
+
+    .fieldset.additional_info {
+        clear: both;
+    }
+
+    .fieldset.create.account,
+    .fieldset.create.info {
+        background-color: #f9f9f9;
+        padding: 30px;
+        width: 48.7%;
+        min-height: 394px;
+    }
+
+    .fieldset.create.info {
+        float: right;
+    }
+
+    .fieldset.create.account {
+        float: left;
+    }
+    .fieldset>.field {
+            >.label {
+                font-weight: normal;
+                color: #000;
+                font-size: 1.6rem;
+            }
+           .control input {
+                height: 48px;
+                border: 1px solid #e5e5e5;
+                &:focus{
+                    border-color:#000;
+                    color:#000;
+                }
+            }
+        }
+    .actions-toolbar {
+        margin-bottom: 20px;
+        padding: 0 30px;
+        .primary button {
+            height: 48px;
+            line-height: 48px;
+            background: #000;
+            color: #fff;
+            font-size: 1.6rem;
+            padding: 0 35px;
+        }
+        .action.back {
+            display: none;
+        }
+    }
+}
+
+.password-strength-meter {
+    background-color: #eee;
+    margin-top: 1px;
+    .border-radius(2px);
+}
+
+/**
+ * Forgot password
+ */
+
+.form.password.forget {
+    padding: 30px;
+    background-color: #f7f7f7;
+
+    .actions-toolbar .action.back {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .customer-account-login .login-container .block-new-customer,
+    .customer-account-login .login-container .block-customer-login {
+        min-height: unset;
+    }
+
+    .customer-account-create .form-create-account .fieldset.create.account,
+    .customer-account-create .form-create-account .fieldset.create.info {
+        width: 100%;
+        min-height: unset;
+        margin-bottom: 30px;
+    }
+
+    .customer-account-create .form-create-account .actions-toolbar {
+        padding: 0;
+    }
+
+    .control.captcha-image .captcha-img {
+        display: unset;
+    }
+}

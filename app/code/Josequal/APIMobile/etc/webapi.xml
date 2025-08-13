@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- Authentication -->
+    <route url="/V1/mobile/signup" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\AuthenticationInterface" method="signUp"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route url="/V1/mobile/login" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\AuthenticationInterface" method="signIn"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route url="/V1/mobile/logout" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\AuthenticationInterface" method="logOut"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- Profile -->
+    <route url="/V1/user/profile" method="GET">
+        <service class="Josequal\APIMobile\Api\V1\ProfileInterface" method="getProfile"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route url="/V1/user/update-profile" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\ProfileInterface" method="updateProfile"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+        <data>
+            <parameter name="firstname" force="false">%firstname%</parameter>
+            <parameter name="lastname" force="false">%lastname%</parameter>
+            <parameter name="mobileNumber" force="false">%mobileNumber%</parameter>
+            <parameter name="dialCode" force="false">%dialCode%</parameter>
+            <parameter name="countryCode" force="false">%countryCode%</parameter>
+        </data>
+    </route>
+
+
+    <!-- Password APIs -->
+    <route url="/V1/user/update-password" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\PasswordInterface" method="updatePassword"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+
+    <route url="/V1/user/forget-password" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\PasswordInterface" method="forgetPassword"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route url="/V1/user/verify-otp" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\PasswordInterface" method="verifyOtp"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route url="/V1/user/reset-password" method="POST">
+        <service class="Josequal\APIMobile\Api\V1\PasswordInterface" method="resetPassword"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+</routes>

@@ -1,0 +1,87 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$catalogData   = $objectManager->create('Magento\Catalog\Helper\Data');
+$crumbs        = false;
+if ($breadcrumbsBlock = $objectManager->create('Sm\Ecomus\Block\Html\Breadcrumbs')) {
+    $breadcrumbsBlock->addCrumb(
+        'home',
+        [
+            'label' => __('Home'),
+            'title' => __('Go to Home Page'),
+            'link' => $breadcrumbsBlock->getBaseUrl()
+        ]
+    );
+    $path = $catalogData->getBreadcrumbPath();
+    foreach ((array)$path as $name => $breadcrumb) {
+        $breadcrumbsBlock->addCrumb($name, $breadcrumb);
+    }
+    $crumbs = $breadcrumbsBlock->getCrumbs();
+}
+?>
+<?php 
+	$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+	$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');//get current product
+    $productId = $product->getId(); 
+    $cat_ids = $product->getCategoryIds();
+
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+    $product = $objectManager->create('Magento\Catalog\Model\Product');
+    $productt = $objectManager->create('Magento\Catalog\Model\Product');
+
+    $category = $objectManager->create('Magento\Catalog\Model\Category')->load($cat_ids[0]);
+   
+    $category_product = $category->getProductCollection()->addAttributeToSort('position', 'asc');
+    $category_product->addAttributeToFilter('status',1);
+    $category_product->addAttributeToFilter('visibility',4);
+
+    $cat_prod_ids = $category_product->getAllIds();
+
+    $_pos = array_search($productId, $cat_prod_ids); // get position of current product
+    $_next_pos = $_pos+1;
+    $_prev_pos = $_pos-1;
+    $keys = array_keys($cat_prod_ids);
+
+    if(in_array($_next_pos, $keys)){
+        $_next_prod = $product->load($cat_prod_ids[$_next_pos]);
+    }
+    if(in_array($_prev_pos, $keys)){
+        $_prev_prod = $productt->load($cat_prod_ids[$_prev_pos]);   
+    }
+
+?>
+
+ 
+<?php if ($crumbs && is_array($crumbs)) : ?>
+    <div class="breadcrumbs">
+        <div class="container">
+		<div class="breadcrumbs-wrap">
+            <ul class="items">
+                <?php foreach ($crumbs as $crumbName => $crumbInfo) : ?>
+                    <li class="item <?= /* @escapeNotVerified */
+                    $crumbName ?>">
+                        <?php if ($crumbInfo['link']) : ?>
+                            <a href="<?= /* @escapeNotVerified */
+                            $crumbInfo['link'] ?>"
+                               title="<?= $block->escapeHtml($crumbInfo['title']) ?>"><?= $block->escapeHtml($crumbInfo['label']) ?></a>
+                        <?php elseif ($crumbInfo['last']) : ?>
+                            <strong><?= $block->escapeHtml($crumbInfo['label']) ?></strong>
+                        <?php else: ?>
+                            <strong><?= $block->escapeHtml($crumbInfo['label']) ?></strong>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+			<div class="previous_next">
+				<?php if(in_array($_prev_pos, $keys)): ?>
+					<a href="<?php print_r($_prev_prod->getProductUrl()); ?>" class="product-prev"><span><?php //echo __('prev');?></span></a>
+				<?php endif; ?>
+				<div class="link-category"><a href="<?php echo $category->getUrl();?>"><?php //echo $category->getName();?></a></div>
+				<?php if(in_array($_next_pos, $keys)): ?>
+					<a href="<?php print_r($_next_prod->getProductUrl()); ?>" class="product-next"><span><?php //echo __('next');?> </span></a>
+				<?php endif; ?>
+			</div>
+        </div>
+		</div>
+    </div>
+<?php endif; ?>

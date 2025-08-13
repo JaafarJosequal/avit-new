@@ -1,0 +1,364 @@
+/**
+ * Copyright © Magefan (support@magefan.com). All rights reserved.
+ * See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+ *
+ * Glory to Ukraine! Glory to the heroes!
+ */
+
+.blog-page .sidebar .block .block-title strong {
+    color: #000;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    line-height: 24px;
+    display: block;
+}
+.post-list-wrapper .post-list {
+    padding: 0;
+    margin: 0 -15px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.blog-page-list .post-holder {
+    border-bottom: 0;
+    width: 50%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.post-holder {
+    background: none;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    padding: 0;
+    margin-bottom: 30px;
+    list-style: none;
+    border-radius: 0px;
+    border: 0px;
+}
+
+.blog-page-list .post-holder:last-child{
+	border-bottom:none;
+}
+
+li.post-holder-4{
+	margin-bottom:5px;
+}
+.post-content.post-custom .post-description {
+    display: block;
+}
+.post-content.post-custom .post-description .post-ftimg-hld {
+    margin:0 0px 25px;
+    overflow: hidden;
+}
+.post-content.post-custom .post-description .post-info-blog {
+    flex: 1 1 0;
+}
+
+.post-content.post-custom .post-description .post-info-blog .post-date {
+    color: #000;
+    font-size: 14px;
+    margin: 0px 0 30px;
+    font-weight: 500;
+    
+}
+.post-content.post-custom .post-description .post-info-blog .post-date span{
+    margin-right: 5px;
+    font-size: 13px;
+}
+.post-holder .post-header .post-info{
+    font-size: 92.85%;
+    clear: both;
+}
+.post-holder .post-header .post-info .value{
+    font-style: normal;
+}
+.post-content.post-custom .post-description .post-title-holder {
+    display: table;
+    width: 100%;
+}
+
+.post-content.post-custom .post-description .post-title {
+    margin: 0;
+    padding: 0;
+}
+
+.post-content.post-custom .post-description .post-title a {
+    font-weight: bold;
+    color: initial;
+    font-size:1.8rem;
+}
+.toolbar.toolbar-blog-posts{
+    display: block;
+    text-align: center;
+}
+.post-list .post-holder .post-header .addthis_toolbox {
+    padding-top: 2px;
+}
+
+.post-content.post-custom .post-description .post-info-blog .dash {
+    display: none;
+}
+
+.post-content.post-custom .post-description .post-info-blog .post-categories {
+    display: none;
+}
+
+.post-content.post-custom .post-description .post-info-blog .post-text-hld {
+    display: table;
+    width: 100%;
+    margin: 10px 0 5px;
+    font-size: 15px;
+    color:#999999;
+}
+
+.post-content.post-custom .post-description .post-info-blog .post-read-more {
+    display: block;
+    float: none;
+    padding: 0px;
+}
+.post-content.post-custom .post-description .post-info-blog .post-read-more  a{
+    background: #fff;
+    padding: 10px 30px;
+    display: inline-block;
+    border-radius: 3px;
+    border: 1px solid #111;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+.post-content.post-custom .post-description .post-info-blog .post-read-more a:hover{
+    background: #111;
+	border-color: #111;
+	color:#fff;
+}
+.post-content .post-description .post-ftimg-hld{
+    float: none;
+    margin: 10px 0 30px;
+    width: 100%;
+}
+.post-view .post-holder .post-header .addthis_toolbox{
+	float:left;
+}
+.post-holder .post-header .post-info .item {
+    margin-right: 5px;
+	display:block;
+}
+.post-holder .post-header .post-info .item:after {
+    display: none;
+}
+.post-holder .post-header .post-info .label {
+    font-weight: 400;
+}
+.c-count{
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+.widget.block.blog-search .block-content {
+    background: #fff;
+    border-radius:0px;
+}
+
+.widget.blog-search .action.search{
+	padding:0 17px;	
+}
+
+.widget.block.block-rss .block-title {
+    background: none;
+    padding: 0;
+}
+
+.widget.block.block-rss .block-title strong {
+    text-transform: none;
+}
+
+.widget.block-rss .rss-icon {
+    padding-right: 7px;
+    margin-top: 2px;
+}
+
+.widget.block-recent-posts .block-content .item {
+   padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+.widget.block-recent-posts .block-content .item:first-child { 
+	padding-top:0px;
+}
+.widget.block-recent-posts .block-content .item  a.post-item-link{
+	font-size:14px;
+	font-weight:500; 
+}
+.widget.block-categories ul {
+    list-style: initial;
+    padding-left:0;
+}
+
+.widget.block-categories ul ul {
+    margin-left:20px;
+}
+
+.sidebar-additional .widget.block ul,
+.sidebar-additional .widget.block li{
+    margin: 0;
+    padding: 0;
+}
+.sidebar-additional .widget.block ul{
+    padding: 0;
+    margin: 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.sidebar-additional .widget.block li{
+    border-bottom: 1px solid #e5e5e5;
+    margin: 0;
+    padding: 8px 20px;
+    list-style: none;
+    background: #fafafa;
+}
+.sidebar-additional .widget.block li:hover{
+    background: #fff;
+}
+.sidebar-additional .widget.block li:last-child {
+    border: none;
+}
+.post-view .post-holder{
+    padding: 0px;
+}
+.post-view .block.comments{
+	margin-bottom:20px; 
+}
+.widget.block-recent-posts {
+	border-bottom: 1px solid #eeeeee;
+    padding-bottom: 40px;
+}
+.blog-post-view .post-view .post-holder .post-content .post-description{
+    margin-bottom: 50px;
+}
+.blog-post-view  .post-view .post-holder .post-content .post-nextprev-hld{
+     margin-bottom: 30px;
+}
+.blog-post-view  .post-view .post-holder .post-title{
+    display: none;
+
+}
+.blog-post-view .page-title{
+	margin-bottom: 30px;
+}
+.c-replyform {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.c-replyform.no-active textarea {
+    height: 70px !important;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.c-replyform textarea {
+    height: 100px !important;
+    border-radius: 4px 4px 0 0;
+    -webkit-border-radius: 4px 4px 0 0;
+}
+
+.c-replyform button {
+    padding: 14px 20px !important;
+	background:#000 !important;
+    margin-top: 20px !important;
+}
+.widget.blog-search input{
+	position: static;
+    padding-right: 35px;
+    margin: 0;
+    left: -300%;
+    border: 0;
+    background: #f5f5f5;
+    height: 40px;
+    line-height: 40px;
+}
+.widget.block-archive .item:after{
+    display:none;
+
+}
+.widget.blog-search .action.search{
+    background: #f5f5f5;
+}
+.widget.blog-search .action.search:before{
+    background: url(../images/search-icon.svg) no-repeat -10px -7px;
+    background-size: 35px !important;
+}
+.widget.block-archive .block-content .item{
+	padding: 5px 0;
+    display:block;
+}
+.blog-page-list .widget.block-archive .block-content .item a{
+	font-weight:400;	
+}
+.blog-page-list .widget.block-archive .block-content .item:last-child:after{
+	display:none;
+}
+/*
+.blog-page-list .widget.block-archive .block-content .item a{
+	 
+}
+.blog-page-list .widget.block-archive .block-content .item a:hover{
+	 
+}
+*/
+.widget.block-recent-posts .block-content .item{
+	border:0px;
+}
+.widget.block-list-posts .block-content .item .post-image {
+    width: 100px;
+    float: left;
+    border-radius: 0;
+    padding: 0;
+    background-color: #fff;
+    border: 0;
+    margin-right: 12px;
+}
+.rtl-layout .post-list .post-header .post-title {
+    float: right;
+}
+
+.rtl-layout .post-list .post-holder .post-header .addthis_toolbox {
+    float: left;
+}
+.rtl-layout .post-content.post-custom .post-description .post-ftimg-hld{
+    margin: 0 0 15px 30px;
+}
+
+
+@media (max-width: 575px) {
+    .post-list .post-holder{
+        margin-bottom: 40px;
+		width:100% !important;
+    }
+    .post-content.post-custom .post-description{
+        display: block;
+    }
+    .post-content.post-custom .post-description .post-ftimg-hld{
+        width: 100%;
+    }
+	.post-view .post-holder{
+		margin-bottom:100px;
+	}
+}
+@media (max-width: 991px) {
+   .blog-index-index.page-layout-2columns-right .sidebar{
+        margin-top:100px;
+   }
+   .post-content.post-custom .post-description .post-info-blog .post-date{
+	    margin: 0px 0 5px;
+   }
+   .post-content.post-custom .post-description .post-info-blog .post-text-hld{
+	    margin: 10px 0;
+   }
+   
+}
+
+@media (max-width: 767px) {
+    .blog-post-view .breadcrumbs-titlepage .page-title{
+        display: none;
+    }
+    
+}

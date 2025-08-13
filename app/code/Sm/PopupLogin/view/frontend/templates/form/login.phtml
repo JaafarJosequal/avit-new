@@ -1,0 +1,97 @@
+<?php
+/**
+ * @category Magentech
+ * @package Sm_PopupLogin
+ * @version 1.0.0
+ * @copyright Copyright (c) 2022 Magentech Company. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * @author Magentech Company <contact@sm.com>
+ * @link https://sm.com
+ */
+
+/** @var \Magento\Customer\Block\Form\Login $block */
+
+$_config        = $this->helper('Sm\PopupLogin\Helper\Data');
+$currentPageUrl = $_config->getUrlPage();
+$logoConfig     = $_config->getPopupLoginConfig('general/popup_logo');
+?>
+<div class="block block-customer-login">
+	<?php if (!$logoConfig) { ?>
+        <div class="customer-title"><?php echo __('Login') ?></div>
+    <?php } ?>
+
+    <div class="block-content" aria-labelledby="block-customer-login-heading">
+        <form class="form form-login"
+              action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
+              method="post"
+              id="login-form-popup"
+              data-mage-init='{"validation":{}}'>
+            <?= $block->getBlockHtml('formkey') ?>
+            <fieldset class="fieldset login" data-hasrequired="<?= $block->escapeHtml(__('* Required Fields')) ?>">
+                <input type="hidden" id="popup-redirect" name="login[redirect]"
+                       value="<?php echo $_config->getRedirectUrl(); ?>">
+
+                <div class="field email required">
+                    <label class="label" for="email"><span><?= $block->escapeHtml(__('Email')) ?></span></label>
+                    <div class="control">
+                        <input name="login[username]" value="<?= $block->escapeHtmlAttr($block->getUsername()) ?>"
+                            <?php if ($block->isAutocompleteDisabled()): ?> autocomplete="off"<?php endif; ?>
+                               id="email_login" type="email" class="input-text"
+                               title="<?= $block->escapeHtmlAttr(__('Email')) ?>"
+                               data-mage-init='{"mage/trim-input":{}}'
+                               data-validate="{required:true, 'validate-email':true}">
+                    </div>
+                </div>
+                <div class="field password required">
+                    <label for="pass" class="label"><span><?= $block->escapeHtml(__('Password')) ?></span></label>
+                    <div class="control">
+                        <input name="login[password]" type="password"
+                            <?php if ($block->isAutocompleteDisabled()): ?> autocomplete="off"<?php endif; ?>
+                               class="input-text" id="pass_login"
+                               title="<?= $block->escapeHtmlAttr(__('Password')) ?>"
+                               data-validate="{required:true}">
+                    </div>
+                </div>
+
+                <?= $block->getChildHtml('sm_form_additional_info_login') ?>
+                <?= $block->getChildHtml('captcha.login.popup') ?>
+                <?= $block->getChildHtml('recaptcha.login') ?>
+				 <?php if (!str_contains($currentPageUrl, 'customer/account/forgotpassword')) { ?>
+                        <div class="secondary">
+                            <a class="action remind" href="<?= $block->escapeUrl($block->getForgotPasswordUrl()) ?>">
+                                <span><?= $block->escapeHtml(__('Forgot Your Password?')) ?></span>
+                            </a>
+                        </div>
+                    <?php } ?>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button type="submit" class="action login primary" name="send" id="send2_login">
+                            <span><?= $block->escapeHtml(__('Sign In')) ?></span></button>
+                    </div>
+					 <?php if (!str_contains($currentPageUrl, 'customer/account/create')) { ?>
+						<div class="bottom-popup">
+							
+							<div class="trigger-button">
+								<a class="trigger-create" href="javascript:void(0)">
+									<span><?php echo $block->escapeHtml(__('New customer? Create your account ')) ?></span>
+									<svg class="hdt-icon hdt-icon-2 hdt-inline-block" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 64 64" fill="currentColor"><path d="M6.89,64,0,57.11,47.26,9.85H4.92V0H64V59.08H54.15V16.74Z"></path></svg>
+								</a>
+							</div>
+						</div>
+					<?php } ?>
+                </div>
+            </fieldset>
+        </form>
+
+       
+    </div>
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "Magento_Customer/js/block-submit-on-send": {
+                    "formId": "login-form-popup"
+                }
+            }
+        }
+    </script>
+</div>

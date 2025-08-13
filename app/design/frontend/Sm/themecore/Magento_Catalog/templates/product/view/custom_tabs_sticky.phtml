@@ -1,0 +1,8 @@
+<?php
+$product = $block->getProduct();
+$attribute_code = $product->getData('return_policies');
+echo $this->getLayout()
+   ->createBlock('Magento\Cms\Block\Block')
+   ->setBlockId($attribute_code) 
+   ->toHtml();
+?>

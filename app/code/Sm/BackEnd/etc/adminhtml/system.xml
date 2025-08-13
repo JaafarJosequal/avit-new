@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="magentech" translate="label" sortOrder="1">
+            <label>Magentech</label>
+        </tab>
+        <section id="sm_marketplace" translate="label" type="text" sortOrder="9999" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Magentech Marketplace</label>
+            <tab>magentech</tab>
+            <resource>Sm_Backend::Marketplace</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <attribute type="expanded">1</attribute>
+                <label>Magentech Marketplace</label>
+                <field id="marketplace_sm" translate="label comment" type="text" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <frontend_model>Sm\BackEnd\Block\Adminhtml\System\Config\Marketplace</frontend_model>
+                </field>
+                <comment><![CDATA[
+                <iframe id="theme-iframe" src="http://magento2.flytheme.net/marketplace/index.html" frameborder="0" scrolling="yes" width="100%" height="100%" style="min-height: 800px;"></iframe>
+                ]]></comment>
+            </group>
+        </section>
+
+    </system>
+</config>

@@ -1,0 +1,76 @@
+<?php
+/*------------------------------------------------------------------------
+# SM Categories - Version 3.2.0
+# Copyright (c) 2016 YouTech Company. All Rights Reserved.
+# @license - Copyrighted Commercial Software
+# Author: YouTech Company
+# Websites: http://www.magentech.com
+-------------------------------------------------------------------------*/
+
+$list = $this->_getList();
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$storeManager = $objectManager->get('\Magento\Store\Model\StoreManagerInterface');
+$url_web = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+?>
+<div class="sub-categories-2">
+	<div class="block-content">
+            <?php if (!empty($list)) {
+            $_config           = $this->helper('Sm\Themecore\Helper\Data');
+            $enableLadyLoading = $_config->getAdvanced('lazyload_group/enable_ladyloading');
+            $mediaSrc          = $_config->getMediaUrl();
+            if ($enableLadyLoading) {
+                $imgClass = 'lazyload';
+            } else {
+                $imgClass = '';
+            }
+            ?>
+		<div class="cat-wrap">
+			<div class="owl-carousel owl-theme">
+                        <?php foreach ($list as $item) { ?>
+                            <?php
+                                if (isset($item['children_info']) && !empty($item['children_info'])) {
+                                                $children_cats = $item['children_info'];
+                                                foreach ($children_cats as $children) { ?>
+				<div class="item">
+					<div class="content-box">
+                       <?php if ($children['image']) {
+						 
+						$image= explode('media', $children['image']);
+					
+						   ?>
+						<div class="image-cat">
+							<a href="
+								<?php echo $children['url'] ?>">
+								<img class="<?php echo $imgClass; ?>" 
+									<?php if ($enableLadyLoading) { ?> src="
+									<?php echo $mediaSrc . 'lazyloading/blank.png'; ?>" data-src="
+									<?php echo $url_web.$children['image']; ?>" width="1" height="1" <?php } else { ?> src="
+									<?php echo $mediaSrc.$image[1]; ?>" <?php } ?> alt="" />
+							</a>
+						</div>
+                        <?php } ?>
+						<div class="cat-title">
+						<a href="
+								<?php echo $children['url'] ?>">
+							<span><?php echo $children['name']; ?></span>
+							<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.07692 10L0 8.92308L7.38462 1.53846H0.769231V0H10V9.23077H8.46154V2.61538L1.07692 10Z" fill="currentColor"></path></svg>         
+						</a>
+						</div>
+				</div>
+				</div>
+                    <?php }
+													
+                    } ?>
+                    <?php } ?>
+				</div>
+			</div>
+                    <?php } else { ?>
+			<div class="message info empty">
+				<div>
+                                <?php /* @escapeNotVerified */
+                    echo __('We can\'t find categories matching the selection.') ?>
+				</div>
+			</div>
+                        <?php } ?>
+		</div>
+	</div>

@@ -1,0 +1,1770 @@
+<?xml version="1.0"?>
+<root>
+  <pages>
+    <cms_item>
+      <title>404 Not Found</title>
+      <identifier>no-route</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt-notfound"&gt;
+ &lt;img  src="{{media url=wysiwyg/404page/not-found.png}}" alt=""  /&gt;
+&lt;h3&gt;Oops...That link is broken.&lt;/h3&gt;
+&lt;p&gt;Sorry for the inconvenience. Go to our homepage to check out our latest collections.&lt;/p&gt;
+&lt;a class="btn-notfound" href="{{store url=""}}"&gt;Shop now&lt;/a&gt; 
+&lt;/div&gt;
+&lt;style&gt;
+body.cms-no-route .breadcrumbs-title {
+display:none;
+}
+&lt;/style&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Home page</title>
+      <identifier>home</identifier>
+      <content_heading>Home Page</content_heading>
+      <content><![CDATA[<p>CMS homepage content goes here.</p>
+]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[<!--
+    <referenceContainer name="right">
+        <referenceBlock name="catalog.compare.sidebar" remove="true" />
+    </referenceContainer>-->]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Enable Cookies</title>
+      <identifier>enable-cookies</identifier>
+      <content_heading>What are Cookies?</content_heading>
+      <content><![CDATA[<div class="enable-cookies cms-content">
+<p>"Cookies" are little pieces of data we send when you visit our store. Cookies help us get to know you better and personalize your experience. Plus they help protect you and other shoppers from fraud.</p>
+<p style="margin-bottom: 20px;">Set your browser to accept cookies so you can buy items, save items, and receive customized recommendations. Here’s how:</p>
+<ul>
+<li><a href="https://support.google.com/accounts/answer/61416?hl=en" target="_blank">Google Chrome</a></li>
+<li><a href="http://windows.microsoft.com/en-us/internet-explorer/delete-manage-cookies" target="_blank">Internet Explorer</a></li>
+<li><a href="http://support.apple.com/kb/PH19214" target="_blank">Safari</a></li>
+<li><a href="https://support.mozilla.org/en-US/kb/enable-and-disable-cookies-website-preferences" target="_blank">Mozilla/Firefox</a></li>
+</ul>
+</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Privacy and Cookie Policy</title>
+      <identifier>privacy-policy-cookie-restriction-mode</identifier>
+      <content_heading>Privacy and Cookie Policy</content_heading>
+      <content><![CDATA[<div class="privacy-policy cms-content">
+    <div class="message info">
+        <span>
+            Please replace this text with you Privacy Policy.
+            Please add any additional cookies your website uses below (e.g. Google Analytics).
+        </span>
+    </div>
+    <p>
+        This privacy policy sets out how this website (hereafter "the Store") uses and protects any information that
+        you give the Store while using this website. The Store is committed to ensuring that your privacy is protected.
+        Should we ask you to provide certain information by which you can be identified when using this website, then
+        you can be assured that it will only be used in accordance with this privacy statement. The Store may change
+        this policy from time to time by updating this page. You should check this page from time to time to ensure
+        that you are happy with any changes.
+    </p>
+    <h2>What we collect</h2>
+    <p>We may collect the following information:</p>
+    <ul>
+        <li>name</li>
+        <li>contact information including email address</li>
+        <li>demographic information such as postcode, preferences and interests</li>
+        <li>other information relevant to customer surveys and/or offers</li>
+    </ul>
+    <p>
+        For the exhaustive list of cookies we collect see the <a href="#list">List of cookies we collect</a> section.
+    </p>
+    <h2>What we do with the information we gather</h2>
+    <p>
+        We require this information to understand your needs and provide you with a better service,
+        and in particular for the following reasons:
+    </p>
+    <ul>
+        <li>Internal record keeping.</li>
+        <li>We may use the information to improve our products and services.</li>
+        <li>
+            We may periodically send promotional emails about new products, special offers or other information which we
+            think you may find interesting using the email address which you have provided.
+        </li>
+        <li>
+            From time to time, we may also use your information to contact you for market research purposes.
+            We may contact you by email, phone, fax or mail. We may use the information to customise the website
+            according to your interests.
+        </li>
+    </ul>
+    <h2>Security</h2>
+    <p>
+        We are committed to ensuring that your information is secure. In order to prevent unauthorised access or
+        disclosure, we have put in place suitable physical, electronic and managerial procedures to safeguard and
+        secure the information we collect online.
+    </p>
+    <h2>How we use cookies</h2>
+    <p>
+        A cookie is a small file which asks permission to be placed on your computer's hard drive.
+        Once you agree, the file is added and the cookie helps analyse web traffic or lets you know when you visit
+        a particular site. Cookies allow web applications to respond to you as an individual. The web application
+        can tailor its operations to your needs, likes and dislikes by gathering and remembering information about
+        your preferences.
+    </p>
+    <p>
+        We use traffic log cookies to identify which pages are being used. This helps us analyse data about web page
+        traffic and improve our website in order to tailor it to customer needs. We only use this information for
+        statistical analysis purposes and then the data is removed from the system.
+    </p>
+    <p>
+        Overall, cookies help us provide you with a better website, by enabling us to monitor which pages you find
+        useful and which you do not. A cookie in no way gives us access to your computer or any information about you,
+        other than the data you choose to share with us. You can choose to accept or decline cookies.
+        Most web browsers automatically accept cookies, but you can usually modify your browser setting
+        to decline cookies if you prefer. This may prevent you from taking full advantage of the website.
+    </p>
+    <h2>Links to other websites</h2>
+    <p>
+        Our website may contain links to other websites of interest. However, once you have used these links
+        to leave our site, you should note that we do not have any control over that other website.
+        Therefore, we cannot be responsible for the protection and privacy of any information which you provide whilst
+        visiting such sites and such sites are not governed by this privacy statement.
+        You should exercise caution and look at the privacy statement applicable to the website in question.
+    </p>
+    <h2>Controlling your personal information</h2>
+    <p>You may choose to restrict the collection or use of your personal information in the following ways:</p>
+    <ul>
+        <li>
+            whenever you are asked to fill in a form on the website, look for the box that you can click to indicate
+            that you do not want the information to be used by anybody for direct marketing purposes
+        </li>
+        <li>
+            if you have previously agreed to us using your personal information for direct marketing purposes,
+            you may change your mind at any time by letting us know using our Contact Us information
+        </li>
+    </ul>
+    <p>
+        We will not sell, distribute or lease your personal information to third parties unless we have your permission
+        or are required by law to do so. We may use your personal information to send you promotional information
+        about third parties which we think you may find interesting if you tell us that you wish this to happen.
+    </p>
+    <p>
+        You may request details of personal information which we hold about you under the Data Protection Act 1998.
+        A small fee will be payable. If you would like a copy of the information held on you please email us this
+        request using our Contact Us information.
+    </p>
+    <p>
+        If you believe that any information we are holding on you is incorrect or incomplete,
+        please write to or email us as soon as possible, at the above address.
+        We will promptly correct any information found to be incorrect.
+    </p>
+    <h2><a name="list"></a>List of cookies we collect</h2>
+    <p>The table below lists the cookies we collect and what information they store.</p>
+    <table class="data-table data-table-definition-list">
+        <thead>
+        <tr>
+            <th>Cookie Name</th>
+            <th>Cookie Description</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>FORM_KEY</th>
+                <td>Stores randomly generated key used to prevent forged requests.</td>
+            </tr>
+            <tr>
+                <th>PHPSESSID</th>
+                <td>Your session ID on the server.</td>
+            </tr>
+            <tr>
+                <th>GUEST-VIEW</th>
+                <td>Allows guests to view and edit their orders.</td>
+            </tr>
+            <tr>
+                <th>PERSISTENT_SHOPPING_CART</th>
+                <td>A link to information about your cart and viewing history, if you have asked for this.</td>
+            </tr>
+            <tr>
+                <th>STF</th>
+                <td>Information on products you have emailed to friends.</td>
+            </tr>
+            <tr>
+                <th>STORE</th>
+                <td>The store view or language you have selected.</td>
+            </tr>
+            <tr>
+                <th>USER_ALLOWED_SAVE_COOKIE</th>
+                <td>Indicates whether a customer allowed to use cookies.</td>
+            </tr>
+            <tr>
+                <th>MAGE-CACHE-SESSID</th>
+                <td>Facilitates caching of content on the browser to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>MAGE-CACHE-STORAGE</th>
+                <td>Facilitates caching of content on the browser to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>MAGE-CACHE-STORAGE-SECTION-INVALIDATION</th>
+                <td>Facilitates caching of content on the browser to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>MAGE-CACHE-TIMEOUT</th>
+                <td>Facilitates caching of content on the browser to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>SECTION-DATA-IDS</th>
+                <td>Facilitates caching of content on the browser to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>PRIVATE_CONTENT_VERSION</th>
+                <td>Facilitates caching of content on the browser to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>X-MAGENTO-VARY</th>
+                <td>Facilitates caching of content on the server to make pages load faster.</td>
+            </tr>
+            <tr>
+                <th>MAGE-TRANSLATION-FILE-VERSION</th>
+                <td>Facilitates translation of content to other languages.</td>
+            </tr>
+            <tr>
+                <th>MAGE-TRANSLATION-STORAGE</th>
+                <td>Facilitates translation of content to other languages.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-01</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-1 title-style-home"&gt;
+&lt;div class="slidershow"&gt;
+  &lt;div class="slidershow-type-1 hover-to-show"&gt;
+    &lt;div data-owl="owl-slider" data-autoplay="true" data-nav="false" data-dots="true" data-mobile-dots="true" data-screen0="1" data-screen481="1" data-screen768="1" data-screen992="1" data-screen1200="1" data-screen1441="1" data-screen1681="1" data-screen1920="1" data-margin="1" data-autoplayhoverpause="true" data-loop="false" data-center="false" data-stagepadding="0" data-mousedrag="true" data-touchdrag="true"&gt;
+      &lt;div class="owl-carousel owl-theme"&gt;
+        &lt;div class="item"&gt;
+          &lt;a title="" href="fashion.html"&gt;
+            &lt;img class="mark-lazy" src="{{media url=wysiwyg/slidershow/home-1/item-1.jpg}}" alt="Slider 1" width="1920" height="1080" /&gt;
+         &lt;/a&gt;
+	
+          &lt;div class="caption-panel"&gt;
+            &lt;p class="slide-text"&gt;Glamorous &lt;br&gt;Glam &lt;/p&gt;
+            &lt;p class="slide-subtitle"&gt;From casual to formal, we've got you covered&lt;/p&gt;
+            &lt;a class="button-link slide-btn button-link slide-btn hdt-btn hdt-inline-flex hdt-align-center hdt-justify-center hdt-relative hdt-btn-solid hdt-font-medium" href="fashion.html"&gt;
+              &lt;span&gt;Shop collection&lt;/span&gt;
+&lt;svg class="hdt-icon hdt-icon-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 64 64" fill="currentColor"&gt;&lt;path d="M12,56.43,36.48,32,12,7.52,19.53,0,51.61,32,19.53,64Z"&gt;&lt;/path&gt;&lt;/svg&gt;
+           &lt;/a&gt;
+          &lt;/div&gt;
+	
+        &lt;/div&gt;
+        &lt;div class="item"&gt;
+          &lt;a title="" href="fashion.html"&gt;
+            &lt;img class="mark-lazy" src="{{media url=wysiwyg/slidershow/home-1/item-2.jpg}}" alt="Slider 2" width="1920" height="1080" /&gt;
+         &lt;/a&gt;
+          
+          &lt;div class="caption-panel"&gt;
+            &lt;p class="slide-text"&gt;Simple&lt;br&gt;Style &lt;/p&gt;
+            &lt;p class="slide-subtitle"&gt;From casual to formal, we've got you covered&lt;/p&gt;
+            &lt;a class="button-link slide-btn button-link slide-btn hdt-btn hdt-inline-flex hdt-align-center hdt-justify-center hdt-relative hdt-btn-solid hdt-font-medium" href="fashion.html"&gt;
+              &lt;span&gt;Shop collection&lt;/span&gt;
+&lt;svg class="hdt-icon hdt-icon-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 64 64" fill="currentColor"&gt;&lt;path d="M12,56.43,36.48,32,12,7.52,19.53,0,51.61,32,19.53,64Z"&gt;&lt;/path&gt;&lt;/svg&gt;
+           &lt;/a&gt;
+          &lt;/div&gt;
+		  
+        &lt;/div&gt;
+        &lt;div class="item"&gt;
+          &lt;a title="" href="fashion.html"&gt;
+            &lt;img class="mark-lazy" src="{{media url=wysiwyg/slidershow/home-1/item-3.jpg}}" alt="Slider 3" width="1920" height="1080" /&gt;
+         &lt;/a&gt;
+         
+          &lt;div class="caption-panel"&gt;
+            &lt;p class="slide-text"&gt;Discreet &lt;br&gt;style &lt;/p&gt;
+            &lt;p class="slide-subtitle"&gt;From casual to formal, we've got you covered&lt;/p&gt;
+            &lt;a class="button-link slide-btn button-link slide-btn hdt-btn hdt-inline-flex hdt-align-center hdt-justify-center hdt-relative hdt-btn-solid hdt-font-medium" href="fashion.html"&gt;
+              &lt;span&gt;Shop collection&lt;/span&gt;
+&lt;svg class="hdt-icon hdt-icon-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 64 64" fill="currentColor"&gt;&lt;path d="M12,56.43,36.48,32,12,7.52,19.53,0,51.61,32,19.53,64Z"&gt;&lt;/path&gt;&lt;/svg&gt;
+           &lt;/a&gt;
+          &lt;/div&gt;
+		 
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="loading-content"&gt;
+        &lt;span class="hidden"&gt;Loading...&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="block-marquee"&gt;
+ &lt;div class='marquee-with-options'&gt;
+		&lt;div class="content"&gt;
+		&lt;div&gt;
+			&lt;svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none"&gt;
+			&lt;path d="M18 10H10.6364L12.2727 0L0 15H7.36364L5.72727 25L18 10Z" fill="black"/&gt;
+			&lt;/svg&gt;
+			Spring Clearance Event: Save Up to 70%&lt;/div&gt; &lt;div&gt;
+			&lt;svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none"&gt;
+			&lt;path d="M18 10H10.6364L12.2727 0L0 15H7.36364L5.72727 25L18 10Z" fill="black"/&gt;
+			&lt;/svg&gt;
+			Spring Clearance Event: Save Up to 70%&lt;/div&gt;
+			&lt;div&gt;
+			&lt;svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none"&gt;
+			&lt;path d="M18 10H10.6364L12.2727 0L0 15H7.36364L5.72727 25L18 10Z" fill="black"/&gt;
+			&lt;/svg&gt;
+			Spring Clearance Event: Save Up to 70%&lt;/div&gt; &lt;div&gt;
+			&lt;svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none"&gt;
+			&lt;path d="M18 10H10.6364L12.2727 0L0 15H7.36364L5.72727 25L18 10Z" fill="black"/&gt;
+			&lt;/svg&gt;
+			Spring Clearance Event: Save Up to 70%&lt;/div&gt;
+			&lt;div&gt;
+			&lt;svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none"&gt;
+			&lt;path d="M18 10H10.6364L12.2727 0L0 15H7.36364L5.72727 25L18 10Z" fill="black"/&gt;
+			&lt;/svg&gt;
+			Spring Clearance Event: Save Up to 70%&lt;/div&gt;
+		&lt;/div&gt;
+		
+	
+	
+	&lt;/div&gt;
+&lt;/div&gt;
+ &lt;div class="block-categories-home hdt-container mb-desktop-100 mb-mobile-50"&gt;
+            &lt;div data-owl="owl-slider" data-autoplay="false" data-nav="true" data-dots="false" data-mobile-nav="true" data-mobile-dots="false" data-screen0="2" data-screen481="2" data-screen768="2" data-screen992="3" data-screen1200="3" data-screen1441="3" data-screen1681="3" data-screen1920="3" data-margin="30" data-mobile-margin="15" data-autoplayhoverpause="true" data-loop="false" data-center="false" data-stagepadding="0" data-mousedrag="true" data-touchdrag="true"&gt;
+{{block class="Sm\Categories\Block\Categories" template="Sm_Categories::default-slider.phtml" title_module="SHOP BY CATEGORIES" select_category="4,5,6,7,8" limitation="5" link_href="fashion.html"}}
+            &lt;/div&gt;
+        &lt;/div&gt;
+&lt;div class="hdt-container"&gt;
+&lt;div class="container"&gt;
+&lt;div class="mb-desktop-120 mb-mobile-60"&gt;
+{{block class="Sm\FilterProducts\Block\FilterProducts" name="filterproducts" template="Sm_FilterProducts::default.phtml" title_module="Best Seller" prev_text="Shop the Latest Styles: Stay ahead of the curve with our newest arrivals" display_countdown="0" product_source="lastest_products" product_limitation="8" select_category="3" view_link="fashion.html" load_more_ajax="1"}}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="lookbook1"&gt;
+&lt;div class="block-title"&gt;
+&lt;strong&gt;Shop the look&lt;/strong&gt;
+Inspire and let yourself be inspired, from one unique fashion to another.				            
+&lt;/div&gt;
+&lt;div class="row m-0 mb-desktop-80 mb-mobile-60"&gt;
+&lt;div class="col-md-6 p-0"&gt;
+{{widget type="Coduzion\Lookbook\Block\Widget\LookbooksList" title="Lookbook Home 1 box1" added_time="1721124995" template="Coduzion_Lookbook::lookbook/widget/content/banner.phtml" conditions_encoded="^[`1`:^[`type`:`Coduzion||Lookbook||Model||Rule||Condition||Combine`,`aggregator`:`all`,`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Coduzion||Lookbook||Model||Rule||Condition||Lookbook`,`attribute`:`lookbook_id`,`operator`:`==`,`value`:`1`^]^]"}}
+&lt;/div&gt;
+&lt;div class="col-md-6 p-0"&gt;
+{{widget type="Coduzion\Lookbook\Block\Widget\LookbooksList" title="Lookbook Home 1 box2" added_time="1721125190" template="Coduzion_Lookbook::lookbook/widget/content/banner.phtml" conditions_encoded="^[`1`:^[`type`:`Coduzion||Lookbook||Model||Rule||Condition||Combine`,`aggregator`:`all`,`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Coduzion||Lookbook||Model||Rule||Condition||Lookbook`,`attribute`:`lookbook_id`,`operator`:`==`,`value`:`2`^]^]"}}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hdt-container"&gt;
+&lt;div class="container"&gt;
+&lt;div class="product-top-home hidden-action-cart hidden-title slidershow-type-1 absolute-nav nav-style-4  hover-to-show mb-desktop-75 mb-mobile-50"&gt;
+     &lt;div data-owl="owl-slider" data-autoplay="false" data-nav="true" data-dots="false" data-mobile-dots="true" data-screen0="1" data-screen481="2" data-screen768="2" data-screen992="3" data-screen1200="3" data-screen1441="3" data-screen1681="3" data-screen1920="3" data-margin="30" data-mobile-margin="15" data-autoplayhoverpause="true" data-loop="false" data-center="false" data-stagepadding="0" data-mousedrag="true" data-touchdrag="true"&gt;
+	{{block class="Sm\FilterProducts\Block\FilterProducts" title_module="Happy Clients" prev_text="Hear what they say about us" template="Sm_FilterProducts::list-slider.phtml" product_source="other_products" select_category="3" product_limitation="4" display_countdown="0"}}
+	&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hdt-container"&gt;
+&lt;div class="container"&gt;
+&lt;div class="block-home brand-slider nav-style-1 mb-desktop-80  mb-mobile-50 absolute-nav hover-to-show"&gt;
+  &lt;div data-owl="owl-slider" data-autoplay="false" data-nav="false" data-dots="false" data-screen0="2" data-screen481="3" data-screen768="4" data-screen992="5" data-screen1200="5" data-screen1441="6" data-screen1681="6" data-screen1920="6" data-margin="0" data-autoplayhoverpause="true" data-loop="false" data-center="false" data-stagepadding="0" data-mousedrag="true" data-touchdrag="true" data-mobile-dots="true" data-mobile-margin="0"&gt;
+    &lt;div class="owl-carousel owl-theme"&gt;
+      &lt;div class="item"&gt;
+        &lt;a title="Brand" href="#"&gt;
+          &lt;img class="mark-lazy" src="{{media url=wysiwyg/brand/1.png}}" alt="Brand" width="398" height="164"&gt;
+       &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="item"&gt;
+        &lt;a title="Brand" href="#"&gt;
+          &lt;img class="mark-lazy" src="{{media url=wysiwyg/brand/2.png}}" alt="Brand" width="398" height="164"&gt;
+       &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="item"&gt;
+        &lt;a title="Brand" href="#"&gt;
+          &lt;img class="mark-lazy" src="{{media url=wysiwyg/brand/3.png}}" alt="Brand" width="398" height="164"&gt;
+       &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="item"&gt;
+        &lt;a title="Slide 1" href="#"&gt;
+          &lt;img class="mark-lazy" src="{{media url=wysiwyg/brand/4.png}}" alt="Brand" width="398" height="164"&gt;
+       &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="item"&gt;
+        &lt;a title="Brand" href="#"&gt;
+          &lt;img class="mark-lazy" src="{{media url=wysiwyg/brand/5.png}}" alt="Brand" width="398" height="164"&gt;
+       &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="item"&gt;
+        &lt;a title="Brand" href="#"&gt;
+          &lt;img class="mark-lazy" src="{{media url=wysiwyg/brand/6.png}}" alt="Brand" width="398" height="164"&gt;
+       &lt;/a&gt;
+      &lt;/div&gt;
+     
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+ {{block class="Magento\Cms\Block\Block" block_id="block-shop-gram"}}
+&lt;div class="container"&gt;
+ {{block class="Magento\Cms\Block\Block" block_id="block-policy-shop1"}}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[<!--
+    <referenceContainer name="right">
+        <referenceBlock name="catalog.compare.sidebar" remove="true" />
+    </referenceContainer>-->]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>About Us</title>
+      <identifier>about-us</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hero-image"&gt;
+   &lt;picture class="hdt-media-wrapper"&gt;
+      &lt;img class="mark-lazy" src="{{media url=wysiwyg/about-us/img1.jpg}}" alt="" width="2000" height="1262" on-eff="ambient" is="hdt-effect" /&gt;
+      &lt;h2 class="hero-image-heading"&gt;Empowering women to achieve &lt;br class="hdt-hidden lg:hdt-block"&gt; fitness goals with style &lt;/h2&gt;
+   &lt;/picture&gt;
+&lt;/div&gt;
+&lt;div class="hdt-section-spacing"&gt;
+   &lt;div class="container"&gt;
+      &lt;div class="hdt-row-grid"&gt;
+         &lt;h2 class="hdt-s-text hdt-h4"&gt;We are Ecomus&lt;/h2&gt;
+         &lt;p class="hdt-s-text2 hdt-text-h6"&gt;Welcome to our classic women's clothing store, where we believe &lt;br class="hdt-hidden lg:hdt-block"&gt; that timeless style never goes out of fashion. Our collection features classic &lt;br class="hdt-hidden lg:hdt-block"&gt; pieces that are both stylish and versatile, perfect for building a &lt;br class="hdt-hidden lg:hdt-block"&gt; wardrobe that will last for years. &lt;/p&gt;
+      &lt;/div&gt;
+   &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hdt-section-spacing pt-desktop-100 pb-desktop-78"&gt;
+   &lt;div class="container"&gt;
+      &lt;div class="row align-items-center"&gt;
+         &lt;div class="col-lg-6 col-md-6"&gt;
+            &lt;a href="#" class="hdt-rounded banner-image-effect1"&gt;
+            &lt;img class="mark-lazy full-width" src="{{media url=wysiwyg/about-us/abu1.jpg}}" alt="" width="705" height="586" /&gt;
+            &lt;/a&gt;
+         &lt;/div&gt;
+         &lt;div class="col-lg-6 col-md-6" style="display: grid;"&gt;
+            &lt;div class="hdt-content"&gt;
+               &lt;h2 class="hdt-heading"&gt;Established - 1995&lt;/h2&gt;
+               &lt;p class="hdt-subheading" hdt-reveal="slide-in" timeline="" observed="" animationend="" style="--animation-order: 1;"&gt;Ecomus was founded in 1995 by Jane Smith, a fashion lover with a &lt;br class="hdt-hidden lg:hdt-block"&gt; passion for timeless style. Jane had always been drawn to classic &lt;br class="hdt-hidden lg:hdt-block"&gt; pieces that could be worn season after season, and she believed that &lt;br class="hdt-hidden lg:hdt-block"&gt; there was a gap in the market for a store that focused solely on classic &lt;br class="hdt-hidden lg:hdt-block"&gt; women's clothing. She opened the first store in a small town in New &lt;br class="hdt-hidden lg:hdt-block"&gt; England, where it quickly became a local favorite. &lt;/p&gt;
+            &lt;/div&gt;
+         &lt;/div&gt;
+      &lt;/div&gt;
+   &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hdt-section-spacing pb-desktop-100 pt-desktop-78"&gt;
+   &lt;div class="container"&gt;
+      &lt;div class="row align-items-center"&gt;
+         &lt;div class="col-lg-6 col-md-6" style="display: grid;"&gt;
+            &lt;div class="hdt-content"&gt;
+               &lt;h2 class="hdt-heading"&gt;Our mission&lt;/h2&gt;
+               &lt;p class="hdt-subheading hdt-text-base hdt-s-text2" hdt-reveal="slide-in" timeline="" observed="" animationend="" style="--animation-order: 0;"&gt;Our mission is to empower people through sustainable fashion.&lt;br class="hdt-hidden lg:hdt-block"&gt;
+                  We want everyone to look and feel good, while also doing our part to&lt;br class="hdt-hidden lg:hdt-block"&gt; help the environment.We believe that fashion should be stylish,&lt;br class="hdt-hidden lg:hdt-block"&gt; affordable and accessible to everyone. Body positivity and inclusivity&lt;br class="hdt-hidden lg:hdt-block"&gt; are values that are at the heart of our brand.
+               &lt;/p&gt;
+            &lt;/div&gt;
+         &lt;/div&gt;
+         &lt;div class="col-lg-6 col-md-6"&gt;
+            &lt;div class="hdt-img_group"&gt;
+               &lt;div class="hdt-img_item"&gt;
+                  &lt;a href="#" class="banner-image-effect1 hdt-rounded hdt-oh"&gt;
+                  &lt;img class="mark-lazy full-width" src="{{media url=wysiwyg/about-us/abu2.jpg}}" alt="" width="400" height="438" /&gt;
+                  &lt;/a&gt;
+               &lt;/div&gt;
+               &lt;div class="hdt-img_item"&gt;
+                  &lt;a href="#" class="banner-image-effect1 hdt-rounded hdt-oh"&gt;
+                  &lt;img class="mark-lazy full-width" src="{{media url=wysiwyg/about-us/abu3.jpg}}" alt="" width="337" height="388" /&gt;
+                  &lt;/a&gt;
+               &lt;/div&gt;
+            &lt;/div&gt;
+         &lt;/div&gt;
+      &lt;/div&gt;
+   &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="container"&gt;
+   &lt;div class="hdt-icon-box-about pt-desktop-110 pb-desktop-130"&gt;
+      &lt;div class="hdt-section-head"&gt;
+         &lt;h3&gt;&lt;span&gt;Quality is our priority&lt;/span&gt;&lt;/h3&gt;
+         &lt;div class="hdt-sec-subheading"&gt;
+            &lt;p&gt;Our talented stylists have put together outfits that are perfect for the season. &lt;/p&gt;
+            &lt;p&gt;They've variety of ways to inspire your next fashion-forward look.&lt;/p&gt;
+         &lt;/div&gt;
+      &lt;/div&gt;
+	  &lt;div class="block-content"&gt;
+			&lt;div data-owl="owl-slider" data-autoplay="false" data-nav="false" data-dots="true" data-mobile-dots="true" data-screen0="1" data-screen481="1" data-screen768="2" data-screen992="2" data-screen1200="3" data-screen1441="3" data-screen1681="3" data-screen1920="3" data-margin="30" data-autoplayhoverpause="true" data-loop="false" data-center="false" data-stagepadding="0" data-mousedrag="true" data-touchdrag="true"&gt;
+				&lt;div class="owl-carousel owl-theme"&gt;
+						&lt;div class="item"&gt;							 
+							&lt;div class="hdt-icon-box1 hdt-icon-box"&gt;
+							   &lt;div class="hdt-icon-box__icon"&gt;
+								  &lt;svg xmlns="http://www.w3.org/2000/svg" class="" width="40" height="40" viewBox="0 0 40 40"&gt;
+									 &lt;path d="M39.7021 1.27152L39.5688 0.431126L38.7284 0.297845C38.5475 0.269173 34.2293 -0.396685 28.4414 0.360892C25.0362 0.806672 21.8259 1.65659 18.8998 2.88706C15.2225 4.43346 11.9885 6.58697 9.28775 9.28783C6.5869 11.9886 4.43338 15.2227 2.88698 18.8999C1.65651 21.8259 0.806594 25.0362 0.360892 28.4414C-0.396685 34.2292 0.269173 38.5473 0.297845 38.7284L0.431204 39.5688L1.27152 39.7021C1.38737 39.7204 3.19846 40 6.00565 40C7.86244 39.9998 9.71726 39.8793 11.5584 39.6391C14.9637 39.1933 18.174 38.3434 21.1001 37.1129C24.7773 35.5665 28.0114 33.413 30.7122 30.7122C33.4129 28.0113 35.5665 24.7773 37.1129 21.1001C38.3435 18.174 39.1934 14.9638 39.6391 11.5584C40.3966 5.77065 39.7307 1.45253 39.7021 1.27152ZM37.3153 11.2542C36.8967 14.4517 36.1018 17.4587 34.9525 20.1915C33.5244 23.5877 31.5401 26.5697 29.055 29.055C26.5796 31.5304 23.6108 33.509 20.2312 34.9358C17.5084 36.0854 14.512 36.8829 11.3256 37.3058C8.37814 37.6971 5.80612 37.6919 4.05393 37.6032L20.8286 20.8284L19.1715 19.1713L2.39526 35.9476C2.30698 34.2133 2.30159 31.6722 2.68472 28.7457C3.10323 25.5482 3.89823 22.5412 5.04745 19.8084C6.47557 16.4122 8.45986 13.4302 10.9451 10.9449C13.4205 8.46955 16.3893 6.49088 19.7688 5.06409C22.4917 3.91448 25.488 3.11706 28.6745 2.69409C32.6761 2.16284 35.9876 2.36214 37.4914 2.50972C37.6386 4.0012 37.8366 7.27205 37.3153 11.2542Z"&gt;&lt;/path&gt;
+								  &lt;/svg&gt;
+							   &lt;/div&gt;
+							   &lt;div class="hdt-icon-box__content"&gt;
+								  &lt;h3 class="hdt-icon-box__title"&gt;High-Quality Materials&lt;/h3&gt;
+								  &lt;div class="hdt-icon-box__description"&gt;
+									 &lt;p&gt;Crafted with precision and excellence, our activewear is meticulously engineered using premium materials to ensure unmatched comfort and durability.&lt;/p&gt;
+								  &lt;/div&gt;
+							   &lt;/div&gt;
+							&lt;/div&gt;						 
+						&lt;/div&gt;
+						&lt;div class="item"&gt;							 
+							&lt;div class="hdt-icon-box2 hdt-icon-box"&gt;
+							   &lt;div class="hdt-icon-box__icon"&gt;
+								  &lt;svg xmlns="http://www.w3.org/2000/svg" class="" width="40" height="40" viewBox="0 0 40 40"&gt;
+									 &lt;path d="M20 0.0224609L0 29.6461L20 39.9773L40 29.6461L20 0.0224609ZM18.8275 36.7323L4.26422 29.2094L18.8276 21.6864L18.8275 36.7323ZM18.8275 19.0471L5.24977 26.061L18.8275 5.94988V19.0471ZM21.1725 5.94988L34.7502 26.0611L21.1725 19.0471V5.94988ZM21.1725 21.6864L35.7359 29.2094L21.1725 36.7323V21.6864Z"&gt;&lt;/path&gt;
+								  &lt;/svg&gt;
+							   &lt;/div&gt;
+							   &lt;div class="hdt-icon-box__content"&gt;
+								  &lt;h3 class="hdt-icon-box__title"&gt;Laconic Design&lt;/h3&gt;
+								  &lt;div class="hdt-icon-box__description"&gt;
+									 &lt;p&gt;Simplicity refined. Our activewear embodies the essence of minimalistic design, delivering effortless style that speaks volumes.&lt;/p&gt;
+								  &lt;/div&gt;
+							   &lt;/div&gt;
+							&lt;/div&gt;							 
+						&lt;/div&gt;
+						&lt;div class="item"&gt;							 
+							&lt;div class="hdt-icon-box3 hdt-icon-box"&gt;
+							   &lt;div class="hdt-icon-box__icon"&gt;
+								  &lt;svg xmlns="http://www.w3.org/2000/svg" class="" width="40" height="40" viewBox="0 0 40 40"&gt;
+									 &lt;path d="M20 5.858L25.856 0L28.2145 2.3585L22.357 8.2145L29.4285 15.2865L27.072 17.643L11.7835 2.357L14.142 0L20 5.858ZM34.142 20L40 25.856L37.6415 28.2145L31.7835 22.357L24.7135 29.4285L22.357 27.072L37.643 11.7855L40 14.142L34.142 20ZM20.0015 34.142L14.1455 40L11.787 37.6415L17.645 31.7835L10.573 24.7135L12.9295 22.357L28.2165 37.643L25.8595 40L20.0015 34.142ZM5.858 20L0 14.142L2.3585 11.7835L8.2165 17.643L15.2865 10.57L17.643 12.9265L2.357 28.2145L0 25.858L5.858 20Z"&gt;&lt;/path&gt;
+								  &lt;/svg&gt;
+							   &lt;/div&gt;
+							   &lt;div class="hdt-icon-box__content"&gt;
+								  &lt;h3 class="hdt-icon-box__title"&gt;Various Sizes&lt;/h3&gt;
+								  &lt;div class="hdt-icon-box__description"&gt;
+									 &lt;p&gt;Designed for every body and anyone, our activewear embraces diversity with a wide range of sizes and shapes, celebrating the beauty of individuality.&lt;/p&gt;
+								  &lt;/div&gt;
+							   &lt;/div&gt;
+							&lt;/div&gt;							 
+						&lt;/div&gt;				
+				&lt;/div&gt;
+		    &lt;/div&gt;
+	  &lt;/div&gt;
+	  
+   &lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div class="container"&gt;
+   &lt;div class="block clients-say pt-desktop-110 pb-desktop-125 mb-desktop-70"&gt;
+      &lt;div class="block-content block-clients"&gt;
+         &lt;div data-owl="owl-slider" data-autoplay="false" data-nav="true" data-dots="false"  data-mobile-dots="true"  data-screen0="1" data-screen481="1" data-screen768="1" data-screen992="1" data-screen1200="1" data-screen1441="1" data-screen1681="1" data-screen1920="1" data-margin="30" data-autoplayhoverpause="true" data-loop="false" data-center="false" data-stagepadding="0" data-mousedrag="true" data-touchdrag="true"&gt;
+            &lt;div class="owl-carousel owl-theme"&gt;
+               &lt;div class="item"&gt;
+                  &lt;div class="row align-items-center"&gt;
+                     &lt;div class="col-lg-6 col-md-6"&gt;
+                        &lt;div class="hdt-slider__slide"&gt;
+                           &lt;div class="hdt-testimonial-heading-item"&gt;
+                              &lt;span&gt;Our customer’s reviews&lt;/span&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-poropost-image"&gt;
+                              &lt;svg xmlns="http://www.w3.org/2000/svg" width="46" height="31" viewBox="0 0 46 31" fill="none"&gt;
+                                 &lt;path d="M32.4413 30.5L37.8204 19.9545L38.1913 19.2273H37.375H26.375V0.5H45.5V19.6071L39.9438 30.5H32.4413ZM6.56633 30.5L11.9454 19.9545L12.3163 19.2273H11.5H0.5V0.5H19.625V19.6071L14.0688 30.5H6.56633Z" stroke="#B5B5B5"&gt;&lt;/path&gt;
+                              &lt;/svg&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-testimonial-rating hdt-flex hdt-justify-"&gt;
+                              &lt;div class="hdt-rating-wapper"&gt;
+                                 &lt;div class="rating rating_5 hdt-flex"&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                 &lt;/div&gt;
+                              &lt;/div&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-testimonial-content hdt-text-2xl hdt-s-text hdt-rte  "&gt;
+                              &lt;p&gt;Love love love! This product is so easy to use! I absolutely love the Alpha Arbutin product. It has made such a difference with my hyperpigmentation spots! I feel so much more confident without makeup on where as before I would never leave the house&lt;/p&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-testimonial-name"&gt;&lt;strong&gt;Loretta &lt;/strong&gt;&lt;/div&gt;
+                        &lt;/div&gt;
+                     &lt;/div&gt;
+                     &lt;div class="col-lg-6 col-md-6"&gt;
+                        &lt;div class="hdt-group_image hdt-oh hdt-rounded"&gt;
+                           &lt;img class="mark-lazy" src="{{media url=wysiwyg/about-us/abu4.jpg}}" alt="" width="550" height="610" /&gt;
+                        &lt;/div&gt;
+                     &lt;/div&gt;
+                  &lt;/div&gt;
+               &lt;/div&gt;
+               &lt;div class="item"&gt;
+                  &lt;div class="row align-items-center"&gt;
+                     &lt;div class="col-lg-6 col-md-6"&gt;
+                        &lt;div class="hdt-slider__slide"&gt;
+                           &lt;div class="hdt-testimonial-heading-item"&gt;
+                              &lt;span&gt;Our customer’s reviews&lt;/span&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-poropost-image"&gt;
+                              &lt;svg xmlns="http://www.w3.org/2000/svg" width="46" height="31" viewBox="0 0 46 31" fill="none"&gt;
+                                 &lt;path d="M32.4413 30.5L37.8204 19.9545L38.1913 19.2273H37.375H26.375V0.5H45.5V19.6071L39.9438 30.5H32.4413ZM6.56633 30.5L11.9454 19.9545L12.3163 19.2273H11.5H0.5V0.5H19.625V19.6071L14.0688 30.5H6.56633Z" stroke="#B5B5B5"&gt;&lt;/path&gt;
+                              &lt;/svg&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-testimonial-rating hdt-flex hdt-justify-"&gt;
+                              &lt;div class="hdt-rating-wapper"&gt;
+                                 &lt;div class="rating rating_5 hdt-flex"&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                    &lt;svg xmlns="http://www.w3.org/2000/svg" width="14" height="13" viewBox="0 0 14 13" fill="none" class="hdt-last_star"&gt;
+                                       &lt;path d="M6.84211 10.4479L11.0705 13L9.94842 8.19L13.6842 4.95368L8.76474 4.53632L6.84211 0L4.91947 4.53632L0 4.95368L3.73579 8.19L2.61368 13L6.84211 10.4479Z" fill="currentColor"&gt;&lt;/path&gt;
+                                    &lt;/svg&gt;
+                                 &lt;/div&gt;
+                              &lt;/div&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-testimonial-content hdt-text-2xl hdt-s-text hdt-rte  "&gt;
+                              &lt;p&gt;I love the incredibly diverse range of meals that Soulara offers! You can filter the list of meals by ingredients (e.g. no chilli or no nuts) and there's still heaps of options. I have been using Soulara throughout the past few years whenever life gets too busy to cook, and never get bored!&lt;/p&gt;
+                           &lt;/div&gt;
+                           &lt;div class="hdt-testimonial-name"&gt;&lt;strong&gt;Sandra &lt;/strong&gt;&lt;/div&gt;
+                        &lt;/div&gt;
+                     &lt;/div&gt;
+                     &lt;div class="col-lg-6 col-md-6"&gt;
+                        &lt;div class="hdt-group_image hdt-oh hdt-rounded"&gt;
+                           &lt;img class="mark-lazy" src="{{media url=wysiwyg/about-us/abu4.jpg}}" alt="" width="550" height="610" /&gt;
+                        &lt;/div&gt;
+                     &lt;/div&gt;
+                  &lt;/div&gt;
+               &lt;/div&gt;
+            &lt;/div&gt;
+         &lt;/div&gt;
+      &lt;/div&gt;
+   &lt;/div&gt;
+&lt;/div&gt;
+{{block class="Magento\Cms\Block\Block" block_id="block-shop-gram"}}</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>404 Not Found - SM</title>
+      <identifier>sm-no-route</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="sm-notfound"&gt;&lt;img src="{{media url=wysiwyg/404page/not-found.png}}" alt="404 Image"&gt;&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-02</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-2 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow2"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-2-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-03</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-3 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="id-3-block-1"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-3-block-2"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Collections</title>
+      <identifier>collections</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">{{block class="Sm\Categories\Block\Categories" name="categories" as="categories"
+                   template="Sm_Categories::list-categories.phtml"/}}</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Faqs</title>
+      <identifier>faqs-01</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="row justify-content-between"&gt;
+  &lt;div class="col-xl-8 col-lg-7 col-left-faqs"&gt;
+    &lt;div class="page-faqs"&gt;
+      &lt;h3&gt;Shopping Information&lt;/h3&gt;
+      &lt;div class="accordion" id="accordionTab1"&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingOne"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"&gt;
+			  Pellentesque habitant morbi tristique senectus et netus?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+
+		&lt;div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionTab1"&gt;
+		  &lt;div class="card-body"&gt;
+			The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingTwo"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"&gt;
+			  How much is shipping and how long will it take?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionTab1"&gt;
+		   &lt;div class="card-body"&gt;
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingThree"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"&gt;
+			  How long will it take to get my package?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionTab1"&gt;
+		  &lt;div class="card-body"&gt;
+			Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingFour"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour"&gt;
+			 Branding is simply a more efficient way to sell things?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionTab1"&gt;
+		  &lt;div class="card-body"&gt;
+			The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	&lt;/div&gt;
+	&lt;h3&gt;Payment Information&lt;/h3&gt;
+	&lt;div class="accordion" id="accordionTab2"&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="heading1"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false" aria-controls="collapse1"&gt;
+			  Pellentesque habitant morbi tristique senectus et netus?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+
+		&lt;div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#accordionTab2"&gt;
+		  &lt;div class="card-body"&gt;
+			For me, the most important part of improving at photography has been sharing it. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="heading2"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2"&gt;
+			  How much is shipping and how long will it take?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#accordionTab2"&gt;
+		   &lt;div class="card-body"&gt;
+			 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="heading3"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3"&gt;
+			  How long will it take to get my package?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#accordionTab2"&gt;
+		  &lt;div class="card-body"&gt;
+			Dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="heading4"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4"&gt;
+			 Branding is simply a more efficient way to sell things?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#accordionTab2"&gt;
+		  &lt;div class="card-body"&gt;
+			The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	&lt;/div&gt;
+	
+	&lt;h3&gt;Order Returns&lt;/h3&gt;
+	&lt;div class="accordion" id="accordionTab3"&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingOne1"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseOne1" aria-expanded="false" aria-controls="collapseOne1"&gt;
+			  Pellentesque habitant morbi tristique senectus et netus?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+
+		&lt;div id="collapseOne1" class="collapse" aria-labelledby="headingOne1" data-parent="#accordionTab3"&gt;
+		  &lt;div class="card-body"&gt;
+			Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingTwo2"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseTwo22" aria-expanded="false" aria-controls="collapseTwo22"&gt;
+			  How much is shipping and how long will it take?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapseTwo22" class="collapse" aria-labelledby="headingTwo22" data-parent="#accordionTab3"&gt;
+		   &lt;div class="card-body"&gt;
+			For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingThree3"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseThree3" aria-expanded="false" aria-controls="collapseThree3"&gt;
+			  How long will it take to get my package?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapseThree3" class="collapse" aria-labelledby="headingThree3" data-parent="#accordionTab3"&gt;
+		  &lt;div class="card-body"&gt;
+			The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div class="card"&gt;
+		&lt;div class="card-header" id="headingFour4"&gt;
+		  &lt;h2 class="mb-0"&gt;
+			&lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseFour4" aria-expanded="false" aria-controls="collapseFour4"&gt;
+			 Branding is simply a more efficient way to sell things?
+			&lt;/button&gt;
+		  &lt;/h2&gt;
+		&lt;/div&gt;
+		&lt;div id="collapseFour4" class="collapse" aria-labelledby="headingFour4" data-parent="#accordionTab3"&gt;
+		  &lt;div class="card-body"&gt;
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+		  &lt;/div&gt;
+		&lt;/div&gt;
+	  &lt;/div&gt;
+	&lt;/div&gt;
+	
+	
+	
+	
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="col-xl-4 col-lg-5"&gt;
+    &lt;div class="hdt-other-content"&gt;
+      &lt;h5 class="hdt-other-content-title hdt-font-normal"&gt;Have a question&lt;/h5&gt;
+      &lt;p&gt;If you have an issue or question that requires immediate assistance, you can click the button below to chat live with a Customer Service representative. &lt;br&gt;
+        &lt;br&gt;Please allow 06 - 12 business days from the time your package arrives back to us for a refund to be issued.
+      &lt;/p&gt;
+      &lt;a class="contact-link hdt-btn hdt-oh hdt-relative" href="{{store url="contact"}}"&gt;
+        &lt;span&gt;Contact us&lt;/span&gt;
+      &lt;/a&gt;
+      &lt;a class="contact-link-1" href="{{store url="contact"}}"&gt;
+        &lt;span&gt;Live chat &lt;/span&gt;
+        &lt;svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none"&gt;
+          &lt;path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"&gt;&lt;/path&gt;
+        &lt;/svg&gt;
+      &lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus - Faqs</title>
+      <identifier>faqs-02</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="row justify-content-between"&gt;
+	&lt;div class="col-lg-4"&gt;
+    &lt;div class="hdt-accordion-link-list-faqs"&gt;
+      &lt;div class="hdt-link-item"&gt;
+        &lt;a class="hdt-accordion-item" href="#hdt-accordion-item1"&gt;Shopping Information &lt;svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none"&gt;
+            &lt;path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-link-item"&gt;
+        &lt;a class="hdt-accordion-item" href="#hdt-accordion-item2"&gt;Payment Information &lt;svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none"&gt;
+            &lt;path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-link-item"&gt;
+        &lt;a class="hdt-accordion-item" href="#hdt-accordion-item3"&gt;Order Returns &lt;svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none"&gt;
+            &lt;path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-link-item"&gt;
+        &lt;a class="hdt-accordion-item" href="{{store url="contact"}}"&gt;Contact us &lt;svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" fill="none"&gt;
+            &lt;path d="M0.861539 8L0 7.13846L5.90769 1.23077H0.615385V0H8V7.38462H6.76923V2.09231L0.861539 8Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="col-lg-8 col-left-faqs"&gt;
+    &lt;div class="page-faqs"&gt;
+		&lt;div id="hdt-accordion-item1"&gt;
+      &lt;h3&gt;Shopping Information&lt;/h3&gt;
+      &lt;div class="accordion" id="accordionTab1"&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingOne"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"&gt; Pellentesque habitant morbi tristique senectus et netus? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionTab1"&gt;
+            &lt;div class="card-body"&gt; The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingTwo"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"&gt; How much is shipping and how long will it take? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionTab1"&gt;
+            &lt;div class="card-body"&gt; Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingThree"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree"&gt; How long will it take to get my package? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionTab1"&gt;
+            &lt;div class="card-body"&gt; Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+		   &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingFour"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour"&gt; Branding is simply a more efficient way to sell things?&lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionTab1"&gt;
+            &lt;div class="card-body"&gt; Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div id="hdt-accordion-item2"&gt;
+      &lt;h3&gt;Payment Information&lt;/h3&gt;
+      &lt;div class="accordion" id="accordionTab2"&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="heading1"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1"&gt; Pellentesque habitant morbi tristique senectus et netus? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapse1" class="collapse" aria-labelledby="heading1" data-parent="#accordionTab2"&gt;
+            &lt;div class="card-body"&gt; Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="heading2"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2"&gt; How much is shipping and how long will it take? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapse2" class="collapse" aria-labelledby="heading2" data-parent="#accordionTab2"&gt;
+            &lt;div class="card-body"&gt; The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="heading3"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3"&gt; How long will it take to get my package? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapse3" class="collapse" aria-labelledby="heading3" data-parent="#accordionTab2"&gt;
+            &lt;div class="card-body"&gt; For me, the most important part of improving at photography has been sharing it. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="heading4"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4"&gt; Branding is simply a more efficient way to sell things?&lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#accordionTab2"&gt;
+            &lt;div class="card-body"&gt; Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+	  &lt;/div&gt;
+	  &lt;div id="hdt-accordion-item3"&gt;
+      &lt;h3&gt;Order Returns&lt;/h3&gt;
+      &lt;div class="accordion" id="accordionTab3"&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingOne1"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseOne1" aria-expanded="true" aria-controls="collapseOne1"&gt; Pellentesque habitant morbi tristique senectus et netus? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseOne1" class="collapse" aria-labelledby="headingOne1" data-parent="#accordionTab3"&gt;
+            &lt;div class="card-body"&gt; Dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingTwo2"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseTwo22" aria-expanded="false" aria-controls="collapseTwo22"&gt; How much is shipping and how long will it take? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseTwo22" class="collapse" aria-labelledby="headingTwo22" data-parent="#accordionTab3"&gt;
+            &lt;div class="card-body"&gt; The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingThree3"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseThree3" aria-expanded="false" aria-controls="collapseThree3"&gt; How long will it take to get my package? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseThree3" class="collapse" aria-labelledby="headingThree3" data-parent="#accordionTab3"&gt;
+            &lt;div class="card-body"&gt; Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. The perfect way to enjoy brewing tea on low hanging fruit to identify. Duis autem vel eum iriure dolor in hendrerit vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis. For me, the most important part of improving at photography has been sharing it. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="card"&gt;
+          &lt;div class="card-header" id="headingFour4"&gt;
+            &lt;h2 class="mb-0"&gt;
+              &lt;button class="title-tab" type="button" data-toggle="collapse" data-target="#collapseFour4" aria-expanded="false" aria-controls="collapseFour4"&gt;Branding is simply a more efficient way to sell things? &lt;/button&gt;
+            &lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div id="collapseFour4" class="collapse" aria-labelledby="headingFour4" data-parent="#accordionTab3"&gt;
+            &lt;div class="card-body"&gt; Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+	   &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Our Store</title>
+      <identifier>our-store</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="our-store our-store-item1"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col-md-6"&gt;
+      &lt;div class="our-store-img"&gt;
+        &lt;a href="#"&gt;
+			&lt;img class="mark-lazy" src="{{media url=wysiwyg/ourstore.png}}" alt="" width="550" height="420" /&gt;
+		&lt;/a&gt;
+      &lt;/div&gt;
+	  &lt;/div&gt;
+	   &lt;div class="col-md-6"&gt;
+      &lt;div class="our-store-content"&gt;
+        &lt;div class="our-store-inner"&gt;
+          &lt;div class="hdt-ourstore_inner"&gt;
+            &lt;h3 class="hdt-title"&gt;Ecomus Paris&lt;/h3&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Address&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;66 47 Rue des Couronnes, 75020 Paris&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Phone&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;(623) 934-2400&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Email&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;Ecomus@example.com&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Open Time&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;Our store has re-opened for shopping, &lt;/p&gt;
+              &lt;p&gt;exchange Every day 11am to 7pm&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-socials-contact"&gt;
+              &lt;ul class="socials-list"&gt;
+                &lt;li class="facebook"&gt;
+                  &lt;a href="https://facebook.com/shopify" class="hdt-social-facebook hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"&gt;
+                      &lt;path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Facebook&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="twitter"&gt;
+                  &lt;a href="https://twitter.com/shopify" class="hdt-social-twitter hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg viewBox="0 0 512 512"&gt;
+                      &lt;path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Twitter&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="instagram"&gt;
+                  &lt;a href="https://www.instagram.com/" class="hdt-social-instagram hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+                      &lt;path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Instagram&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="tiktok"&gt;
+                  &lt;a href="https://tiktok.com/@shopify" class="hdt-social-tiktok hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+                      &lt;path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;TikTok&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="pinterest"&gt;
+                  &lt;a href="https://pinterest.com/shopify" class="hdt-social-pinterest hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"&gt;
+                      &lt;path d="M496 256c0 137-111 248-248 248-25.6 0-50.2-3.9-73.4-11.1 10.1-16.5 25.2-43.5 30.8-65 3-11.6 15.4-59 15.4-59 8.1 15.4 31.7 28.5 56.8 28.5 74.8 0 128.7-68.8 128.7-154.3 0-81.9-66.9-143.2-152.9-143.2-107 0-163.9 71.8-163.9 150.1 0 36.4 19.4 81.7 50.3 96.1 4.7 2.2 7.2 1.2 8.3-3.3.8-3.4 5-20.3 6.9-28.1.6-2.5.3-4.7-1.7-7.1-10.1-12.5-18.3-35.3-18.3-56.6 0-54.7 41.4-107.6 112-107.6 60.9 0 103.6 41.5 103.6 100.9 0 67.1-33.9 113.6-78 113.6-24.3 0-42.6-20.1-36.7-44.8 7-29.5 20.5-61.3 20.5-82.6 0-19-10.2-34.9-31.4-34.9-24.9 0-44.9 25.7-44.9 60.2 0 22 7.4 36.8 7.4 36.8s-24.5 103.8-29 123.2c-5 21.4-3 51.6-.9 71.2C65.4 450.9 0 361.1 0 256 0 119 111 8 248 8s248 111 248 248z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Pinterest&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;a href="{{store url="contact"}}" class="hdt-btn"&gt;Get Directions &lt;/span&gt;
+              &lt;svg class="hdt-icon hdt-icon-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 64 64" fill="currentColor"&gt;
+                &lt;path d="M12,56.43,36.48,32,12,7.52,19.53,0,51.61,32,19.53,64Z"&gt;&lt;/path&gt;
+              &lt;/svg&gt;
+            &lt;/a&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="our-store our-store-item2"&gt;
+  &lt;div class="row"&gt;
+	   &lt;div class="col-md-6"&gt;
+      &lt;div class="our-store-content"&gt;
+        &lt;div class="our-store-inner"&gt;
+          &lt;div class="hdt-ourstore_inner"&gt;
+            &lt;h3 class="hdt-title"&gt;Ecomus London&lt;/h3&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Address&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;66 Mott St, London, Zip Code: 10006, AS&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Phone&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;(623) 934-2400&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Email&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;Ecomus@example.com&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Open Time&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;Our store has re-opened for shopping, &lt;/p&gt;
+              &lt;p&gt;exchange Every day 11am to 7pm&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-socials-contact"&gt;
+              &lt;ul class="socials-list"&gt;
+                &lt;li class="facebook"&gt;
+                  &lt;a href="https://facebook.com/shopify" class="hdt-social-facebook hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"&gt;
+                      &lt;path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Facebook&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="twitter"&gt;
+                  &lt;a href="https://twitter.com/shopify" class="hdt-social-twitter hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg viewBox="0 0 512 512"&gt;
+                      &lt;path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Twitter&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="instagram"&gt;
+                  &lt;a href="https://www.instagram.com/" class="hdt-social-instagram hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+                      &lt;path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Instagram&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="tiktok"&gt;
+                  &lt;a href="https://tiktok.com/@shopify" class="hdt-social-tiktok hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+                      &lt;path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;TikTok&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="pinterest"&gt;
+                  &lt;a href="https://pinterest.com/shopify" class="hdt-social-pinterest hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"&gt;
+                      &lt;path d="M496 256c0 137-111 248-248 248-25.6 0-50.2-3.9-73.4-11.1 10.1-16.5 25.2-43.5 30.8-65 3-11.6 15.4-59 15.4-59 8.1 15.4 31.7 28.5 56.8 28.5 74.8 0 128.7-68.8 128.7-154.3 0-81.9-66.9-143.2-152.9-143.2-107 0-163.9 71.8-163.9 150.1 0 36.4 19.4 81.7 50.3 96.1 4.7 2.2 7.2 1.2 8.3-3.3.8-3.4 5-20.3 6.9-28.1.6-2.5.3-4.7-1.7-7.1-10.1-12.5-18.3-35.3-18.3-56.6 0-54.7 41.4-107.6 112-107.6 60.9 0 103.6 41.5 103.6 100.9 0 67.1-33.9 113.6-78 113.6-24.3 0-42.6-20.1-36.7-44.8 7-29.5 20.5-61.3 20.5-82.6 0-19-10.2-34.9-31.4-34.9-24.9 0-44.9 25.7-44.9 60.2 0 22 7.4 36.8 7.4 36.8s-24.5 103.8-29 123.2c-5 21.4-3 51.6-.9 71.2C65.4 450.9 0 361.1 0 256 0 119 111 8 248 8s248 111 248 248z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Pinterest&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;a href="{{store url="contact"}}" class="hdt-btn"&gt;Get Directions &lt;/span&gt;
+              &lt;svg class="hdt-icon hdt-icon-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 64 64" fill="currentColor"&gt;
+                &lt;path d="M12,56.43,36.48,32,12,7.52,19.53,0,51.61,32,19.53,64Z"&gt;&lt;/path&gt;
+              &lt;/svg&gt;
+            &lt;/a&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+	 &lt;div class="col-md-6"&gt;
+      &lt;div class="our-store-img"&gt;
+        &lt;a href="#"&gt;
+			&lt;img class="mark-lazy" src="{{media url=wysiwyg/ourstore2.png}}" alt="" width="550" height="420" /&gt;
+		&lt;/a&gt;
+      &lt;/div&gt;
+	  &lt;/div&gt;
+  &lt;/div&gt;
+ &lt;/div&gt;
+ &lt;div class="our-store our-store-item3"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col-md-6"&gt;
+      &lt;div class="our-store-img"&gt;
+        &lt;a href="#"&gt;
+			&lt;img class="mark-lazy" src="{{media url=wysiwyg/ourstore3.png}}" alt="" width="550" height="420" /&gt;
+		&lt;/a&gt;
+      &lt;/div&gt;
+	  &lt;/div&gt;
+	   &lt;div class="col-md-6"&gt;
+      &lt;div class="our-store-content"&gt;
+        &lt;div class="our-store-inner"&gt;
+          &lt;div class="hdt-ourstore_inner"&gt;
+            &lt;h3 class="hdt-title"&gt;Ecomus Dubai&lt;/h3&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Address&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;66 Mott St, Dubai, Zip Code: 10006, AS&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Phone&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;(623) 934-2400&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Email&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;Ecomus@example.com&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-rte"&gt;
+              &lt;p&gt;
+                &lt;strong&gt;Open Time&lt;/strong&gt;
+              &lt;/p&gt;
+              &lt;p&gt;Our store has re-opened for shopping, &lt;/p&gt;
+              &lt;p&gt;exchange Every day 11am to 7pm&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="hdt-socials-contact"&gt;
+              &lt;ul class="socials-list"&gt;
+                &lt;li class="facebook"&gt;
+                  &lt;a href="https://facebook.com/shopify" class="hdt-social-facebook hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"&gt;
+                      &lt;path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Facebook&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="twitter"&gt;
+                  &lt;a href="https://twitter.com/shopify" class="hdt-social-twitter hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg viewBox="0 0 512 512"&gt;
+                      &lt;path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Twitter&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="instagram"&gt;
+                  &lt;a href="https://www.instagram.com/" class="hdt-social-instagram hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+                      &lt;path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Instagram&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="tiktok"&gt;
+                  &lt;a href="https://tiktok.com/@shopify" class="hdt-social-tiktok hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+                      &lt;path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;TikTok&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li class="pinterest"&gt;
+                  &lt;a href="https://pinterest.com/shopify" class="hdt-social-pinterest hdt-flex hdt-align-center hdt-justify-center" aria-describedby="a11y-external-message"&gt;
+                    &lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"&gt;
+                      &lt;path d="M496 256c0 137-111 248-248 248-25.6 0-50.2-3.9-73.4-11.1 10.1-16.5 25.2-43.5 30.8-65 3-11.6 15.4-59 15.4-59 8.1 15.4 31.7 28.5 56.8 28.5 74.8 0 128.7-68.8 128.7-154.3 0-81.9-66.9-143.2-152.9-143.2-107 0-163.9 71.8-163.9 150.1 0 36.4 19.4 81.7 50.3 96.1 4.7 2.2 7.2 1.2 8.3-3.3.8-3.4 5-20.3 6.9-28.1.6-2.5.3-4.7-1.7-7.1-10.1-12.5-18.3-35.3-18.3-56.6 0-54.7 41.4-107.6 112-107.6 60.9 0 103.6 41.5 103.6 100.9 0 67.1-33.9 113.6-78 113.6-24.3 0-42.6-20.1-36.7-44.8 7-29.5 20.5-61.3 20.5-82.6 0-19-10.2-34.9-31.4-34.9-24.9 0-44.9 25.7-44.9 60.2 0 22 7.4 36.8 7.4 36.8s-24.5 103.8-29 123.2c-5 21.4-3 51.6-.9 71.2C65.4 450.9 0 361.1 0 256 0 119 111 8 248 8s248 111 248 248z"&gt;&lt;/path&gt;
+                    &lt;/svg&gt;
+                    &lt;span class="sr-only"&gt;Pinterest&lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;a href="{{store url="contact"}}" class="hdt-btn"&gt;Get Directions &lt;/span&gt;
+              &lt;svg class="hdt-icon hdt-icon-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 64 64" fill="currentColor"&gt;
+                &lt;path d="M12,56.43,36.48,32,12,7.52,19.53,0,51.61,32,19.53,64Z"&gt;&lt;/path&gt;
+              &lt;/svg&gt;
+            &lt;/a&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+ &lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Store locations</title>
+      <identifier>store-locations</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt-store-locator"&gt;
+  &lt;div class="hdt-store-list-wrap"&gt;
+    &lt;div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical"&gt;
+      &lt;button class="nav-link active" id="v-pills-1-tab" data-toggle="pill" data-target="#v-pills-1" type="button" role="tab" aria-controls="v-pills-1" aria-selected="true"&gt;
+        &lt;h6 class="hdt-store-title"&gt;
+          &lt;svg class="hdt-absolute hdt-top-0 hdt-left-0 hdt-bottom-0" xmlns="http://www.w3.org/2000/svg" width="13" height="16" viewBox="0 0 13 16" fill="none"&gt;
+            &lt;path d="M6.40984 3.43944C4.77197 3.43944 3.43944 4.77197 3.43944 6.40984C3.43944 8.04772 4.77197 9.38025 6.40984 9.38025C8.04772 9.38025 9.38025 8.04772 9.38025 6.40984C9.38025 4.77197 8.04775 3.43944 6.40984 3.43944ZM6.40984 8.12956C5.46159 8.12956 4.69012 7.35809 4.69012 6.40984C4.69012 5.46159 5.46159 4.69012 6.40984 4.69012C7.35809 4.69012 8.12956 5.46159 8.12956 6.40984C8.12956 7.35809 7.35809 8.12956 6.40984 8.12956Z" fill="currentColor"&gt;&lt;/path&gt;
+            &lt;path d="M6.40984 0C2.87544 0 0 2.87547 0 6.40984V6.58703C0 8.37453 1.02481 10.4575 3.04606 12.7781C4.51131 14.4603 5.95609 15.6333 6.01684 15.6824L6.40984 16L6.80284 15.6825C6.86363 15.6333 8.30841 14.4603 9.77362 12.7781C11.7948 10.4575 12.8197 8.37456 12.8197 6.58706V6.40987C12.8197 2.87547 9.94425 0 6.40984 0ZM11.569 6.58706C11.569 9.60784 7.67678 13.2646 6.40984 14.3746C5.14256 13.2642 1.25069 9.60763 1.25069 6.58706V6.40987C1.25069 3.56512 3.56509 1.25072 6.40984 1.25072C9.25459 1.25072 11.569 3.56512 11.569 6.40987V6.58706Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt; Ecomus Paris
+        &lt;/h6&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Address&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;93 Rue du Chevalier de la Barre, 961821 Paris, France&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Phone&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;(+33) 936 -1234&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Email&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;Ecomus.paris@example.com&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/button&gt;
+      &lt;button class="nav-link" id="v-pills-2-tab" data-toggle="pill" data-target="#v-pills-2" type="button" role="tab" aria-controls="v-pills-2" aria-selected="false"&gt;
+        &lt;h6 class="hdt-store-title"&gt;
+          &lt;svg class="hdt-absolute hdt-top-0 hdt-left-0 hdt-bottom-0" xmlns="http://www.w3.org/2000/svg" width="13" height="16" viewBox="0 0 13 16" fill="none"&gt;
+            &lt;path d="M6.40984 3.43944C4.77197 3.43944 3.43944 4.77197 3.43944 6.40984C3.43944 8.04772 4.77197 9.38025 6.40984 9.38025C8.04772 9.38025 9.38025 8.04772 9.38025 6.40984C9.38025 4.77197 8.04775 3.43944 6.40984 3.43944ZM6.40984 8.12956C5.46159 8.12956 4.69012 7.35809 4.69012 6.40984C4.69012 5.46159 5.46159 4.69012 6.40984 4.69012C7.35809 4.69012 8.12956 5.46159 8.12956 6.40984C8.12956 7.35809 7.35809 8.12956 6.40984 8.12956Z" fill="currentColor"&gt;&lt;/path&gt;
+            &lt;path d="M6.40984 0C2.87544 0 0 2.87547 0 6.40984V6.58703C0 8.37453 1.02481 10.4575 3.04606 12.7781C4.51131 14.4603 5.95609 15.6333 6.01684 15.6824L6.40984 16L6.80284 15.6825C6.86363 15.6333 8.30841 14.4603 9.77362 12.7781C11.7948 10.4575 12.8197 8.37456 12.8197 6.58706V6.40987C12.8197 2.87547 9.94425 0 6.40984 0ZM11.569 6.58706C11.569 9.60784 7.67678 13.2646 6.40984 14.3746C5.14256 13.2642 1.25069 9.60763 1.25069 6.58706V6.40987C1.25069 3.56512 3.56509 1.25072 6.40984 1.25072C9.25459 1.25072 11.569 3.56512 11.569 6.40987V6.58706Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt; Ecomus London
+        &lt;/h6&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Address&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;Cromwell Rd, South Kensington, London SW1 6BD, UK&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Phone&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;(+44) 20 4942 6789&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Email&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;Ecomus.london@example.com&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/button&gt;
+      &lt;button class="nav-link" id="v-pills-3-tab" data-toggle="pill" data-target="#v-pills-3" type="button" role="tab" aria-controls="v-pills-3" aria-selected="false"&gt;
+        &lt;h6 class="hdt-store-title"&gt;
+          &lt;svg class="hdt-absolute hdt-top-0 hdt-left-0 hdt-bottom-0" xmlns="http://www.w3.org/2000/svg" width="13" height="16" viewBox="0 0 13 16" fill="none"&gt;
+            &lt;path d="M6.40984 3.43944C4.77197 3.43944 3.43944 4.77197 3.43944 6.40984C3.43944 8.04772 4.77197 9.38025 6.40984 9.38025C8.04772 9.38025 9.38025 8.04772 9.38025 6.40984C9.38025 4.77197 8.04775 3.43944 6.40984 3.43944ZM6.40984 8.12956C5.46159 8.12956 4.69012 7.35809 4.69012 6.40984C4.69012 5.46159 5.46159 4.69012 6.40984 4.69012C7.35809 4.69012 8.12956 5.46159 8.12956 6.40984C8.12956 7.35809 7.35809 8.12956 6.40984 8.12956Z" fill="currentColor"&gt;&lt;/path&gt;
+            &lt;path d="M6.40984 0C2.87544 0 0 2.87547 0 6.40984V6.58703C0 8.37453 1.02481 10.4575 3.04606 12.7781C4.51131 14.4603 5.95609 15.6333 6.01684 15.6824L6.40984 16L6.80284 15.6825C6.86363 15.6333 8.30841 14.4603 9.77362 12.7781C11.7948 10.4575 12.8197 8.37456 12.8197 6.58706V6.40987C12.8197 2.87547 9.94425 0 6.40984 0ZM11.569 6.58706C11.569 9.60784 7.67678 13.2646 6.40984 14.3746C5.14256 13.2642 1.25069 9.60763 1.25069 6.58706V6.40987C1.25069 3.56512 3.56509 1.25072 6.40984 1.25072C9.25459 1.25072 11.569 3.56512 11.569 6.40987V6.58706Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt; Ecomus Marid
+        &lt;/h6&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Address&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;C. de Ferraz, 1, 150596 Madrid, Spain&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Phone&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;(+48) 321-2468&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Email&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;Ecomus.marid@example.com&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/button&gt;
+      &lt;button class="nav-link" id="v-pills-4-tab" data-toggle="pill" data-target="#v-pills-4" type="button" role="tab" aria-controls="v-pills-4" aria-selected="false"&gt;
+        &lt;h6 class="hdt-font-normal hdt-store-title hdt-relative hdt-flex hdt-align-center"&gt;
+          &lt;svg class="hdt-absolute hdt-top-0 hdt-left-0 hdt-bottom-0" xmlns="http://www.w3.org/2000/svg" width="13" height="16" viewBox="0 0 13 16" fill="none"&gt;
+            &lt;path d="M6.40984 3.43944C4.77197 3.43944 3.43944 4.77197 3.43944 6.40984C3.43944 8.04772 4.77197 9.38025 6.40984 9.38025C8.04772 9.38025 9.38025 8.04772 9.38025 6.40984C9.38025 4.77197 8.04775 3.43944 6.40984 3.43944ZM6.40984 8.12956C5.46159 8.12956 4.69012 7.35809 4.69012 6.40984C4.69012 5.46159 5.46159 4.69012 6.40984 4.69012C7.35809 4.69012 8.12956 5.46159 8.12956 6.40984C8.12956 7.35809 7.35809 8.12956 6.40984 8.12956Z" fill="currentColor"&gt;&lt;/path&gt;
+            &lt;path d="M6.40984 0C2.87544 0 0 2.87547 0 6.40984V6.58703C0 8.37453 1.02481 10.4575 3.04606 12.7781C4.51131 14.4603 5.95609 15.6333 6.01684 15.6824L6.40984 16L6.80284 15.6825C6.86363 15.6333 8.30841 14.4603 9.77362 12.7781C11.7948 10.4575 12.8197 8.37456 12.8197 6.58706V6.40987C12.8197 2.87547 9.94425 0 6.40984 0ZM11.569 6.58706C11.569 9.60784 7.67678 13.2646 6.40984 14.3746C5.14256 13.2642 1.25069 9.60763 1.25069 6.58706V6.40987C1.25069 3.56512 3.56509 1.25072 6.40984 1.25072C9.25459 1.25072 11.569 3.56512 11.569 6.40987V6.58706Z" fill="currentColor"&gt;&lt;/path&gt;
+          &lt;/svg&gt; Ecomus Tokyo
+        &lt;/h6&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Address&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;152-0035 Tokyo, Meguro City, Jiyugaoka, Japan&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Phone&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;(623) 934-2400&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="hdt-store-info"&gt;
+          &lt;span class="hdt-text-base hdt-font-semibold"&gt;Email&lt;/span&gt;
+          &lt;div class="hdt-font-normal"&gt;Ecomus.tokyo@example.com&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="hdt-store-map"&gt;
+    &lt;div class="tab-content" id="v-pills-tabContent"&gt;
+      &lt;div class="tab-pane fade show active" id="v-pills-1" role="tabpanel" aria-labelledby="v-pills-1-tab"&gt;
+        &lt;iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d83998.77824554527!2d2.2646347368784494!3d48.85893843472727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e5ccbdfcb83%3A0x7080acd10c465b03!2sThe%20Basilica%20of%20the%20Sacred%20Heart%20of%20Paris%2C%2035%20Rue%20du%20Chevalier%20de%20la%20Barre%2C%2075018%20Paris%2C%20Ph%C3%A1p!5e0!3m2!1svi!2s!4v1695714595683!5m2!1svi!2s" width="950" height="985" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"&gt;&lt;/iframe&gt;
+      &lt;/div&gt;
+      &lt;div class="tab-pane fade" id="v-pills-2" role="tabpanel" aria-labelledby="v-pills-2-tab"&gt;
+        &lt;iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d39802.86580821373!2d-0.30179043345149886!3d51.42732095830219!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487608b7738a00c5%3A0x260eae2ec8a63d71!2zV2ltYmxlZG9uLCBMdcOibiDEkMO0biwgVsawxqFuZyBRdeG7kWMgQW5o!5e0!3m2!1svi!2s!4v1728893892159!5m2!1svi!2s" width="950" height="985" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"&gt;&lt;/iframe&gt;
+      &lt;/div&gt;
+      &lt;div class="tab-pane fade" id="v-pills-3" role="tabpanel" aria-labelledby="v-pills-3-tab"&gt;
+        &lt;iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.314464037015!2d-3.7226399215561266!3d40.42403519779415!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd42286e737811c7%3A0x55508c22fbb6e228!2sC.%20de%20Ferraz%2C%201%2C%20Moncloa%20-%20Aravaca%2C%2028008%20Madrid%2C%20T%C3%A2y%20Ban%20Nha!5e0!3m2!1svi!2s!4v1728893684631!5m2!1svi!2s" width="950" height="985" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"&gt;&lt;/iframe&gt;
+      &lt;/div&gt;
+      &lt;div class="tab-pane fade" id="v-pills-4" role="tabpanel" aria-labelledby="v-pills-4-tab"&gt;
+        &lt;iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6487.413064543847!2d139.6576286387597!3d35.61030500794399!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6018f51e4d3a9393%3A0x786e1d08715fead3!2zMTUyLTAwMzUsIE5o4bqtdCBC4bqjbg!5e0!3m2!1svi!2s!4v1728893766975!5m2!1svi!2s" width="950" height="985" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"&gt;&lt;/iframe&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Timeline</title>
+      <identifier>timeline</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt_timeline_content hdt-relative"&gt;
+  &lt;span class="hdt_timeline_line hdt-absolute"&gt;&lt;/span&gt;
+  &lt;div class="hdt-timeline-item hdt-relative"&gt;
+    &lt;div class="hdt-timeline-inner hdt-relative hdt-timeline-content__end hdt-flex hdt-justify-between hdt-align-center"&gt;
+      &lt;span class="hdt-timeline-time hdt-text-2xl hdt-absolute hdt-inline-flex hdt-justify-center hdt-align-center"&gt;1980&lt;/span&gt;
+      &lt;div class="hdt-timeline-content hdt-relative"&gt;
+        &lt;div class="hdt-timeline-label hdt-text-base hdt-s-text hdt-font-bold"&gt;PHASE 1&lt;/div&gt;
+        &lt;h4 class="hdt-timeline-title hdt-s-text"&gt;Inception and Brand Establishment&lt;/h4&gt;
+        &lt;div class="hdt-timeline-description hdt-text-base hdt-s-text2 hdt-rte"&gt;Inception, in the context of brand establishment, refers to the initial phase of creating and introducing a brand to the market. It involves laying down the foundational elements that will define the brand's identity, values, and positioning in the minds of consumers.&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-timeline-image"&gt;
+		&lt;img class="mark-lazy" src="{{media url=wysiwyg/timeline1.jpg}}" alt="" width="800" height="593" /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="hdt-timeline-item hdt-relative"&gt;
+    &lt;div class="hdt-timeline-inner hdt-relative hdt-timeline-content__start hdt-flex hdt-justify-between hdt-align-center"&gt;
+      &lt;span class="hdt-timeline-time hdt-text-2xl hdt-absolute hdt-inline-flex hdt-justify-center hdt-align-center"&gt;2000&lt;/span&gt;
+      &lt;div class="hdt-timeline-content hdt-relative"&gt;
+        &lt;div class="hdt-timeline-label hdt-text-base hdt-s-text hdt-font-bold"&gt;PHASE 2&lt;/div&gt;
+        &lt;h4 class="hdt-timeline-title hdt-s-text"&gt;Debut Collection and Market Entry&lt;/h4&gt;
+        &lt;div class="hdt-timeline-description hdt-text-base hdt-s-text2 hdt-rte"&gt;Entering the market with a debut collection requires careful planning, creativity, and perseverance. By following these steps and staying true to your vision, you can increase your chances of success in the fashion industry.&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-timeline-image"&gt;
+		&lt;img class="mark-lazy" src="{{media url=wysiwyg/timeline2.jpg}}" alt="" width="800" height="593" /&gt;
+       &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="hdt-timeline-item hdt-relative"&gt;
+    &lt;div class="hdt-timeline-inner hdt-relative hdt-timeline-content__end hdt-flex hdt-justify-between hdt-align-center"&gt;
+      &lt;span class="hdt-timeline-time hdt-text-2xl hdt-absolute hdt-inline-flex hdt-justify-center hdt-align-center"&gt;2010&lt;/span&gt;
+      &lt;div class="hdt-timeline-content hdt-relative"&gt;
+        &lt;div class="hdt-timeline-label hdt-text-base hdt-s-text hdt-font-bold"&gt;PHASE 3&lt;/div&gt;
+        &lt;h4 class="hdt-timeline-title hdt-s-text"&gt;Growth and Recognition&lt;/h4&gt;
+        &lt;div class="hdt-timeline-description hdt-text-base hdt-s-text2 hdt-rte"&gt;During the Growth and Recognition phase of a brand's journey, several key elements come into play to propel its expansion and solidify its position in the market. Here's an outline of what typically occurs during this phase&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-timeline-image"&gt;
+		&lt;img class="mark-lazy" src="{{media url=wysiwyg/timeline3.jpg}}" alt="" width="800" height="593" /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="hdt-timeline-item hdt-relative"&gt;
+    &lt;div class="hdt-timeline-inner hdt-relative hdt-timeline-content__start hdt-flex hdt-justify-between hdt-align-center"&gt;
+      &lt;span class="hdt-timeline-time hdt-text-2xl hdt-absolute hdt-inline-flex hdt-justify-center hdt-align-center"&gt;2024&lt;/span&gt;
+      &lt;div class="hdt-timeline-content hdt-relative"&gt;
+        &lt;div class="hdt-timeline-label hdt-text-base hdt-s-text hdt-font-bold"&gt;PHASE 4&lt;/div&gt;
+        &lt;h4 class="hdt-timeline-title hdt-s-text"&gt;Sustainable Initiatives&lt;/h4&gt;
+        &lt;div class="hdt-timeline-description hdt-text-base hdt-s-text2 hdt-rte"&gt;Sustainable initiatives play a crucial role in the growth and development of a brand, especially in today's environmentally conscious and socially responsible market landscape. Here are some examples of sustainable initiatives that brands may undertake&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="hdt-timeline-image"&gt;
+        &lt;img class="mark-lazy" src="{{media url=wysiwyg/timeline4.jpg}}" alt="" width="800" height="593" /&gt;
+	 &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-04</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-4 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow4"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-4-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-05</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-5 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow5"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-5-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-06</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-6 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow6"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-6-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-07</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-7 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow7"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-7-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-08</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-8 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow8"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-8-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-09</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-9 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow9"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-9-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Ecomus | Modern Multipurpose Magento 2 Theme</title>
+      <identifier>home-demo-10</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="home-page-10 title-style-home"&gt;{{block class="Magento\\Cms\\Block\\Block" block_id="slideshow10"}}{{block class="Magento\\Cms\\Block\\Block" block_id="id-10-block-1"}}&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Delivery Return</title>
+      <identifier>delivery-return</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt-page-delivery-return"&gt;
+&lt;h4&gt;Delivery&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;All orders shipped with UPS Express.&lt;/li&gt;
+&lt;li&gt;Always free shipping for orders over US $250.&lt;/li&gt;
+&lt;li&gt;All orders are shipped with a UPS tracking number.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Returns&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Items returned within 14 days of their original shipment date in same as new condition will be eligible for a full refund or store credit.&lt;/li&gt;
+&lt;li&gt;Refunds will be charged back to the original form of payment used for purchase.&lt;/li&gt;
+&lt;li&gt;Customer is responsible for shipping charges when making returns and shipping/handling fees of original purchase is non-refundable.t&lt;/li&gt;
+&lt;li&gt;All sale items are final purchases.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Help&lt;/h4&gt;
+&lt;p&gt;Give us a shout if you have any other questions and/or concerns.&lt;/p&gt;
+&lt;p class="hdt-color-second"&gt;Email: contact@domain.com&lt;/p&gt;
+&lt;p class="hdt-color-second"&gt;Phone: +1 (23) 456 789&lt;/p&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Shipping &amp; Delivery</title>
+      <identifier>shipping-delivery</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt-page-popup-delivery hdt-text-start"&gt;
+  &lt;div&gt;
+    &lt;h4&gt;Delivery&lt;/h4&gt;
+    &lt;p&gt;All orders shipped with UPS Express.&lt;/p&gt;
+    &lt;p&gt;Always free shipping for orders over US $250.&lt;/p&gt;
+    &lt;p&gt;All orders are shipped with a UPS tracking number.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;h4&gt;Returns&lt;/h4&gt;
+    &lt;p&gt;Items returned within 14 days of their original shipment date in same as new condition will be eligible for a full refund or store credit.&lt;/p&gt;
+    &lt;p&gt;Refunds will be charged back to the original form of payment used for purchase.&lt;/p&gt;
+    &lt;p&gt;Customer is responsible for shipping charges when making returns and shipping/handling fees of original purchase is non-refundable.&lt;/p&gt;
+    &lt;p&gt;All sale items are final purchases.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;h4&gt;Help&lt;/h4&gt;
+    &lt;p&gt;Give us a shout if you have any other questions and/or concerns.&lt;/p&gt;
+    &lt;p&gt;Email: &lt;a href="mailto:contact@domain.com" aria-describedby="a11y-external-message"&gt;&lt;span class="__cf_email__"&gt;contact@domain.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+    &lt;p&gt;Phone: +1 (23) 456 789&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Privacy Policy</title>
+      <identifier>privacy-policy</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt-page-privacy-policy"&gt;
+&lt;h4&gt;The Company Private Limited Policy&lt;/h4&gt;
+&lt;p&gt;The Company Private Limited and each of their respective subsidiary, parent and affiliated companies is deemed to operate this Website (“we” or “us”) recognizes that you care how information about you is used and shared. We have created this Privacy Policy to inform you what information we collect on the Website, how we use your information and the choices you have about the way your information is collected and used. Please read this Privacy Policy carefully. Your use of the Website indicates that you have read and accepted our privacy practices, as outlined in this Privacy Policy.&lt;/p&gt;
+&lt;p&gt;Please be advised that the practices described in this Privacy Policy apply to information gathered by us or our subsidiaries, affiliates or agents: (i) through this Website, (ii) where applicable, through our Customer Service Department in connection with this Website, (iii) through information provided to us in our free standing retail stores, and (iv) through information provided to us in conjunction with marketing promotions and sweepstakes.&lt;/p&gt;
+&lt;p&gt;We are not responsible for the content or privacy practices on any websites.&lt;/p&gt;
+&lt;p&gt;We reserve the right, in our sole discretion, to modify, update, add to, discontinue, remove or otherwise change any portion of this Privacy Policy, in whole or in part, at any time. When we amend this Privacy Policy, we will revise the “last updated” date located at the top of this Privacy Policy.&lt;/p&gt;
+&lt;p&gt;If you provide information to us or access or use the Website in any way after this Privacy Policy has been changed, you will be deemed to have unconditionally consented and agreed to such changes. The most current version of this Privacy Policy will be available on the Website and will supersede all previous versions of this Privacy Policy.&lt;/p&gt;
+&lt;p&gt;If you have any questions regarding this Privacy Policy, you should contact our Customer Service Department by email at marketing@company.com&lt;/p&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+    <cms_item>
+      <title>Terms &amp; Conditions</title>
+      <identifier>terms-conditions</identifier>
+      <content_heading></content_heading>
+      <content><![CDATA[<div data-content-type="html" data-appearance="default" data-element="main">&lt;div class="hdt-page-terms-conditions"&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;These Terms and Conditions May Change&lt;/h4&gt;
+&lt;p&gt;We reserve the right to update or modify these terms and conditions at any time without prior notice. Your use of shop.company.com and shop.beetle.com.sg following any such change constitutes your agreement to follow and be bound by the terms and conditions as changed. For this reason, we encourage you to review these terms and conditions whenever you use this website.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Limitations of Liability&lt;/h4&gt;
+&lt;p&gt;The Company Pte Ltd shall not assume any responsibility, and shall not be liable for, any damages to, or viruses that may infect, your computer, telecommunication equipment, or other property caused by or arising from your access to, use of, or browsing this website or your downloading of any materials, from this website. IN NO EVENT WILL THE COMPANY PRIVATE LIMITED NOR THEIR RESPECTIVE OFFICERS, DIRECTORS, EMPLOYEES, SHAREHOLDERS, AFFILIATES, AGENTS, SUCCESSORS, ASSIGNS, RETAIL PARTNERS NOR ANY PARTY INVOLVED IN THE CREATION, PRODUCTION OR TRANSMISSION OF THIS WEB SITE BE LIABLE TO ANY PARTY FOR ANY INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL DAMAGES (INCLUDING, WITHOUT LIMITATION, THOSE RESULTING FROM LOST PROFITS, LOST DATA OR BUSINESS INTERRUPTION) ARISING OUT OF THE USE, INABILITY TO USE, OR THE RESULTS OF USE OF THIS WEB SITE, ANY WEB SITES LINKED TO THIS WEB SITE, OR THE MATERIALS, INFORMATION OR SERVICES CONTAINED AT ANY OR ALL SUCH SITES, WHETHER BASED ON WARRANTY, CONTRACT, TORT OR ANY OTHER LEGAL THEORY AND WHETHER OR NOT ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE FOREGOING LIMITATIONS OF LIABILITY DO NOT APPLY TO THE EXTENT PROHIBITED BY LAW. PLEASE REFER TO YOUR LOCAL LAWS FOR ANY SUCH PROHIBITIONS.&lt;/p&gt;
+&lt;p&gt;IN THE EVENT OF ANY PROBLEM WITH THIS WEBSITE OR ANY CONTENT, YOU AGREE THAT YOUR SOLE REMEDY IS TO CEASE USING THIS WEBSITE. IN THE EVENT OF ANY PROBLEM WITH THE PRODUCTS OR SERVICES THAT YOU HAVE PURCHASED ON OR THROUGH THIS WEB SITE, YOU AGREE THAT YOUR REMEDY, IF ANY, IS FROM THE MANUFACTURER OF SUCH PRODUCTS OR SUPPLIER OF SUCH SERVICES, IN ACCORDANCE WITH SUCH MANUFACTURER’S OR SUPPLIER’S WARRANTY, OR TO SEEK A RETURN AND REFUND FOR SUCH PRODUCT OR SERVICES IN ACCORDANCE WITH THE RETURNS AND REFUNDS POLICIES POSTED ON THIS WEB SITE. This site may include inaccuracies, mistakes or typographical errors. CharlesKeith.com does not warrant that the content will be uninterrupted or error free.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Copyright and Trademark&lt;/h4&gt;
+&lt;p&gt;Unless otherwise indicated, material on this website, including but not limited to texts, images, illustrations, software, audio clips, video clips, animation files, is subject to the copyright and trademark rights of The Company Private Limited. Consequently, the material on this website may not be copied, reproduced, modified, posted, transmitted, distributed, in whole or in part in any form whatsoever, without the prior written consent of The Company Private Limited. All rights reserved.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Products, Content and Specifications&lt;/h4&gt;
+&lt;p&gt;All features, content, specifications, products and prices of products and services described or depicted on this website are subject to change at any time without notice. Certain weights, measures and similar descriptions are approximate and are provided for convenience purposes only. We make all reasonable efforts to accurately display the attributes of our products, including the applicable colors; however, the actual color you see will depend on your computer system and we cannot guarantee that your computer will accurately display such colors. The inclusion of any products or services in this website at a particular time does not imply or warrant that these products or services will be available at any time. It is your responsibility to ascertain and obey all applicable local, state and international laws in regard to the possession, use and sale of any item purchased from this website. By placing an order, you represent that the products ordered will be used only in a lawful manner.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-term-condition__item"&gt;
+&lt;h4&gt;Shipping Limitations&lt;/h4&gt;
+&lt;p&gt;When an order is placed, it will be shipped to an address designated by the purchaser as long as that shipping address is compliant with the shipping restrictions contained on this website. All purchases from this website are made pursuant to a shipment contract. As a result, risk of loss and title for items purchased from this website pass to you upon delivery of the items to the carrier. You are responsible for filing any claims with carriers for damaged and/or lost shipments.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Duties and Taxes&lt;/h4&gt;
+&lt;p&gt;You are responsible for duties and taxes outside Singapore. All items entering a foreign country are subject to customs inspection and assessment of the duties and taxes in accordance with that country’s national laws.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Your Account&lt;/h4&gt;
+&lt;p&gt;You are responsible for maintaining the confidentiality of your account and password information, and you agree to accept responsibility for all activities that occur under your account and password. This website and The Company Pte Ltd reserves the right to refuse service, terminate accounts remove or edit content or cancel orders.By placing an order, you warrant that you are over 18 years of age, and that you are providing shop.company.com or shop.beetle.com.sg with accurate, truthful information and that you have the authority to place the order.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Exchange and Refund Policy (Singapore Outlets Only)&lt;/h4&gt;
+&lt;p&gt;New, unused full-price merchandise purchased at store retail store may be exchange at any boutique with an original receipt within 7 days of purchase. After 7 days, the merchandise may not be exchanged.We offer a no-refund policy on all merchandises, however, for merchandise qualifying for an exchange, item may be exchange for store credits which may be used at our Singapore outlets only.Merchandise on sale may not be exchanged or returned. All merchandise must be returned in sellable condition, otherwise, an exchange would not be allowed.We reserve the right to reject any form of exchange without the original receipt.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="hdt-terms-condition__item"&gt;
+&lt;h4&gt;Exchange and Refund Policy (Online Shop)&lt;/h4&gt;
+Electronic Communications
+&lt;p&gt;When you visit this website and/or send email to us, you consent to receive electronic communications from us. You agree that all agreements, notices, disclosures and other communications that we sent you electronically satisfy any legal requirement that such communications be in writing&lt;/p&gt;
+&lt;span&gt;Exclusions of Warranties&lt;/span&gt;
+&lt;p&gt;The Company Private Limited makes no representative or warranty regarding the good working order or condition of this website, its suitability for use, or that its use will be uninterrupted or error-free. All information or material provided in this website to you â€œas isâ€ and without warranties of any kind, expressed or implied, including without limitation, warranties or conditions of merchantability, fitness, quality, durability or suitability for any particular purpose, or non-infringement.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</div>]]></content>
+      <is_active>1</is_active>
+      <page_layout>1column</page_layout>
+      <layout_update_xml><![CDATA[]]></layout_update_xml>
+      <store_id>0</store_id>
+    </cms_item>
+  </pages>
+</root>
