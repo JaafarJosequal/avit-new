@@ -249,6 +249,9 @@ class Password implements PasswordInterface
                 ->setData(['otp' => $otp])
                 ->setStatusCode(200);
 
+        } catch (\Magento\Framework\Webapi\Exception $e) {
+            // أرجع نفس الاستثناء اللي فيه الكود الصحيح (مثل 404 أو 400)
+            throw $e;
         } catch (\Exception $e) {
             $this->logger->error('Error in forgetPassword: ' . $e->getMessage());
             throw new \Magento\Framework\Webapi\Exception(__('Unable to send OTP.'), 0, 500);
