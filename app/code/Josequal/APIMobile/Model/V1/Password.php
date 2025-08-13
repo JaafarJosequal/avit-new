@@ -130,34 +130,22 @@ class Password implements PasswordInterface
             $customerId = $this->validateToken();
 
             if (!$customerId) {
-                return $response->setStatus(false)
-                    ->setMessage('Invalid or expired token')
-                    ->setData([])
-                    ->setStatusCode(401);
+                throw new \Magento\Framework\Webapi\Exception(__('Invalid or expired token'), 0, 401);
             }
 
             $customer = $this->customerRepository->getById($customerId);
             $email = $customer->getEmail();
 
             if (!$this->customerAccountManagement->authenticate($email, $oldPassword)) {
-                return $response->setStatus(false)
-                    ->setMessage('Incorrect old password')
-                    ->setData([])
-                    ->setStatusCode(401);
+                throw new \Magento\Framework\Webapi\Exception(__('Incorrect old password'), 0, 401);
             }
 
             if ($newPassword !== $confirmPassword) {
-                return $response->setStatus(false)
-                    ->setMessage('New password and confirm password do not match')
-                    ->setData([])
-                    ->setStatusCode(400);
+                throw new \Magento\Framework\Webapi\Exception(__('New password and confirm password do not match'), 0, 400);
             }
 
             if (strlen($newPassword) < $this->getMinimumPasswordLength()) {
-                return $response->setStatus(false)
-                    ->setMessage('Password must be at least ' . $this->getMinimumPasswordLength() . ' characters long')
-                    ->setData([])
-                    ->setStatusCode(400);
+                throw new \Magento\Framework\Webapi\Exception(__('Password must be at least ' . $this->getMinimumPasswordLength() . ' characters long'), 0, 400);
             }
 
             $this->customerAccountManagement->changePassword($email, $oldPassword, $newPassword);
@@ -168,21 +156,12 @@ class Password implements PasswordInterface
                 ->setStatusCode(200);
 
         } catch (\Magento\Framework\Exception\InvalidEmailOrPasswordException $e) {
-            return $response->setStatus(false)
-                ->setMessage('Incorrect credentials')
-                ->setData([])
-                ->setStatusCode(401);
+            throw new \Magento\Framework\Webapi\Exception(__('Incorrect credentials'), 0, 401);
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            return $response->setStatus(false)
-                ->setMessage($e->getMessage())
-                ->setData([])
-                ->setStatusCode(400);
+            throw new \Magento\Framework\Webapi\Exception(__($e->getMessage()), 0, 400);
         } catch (\Exception $e) {
             $this->logger->error('Error updating password: ' . $e->getMessage());
-            return $response->setStatus(false)
-                ->setMessage('An error occurred while updating password')
-                ->setData([])
-                ->setStatusCode(500);
+            throw new \Magento\Framework\Webapi\Exception(__('An error occurred while updating password'), 0, 500);
         }
     }
 
@@ -377,10 +356,7 @@ class Password implements PasswordInterface
                 ->getFirstItem();
 
             if (!$storedOtp->getId()) {
-                return $response->setStatus(false)
-                    ->setMessage('OTP expired or not found')
-                    ->setData([])
-                    ->setStatusCode(401);
+                throw new \Magento\Framework\Webapi\Exception(__('OTP expired or not found'), 0, 401);
             }
 
             // OTP is valid, return success with customer ID for next step
@@ -394,10 +370,7 @@ class Password implements PasswordInterface
 
         } catch (\Exception $e) {
             $this->logger->error('Error in verifyOtp: ' . $e->getMessage());
-            return $response->setStatus(false)
-                ->setMessage('Error verifying OTP')
-                ->setData([])
-                ->setStatusCode(500);
+            throw new \Magento\Framework\Webapi\Exception(__('Error verifying OTP'), 0, 500);
         }
     }
 
@@ -411,19 +384,13 @@ class Password implements PasswordInterface
             $email = $this->request->getParam('email');
 
             if (!$otp || !$email) {
-                return $response->setStatus(false)
-                    ->setMessage('OTP and email are required')
-                    ->setData([])
-                    ->setStatusCode(400);
+                throw new \Magento\Framework\Webapi\Exception(__('OTP and email are required'), 0, 400);
             }
 
             // Find customer by email
             $customer = $this->customerRepository->get($email);
             if (!$customer || !$customer->getId()) {
-                return $response->setStatus(false)
-                    ->setMessage('Customer not found')
-                    ->setData([])
-                    ->setStatusCode(404);
+                throw new \Magento\Framework\Webapi\Exception(__('Customer not found'), 0, 404);
             }
 
             $customerId = $customer->getId();
@@ -437,24 +404,15 @@ class Password implements PasswordInterface
                 ->getFirstItem();
 
             if (!$storedOtp->getId()) {
-                return $response->setStatus(false)
-                    ->setMessage('OTP expired or not found')
-                    ->setData([])
-                    ->setStatusCode(401);
+                throw new \Magento\Framework\Webapi\Exception(__('OTP expired or not found'), 0, 401);
             }
 
             if ($newPassword !== $confirmPassword) {
-                return $response->setStatus(false)
-                    ->setMessage('New password and confirm password do not match')
-                    ->setData([])
-                    ->setStatusCode(400);
+                throw new \Magento\Framework\Webapi\Exception(__('New password and confirm password do not match'), 0, 400);
             }
 
             if (strlen($newPassword) < $this->getMinimumPasswordLength()) {
-                return $response->setStatus(false)
-                    ->setMessage('Password must be at least ' . $this->getMinimumPasswordLength() . ' characters long')
-                    ->setData([])
-                    ->setStatusCode(400);
+                throw new \Magento\Framework\Webapi\Exception(__('Password must be at least ' . $this->getMinimumPasswordLength() . ' characters long'), 0, 400);
             }
 
             // Update customer password
@@ -471,16 +429,10 @@ class Password implements PasswordInterface
                 ->setStatusCode(200);
 
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            return $response->setStatus(false)
-                ->setMessage('Customer not found')
-                ->setData([])
-                ->setStatusCode(404);
+            throw new \Magento\Framework\Webapi\Exception(__('Customer not found'), 0, 404);
         } catch (\Exception $e) {
             $this->logger->critical('Error in resetPassword: ' . $e->getMessage());
-            return $response->setStatus(false)
-                ->setMessage($e->getMessage())
-                ->setData([])
-                ->setStatusCode(500);
+            throw new \Magento\Framework\Webapi\Exception(__($e->getMessage()), 0, 500);
         }
     }
 
