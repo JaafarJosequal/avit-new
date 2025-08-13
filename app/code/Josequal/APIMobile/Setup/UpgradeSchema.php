@@ -11,7 +11,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
     {
         $setup->startSetup();
 
-        if (version_compare($context->getVersion(), '1.0.1', '<')) {
+        if (version_compare($context->getVersion(), '1.0.7', '<')) {
             $connection = $setup->getConnection();
             $tableName = $setup->getTable('customer_entity');
 

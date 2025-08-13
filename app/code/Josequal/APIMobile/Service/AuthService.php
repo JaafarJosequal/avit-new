@@ -114,6 +114,41 @@ public function register(array $data): AuthResponseInterface
         $customerModel->setData('country_code', $data['country_code']);
         $customerModel->save();
 
+        // Also save directly to database using resource model
+        try {
+            $resourceModel = $customerModel->getResource();
+            $connection = $resourceModel->getConnection();
+            $tableName = $resourceModel->getMainTable();
+
+            $connection->update(
+                $tableName,
+                [
+                    'mobile_number' => $data['mobile_number'],
+                    'dial_code' => $data['dial_code'],
+                    'country_code' => $data['country_code']
+                ],
+                ['entity_id = ?' => $createdCustomer->getId()]
+            );
+
+            $this->logger->info('Data saved directly to database:', [
+                'table' => $tableName,
+                'mobile_number' => $data['mobile_number'],
+                'dial_code' => $data['dial_code'],
+                'country_code' => $data['country_code'],
+                'customer_id' => $createdCustomer->getId()
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Error saving to database directly: ' . $e->getMessage());
+        }
+
+        // Debug: Log what we saved to customer model
+        $this->logger->info('Customer model saved data:', [
+            'mobile_number' => $customerModel->getData('mobile_number'),
+            'dial_code' => $customerModel->getData('dial_code'),
+            'country_code' => $customerModel->getData('country_code'),
+            'customer_id' => $customerModel->getId()
+        ]);
+
         // Debug: Log what we saved
         $this->logger->info('Phone data saved during registration:', [
             'mobile_number' => $data['mobile_number'],
@@ -294,6 +329,14 @@ public function login(string $email, string $password): AuthResponseInterface
         $dialCode = $customerModel->getData('dial_code');
         $countryCode = $customerModel->getData('country_code');
 
+        // Debug: Log what we found in customer model
+        $this->logger->info('Customer model data:', [
+            'mobile_number' => $mobileNumber,
+            'dial_code' => $dialCode,
+            'country_code' => $countryCode,
+            'customer_id' => $customer->getId()
+        ]);
+
         // If not found in customer model, try custom attributes
         if (!$mobileNumber) {
             $mobileNumberAttr = $customer->getCustomAttribute('mobile_number');
@@ -316,6 +359,14 @@ public function login(string $email, string $password): AuthResponseInterface
             }
         }
 
+        // Debug: Log what we found in custom attributes
+        $this->logger->info('Custom attributes data:', [
+            'mobile_number' => $mobileNumber,
+            'dial_code' => $dialCode,
+            'country_code' => $countryCode,
+            'customer_id' => $customer->getId()
+        ]);
+
         // If still not found, try addresses
         if (!$mobileNumber) {
             $addresses = $customer->getAddresses();
@@ -329,8 +380,8 @@ public function login(string $email, string $password): AuthResponseInterface
             }
         }
 
-        // Debug: Log what we found
-        $this->logger->info('Phone data found:', [
+        // Debug: Log final result
+        $this->logger->info('Final phone data found:', [
             'mobile_number' => $mobileNumber,
             'dial_code' => $dialCode,
             'country_code' => $countryCode,
