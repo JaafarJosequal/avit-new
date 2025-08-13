@@ -198,7 +198,11 @@ class Password implements PasswordInterface
                 try {
                     $customer = $this->customerRepository->get($emailOrPhone);
                 } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-                    throw new \Magento\Framework\Webapi\Exception(__('Customer not found'), 0, 404);
+                    http_response_code(404);
+                    return $response->setStatus(false)
+                        ->setMessage('Customer not found')
+                        ->setData([])
+                        ->setStatusCode(404);
                 }
             } elseif ($channel == 'phone') {
                 // Check if the channel is phone and fetch customer by mobile_number attribute
@@ -223,17 +227,29 @@ class Password implements PasswordInterface
                     // If not found by mobile_number, try searching by telephone in addresses
                     $customer = $this->findCustomerByPhoneInAddresses($emailOrPhone);
                     if (!$customer) {
-                        throw new \Magento\Framework\Webapi\Exception(__('Customer not found with this phone number'), 0, 404);
+                        http_response_code(404);
+                        return $response->setStatus(false)
+                            ->setMessage('Customer not found with this phone number')
+                            ->setData([])
+                            ->setStatusCode(404);
                     }
                 } else {
                     $customer = reset($customers); // Get the first customer
                 }
             } else {
-                throw new \Magento\Framework\Webapi\Exception(__('Invalid channel. Use "email" or "phone"'), 0, 400);
+                http_response_code(400);
+                return $response->setStatus(false)
+                    ->setMessage('Invalid channel. Use "email" or "phone"')
+                    ->setData([])
+                    ->setStatusCode(400);
             }
 
             if (!$customer || !$customer->getId()) {
-                throw new \Magento\Framework\Webapi\Exception(__('Customer not found'), 0, 404);
+                http_response_code(404);
+                return $response->setStatus(false)
+                    ->setMessage('Customer not found')
+                    ->setData([])
+                    ->setStatusCode(404);
             }
 
             // Generate OTP
@@ -261,7 +277,11 @@ class Password implements PasswordInterface
                     $this->sendOtpSms($phoneNumber, $otp);
                 } else {
                     $this->logger->error('No mobile number found for customer ID: ' . $customer->getId());
-                    throw new \Magento\Framework\Webapi\Exception(__('No mobile number found for this customer'), 0, 400);
+                    http_response_code(400);
+                    return $response->setStatus(false)
+                        ->setMessage('No mobile number found for this customer')
+                        ->setData([])
+                        ->setStatusCode(400);
                 }
             }
 
@@ -272,7 +292,11 @@ class Password implements PasswordInterface
 
         } catch (\Exception $e) {
             $this->logger->error('Error in forgetPassword: ' . $e->getMessage());
-            throw new \Magento\Framework\Webapi\Exception(__('Unable to send OTP.'), 0, 500);
+            http_response_code(500);
+            return $response->setStatus(false)
+                ->setMessage('Unable to send OTP.')
+                ->setData([])
+                ->setStatusCode(500);
         }
     }
 
