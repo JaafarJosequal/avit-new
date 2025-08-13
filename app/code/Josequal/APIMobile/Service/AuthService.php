@@ -114,11 +114,11 @@ public function register(array $data): AuthResponseInterface
         $customerModel->setData('country_code', $data['country_code']);
         $customerModel->save();
 
-        // Also save directly to database using resource model
+                // Also save directly to database using resource model
         try {
             $resourceModel = $customerModel->getResource();
             $connection = $resourceModel->getConnection();
-            $tableName = $resourceModel->getMainTable();
+            $tableName = 'customer_entity'; // Use table name directly
 
             $connection->update(
                 $tableName,
