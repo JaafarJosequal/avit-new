@@ -16,6 +16,7 @@ use Josequal\APIMobile\Api\Data\AuthResponseInterface;
 use Josequal\APIMobile\Model\Data\AuthResponse;
 use Josequal\APIMobile\Model\Data\CustomerLoginData;
 use Magento\Framework\Webapi\Exception as WebapiException;
+use Magento\Framework\Logger\Monolog;
 
 
 class AuthService
@@ -30,6 +31,7 @@ class AuthService
     protected AddressRepositoryInterface $addressRepository;
     protected AddressInterfaceFactory $addressFactory;
     protected AttributeValueFactory $attributeValueFactory;
+    protected Monolog $logger;
 
     public function __construct(
         CustomerFactory $customerFactory,
@@ -41,7 +43,8 @@ class AuthService
         CustomerTokenServiceInterface $customerTokenService,
         AddressRepositoryInterface $addressRepository,
         AddressInterfaceFactory $addressFactory,
-        AttributeValueFactory $attributeValueFactory
+        AttributeValueFactory $attributeValueFactory,
+        Monolog $logger
     ) {
         $this->customerFactory = $customerFactory;
         $this->customerRepository = $customerRepository;
@@ -53,6 +56,7 @@ class AuthService
         $this->addressRepository = $addressRepository;
         $this->addressFactory = $addressFactory;
         $this->attributeValueFactory = $attributeValueFactory;
+        $this->logger = $logger;
     }
 
 public function register(array $data): AuthResponseInterface
@@ -109,6 +113,14 @@ public function register(array $data): AuthResponseInterface
         $customerModel->setData('dial_code', $data['dial_code']);
         $customerModel->setData('country_code', $data['country_code']);
         $customerModel->save();
+
+        // Debug: Log what we saved
+        $this->logger->info('Phone data saved during registration:', [
+            'mobile_number' => $data['mobile_number'],
+            'dial_code' => $data['dial_code'],
+            'country_code' => $data['country_code'],
+            'customer_id' => $createdCustomer->getId()
+        ]);
 
         // Reload the customer to ensure we have the latest data
         $savedCustomer = $this->customerRepository->getById($createdCustomer->getId());
@@ -316,6 +328,14 @@ public function login(string $email, string $password): AuthResponseInterface
                 }
             }
         }
+
+        // Debug: Log what we found
+        $this->logger->info('Phone data found:', [
+            'mobile_number' => $mobileNumber,
+            'dial_code' => $dialCode,
+            'country_code' => $countryCode,
+            'customer_id' => $customer->getId()
+        ]);
 
         return [
             'mobile_number' => $mobileNumber ?: '',

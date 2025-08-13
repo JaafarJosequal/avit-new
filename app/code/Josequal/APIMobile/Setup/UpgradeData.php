@@ -1,13 +1,13 @@
 <?php
 namespace Josequal\APIMobile\Setup;
 
+use Magento\Customer\Model\Customer;
+use Magento\Eav\Model\Config as EavConfig;
 use Magento\Eav\Setup\EavSetupFactory;
-use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Customer\Model\Customer;
+use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
-use Magento\Eav\Model\Config as EavConfig;
 
 class UpgradeData implements UpgradeDataInterface
 {
@@ -25,33 +25,42 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-        // مثال إضافة Attribute جديد عند ترقية الموديول
         if (version_compare($context->getVersion(), '1.0.1', '<')) {
-            if (!$eavSetup->getAttributeId(Customer::ENTITY, 'example_attr')) {
-                $eavSetup->addAttribute(
-                    Customer::ENTITY,
-                    'example_attr',
-                    [
-                        'type' => 'varchar',
-                        'label' => 'Example Attribute',
-                        'input' => 'text',
-                        'required' => false,
-                        'visible' => true,
-                        'user_defined' => true,
-                        'system' => 0,
-                        'global' => ScopedAttributeInterface::SCOPE_GLOBAL
-                    ]
-                );
+            $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-                $attribute = $this->eavConfig->getAttribute(Customer::ENTITY, 'example_attr');
-                $attribute->setData('used_in_forms', [
-                    'adminhtml_customer',
-                    'customer_account_create',
-                    'customer_account_edit'
-                ]);
-                $attribute->save();
+            $attributes = [
+                'mobile_number' => 'Mobile Number',
+                'dial_code'     => 'Dial Code',
+                'country_code'  => 'Country Code'
+            ];
+
+            foreach ($attributes as $code => $label) {
+                if (!$eavSetup->getAttributeId(Customer::ENTITY, $code)) {
+                    $eavSetup->addAttribute(
+                        Customer::ENTITY,
+                        $code,
+                        [
+                            'type'         => 'varchar',
+                            'label'        => $label,
+                            'input'        => 'text',
+                            'required'     => false,
+                            'visible'      => true,
+                            'user_defined' => true,
+                            'position'     => 1000,
+                            'system'       => 0,
+                            'global'       => ScopedAttributeInterface::SCOPE_GLOBAL
+                        ]
+                    );
+
+                    $attribute = $this->eavConfig->getAttribute(Customer::ENTITY, $code);
+                    $attribute->setData('used_in_forms', [
+                        'adminhtml_customer',
+                        'customer_account_create',
+                        'customer_account_edit'
+                    ]);
+                    $attribute->save();
+                }
             }
         }
 
