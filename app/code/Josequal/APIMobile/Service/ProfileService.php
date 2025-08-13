@@ -76,7 +76,7 @@ class ProfileService
                     return $this->buildResponse(false, 'First Name is not valid!', null, 400);
                 }
             }
-            
+
             if (isset($data['lastname']) && !empty($data['lastname'])) {
                 if (strlen(trim($data['lastname'])) < 1) {
                     return $this->buildResponse(false, 'Last Name is not valid!', null, 400);
@@ -107,6 +107,34 @@ class ProfileService
             }
 
             $this->customerRepository->save($customer);
+
+            // Also save to customer model and database directly
+            try {
+                $customerModel = $this->customerFactory->create();
+                $customerModel->load($customer->getId());
+                $customerModel->setData('mobile_number', $data['mobile_number'] ?? '');
+                $customerModel->setData('dial_code', $data['dial_code'] ?? '');
+                $customerModel->setData('country_code', $data['country_code'] ?? '');
+                $customerModel->save();
+
+                // Save directly to database
+                $resourceModel = $customerModel->getResource();
+                $connection = $resourceModel->getConnection();
+                $tableName = 'customer_entity';
+
+                $connection->update(
+                    $tableName,
+                    [
+                        'mobile_number' => $data['mobile_number'] ?? '',
+                        'dial_code' => $data['dial_code'] ?? '',
+                        'country_code' => $data['country_code'] ?? ''
+                    ],
+                    ['entity_id = ?' => $customer->getId()]
+                );
+            } catch (\Exception $e) {
+                // Log error but don't fail the update
+                // You can add logger here if needed
+            }
             return $this->buildProfileResponse($customer, 'Profile updated successfully');
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             return $this->buildResponse(false, 'User not found', null, 404);
@@ -158,22 +186,22 @@ class ProfileService
             ->setLastname($customer->getLastname() ?? '')
             ->setEmail($customer->getEmail() ?? '')
             ->setToken($token ?? '');
-        
+
         // Load customer model once for all data retrieval
         $customerModel = $this->customerFactory->create();
         $customerModel->load($customer->getId());
-        
+
         // Get mobile number - try multiple sources
         $mobileNumber = null;
-        
+
         // First try custom attribute
         $mobileNumber = $this->getCustomAttributeValue($customer, 'mobile_number');
-        
+
         // If not found, try customer model data
         if (!$mobileNumber) {
             $mobileNumber = $customerModel->getData('mobile_number');
         }
-        
+
         // If still not found, try addresses
         if (!$mobileNumber) {
             $addresses = $customer->getAddresses();
@@ -186,35 +214,35 @@ class ProfileService
                 }
             }
         }
-        
+
         $customerData->setMobileNumber($mobileNumber ?: '');
-        
+
         // Get dial code - try multiple sources
         $dialCode = null;
-        
+
         // First try custom attribute
         $dialCode = $this->getCustomAttributeValue($customer, 'dial_code');
-        
+
         // If not found, try customer model data
         if (!$dialCode) {
             $dialCode = $customerModel->getData('dial_code');
         }
-        
+
         $customerData->setDialCode($dialCode ?: '');
-        
+
         // Get country code - try multiple sources
         $countryCode = null;
-        
+
         // First try custom attribute
         $countryCode = $this->getCustomAttributeValue($customer, 'country_code');
-        
+
         // If not found, try customer model data
         if (!$countryCode) {
             $countryCode = $customerModel->getData('country_code');
         }
-        
+
         $customerData->setCountryCode($countryCode ?: '');
-        
+
         $customerData->setImage('https://yourdomain.com/media/default_profile.png')
             ->setAddress($addressString ?: 'No address available')
             ->setPassword(null);
@@ -252,7 +280,7 @@ class ProfileService
         $response->setMessage($message);
         $response->setData($data);
         $response->setStatusCode($statusCode);
-        
+
         return $response;
     }
-} 
+}
