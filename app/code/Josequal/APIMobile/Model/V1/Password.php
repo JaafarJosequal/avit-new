@@ -346,7 +346,7 @@ class Password implements PasswordInterface
         return $attribute ? $attribute->getValue() : null;
     }
 
-    public function verifyOtp(string $otp): PasswordResponseInterface
+    public function verifyOtp(string $otp, string $emailOrPhone): PasswordResponseInterface
     {
         $response = new PasswordResponse();
 
@@ -362,12 +362,13 @@ class Password implements PasswordInterface
                 throw new \Magento\Framework\Webapi\Exception(__('OTP expired or not found'), 0, 401);
             }
 
-            // OTP is valid, return success with customer ID for next step
+            // OTP is valid, return success with customer ID and emailOrPhone for next step
             return $response->setStatus(true)
                 ->setMessage('OTP verified successfully')
                 ->setData([
                     'verified' => true,
-                    'customer_id' => $storedOtp->getCustomerId()
+                    'customer_id' => $storedOtp->getCustomerId(),
+                    'emailOrPhone' => $emailOrPhone
                 ])
                 ->setStatusCode(200);
 
@@ -377,37 +378,63 @@ class Password implements PasswordInterface
         }
     }
 
-    public function resetPassword(string $newPassword, string $confirmPassword): PasswordResponseInterface
+    public function resetPassword(string $newPassword, string $confirmPassword, string $emailOrPhone): PasswordResponseInterface
     {
         $response = new PasswordResponse();
 
         try {
-            // Get OTP from request data (this should be passed from the previous step)
-            $otp = $this->request->getParam('otp');
-            $email = $this->request->getParam('email');
-
-            if (!$otp || !$email) {
-                throw new \Magento\Framework\Webapi\Exception(__('OTP and email are required'), 0, 400);
+            // Use emailOrPhone parameter directly
+            if (!$emailOrPhone) {
+                throw new \Magento\Framework\Webapi\Exception(__('emailOrPhone is required'), 0, 400);
             }
 
-            // Find customer by email
-            $customer = $this->customerRepository->get($email);
+            // Find customer by email or phone
+            $customer = null;
+            try {
+                // First try to find by email
+                $customer = $this->customerRepository->get($emailOrPhone);
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                // If not found by email, try to find by phone
+                $filter = $this->filterBuilder
+                    ->setField('mobile_number')
+                    ->setValue($emailOrPhone)
+                    ->setConditionType('eq')
+                    ->create();
+
+                $filterGroup = $this->filterGroupBuilder
+                    ->addFilter($filter)
+                    ->create();
+
+                $searchCriteria = $this->searchCriteriaBuilder
+                    ->setFilterGroups([$filterGroup])
+                    ->create();
+
+                $customerList = $this->customerRepository->getList($searchCriteria);
+                $customers = $customerList->getItems();
+
+                if (empty($customers)) {
+                    // If not found by mobile_number, try searching by telephone in addresses
+                    $customer = $this->findCustomerByPhoneInAddresses($emailOrPhone);
+                } else {
+                    $customer = reset($customers); // Get the first customer
+                }
+            }
+
             if (!$customer || !$customer->getId()) {
                 throw new \Magento\Framework\Webapi\Exception(__('Customer not found'), 0, 404);
             }
 
             $customerId = $customer->getId();
 
-            // Check if there's a valid OTP for this customer
+            // Check if there's a valid OTP for this customer (any valid OTP)
             $storedOtp = $this->otpFactory->create()
                 ->getCollection()
                 ->addFieldToFilter('customer_id', $customerId)
-                ->addFieldToFilter('otp', $otp)
                 ->addFieldToFilter('expires_at', ['gteq' => (new \DateTime())->format('Y-m-d H:i:s')])
                 ->getFirstItem();
 
             if (!$storedOtp->getId()) {
-                throw new \Magento\Framework\Webapi\Exception(__('OTP expired or not found'), 0, 401);
+                throw new \Magento\Framework\Webapi\Exception(__('No valid OTP found for this customer'), 0, 401);
             }
 
             if ($newPassword !== $confirmPassword) {

@@ -40,23 +40,24 @@ interface PasswordInterface
 	 *
 	 * This method verifies the OTP sent to the customer's email or phone.
 	 * If the OTP is valid, it returns success and allows the customer to proceed with password reset.
-	 * The customer is identified from the current session or token.
 	 *
 	 * @param string $otp The OTP code to verify.
-	 * @return \Josequal\APIMobile\Api\Data\PasswordResponseInterface Returns a response indicating if OTP is valid or not.
+	 * @param string $emailOrPhone The customer's email or phone number for identification.
+	 * @return \Josequal\APIMobile\Api\Data\PasswordResponseInterface Returns a response indicating if OTP is valid or not, along with emailOrPhone.
 	 */
-	public function verifyOtp(string $otp): PasswordResponseInterface;
+	public function verifyOtp(string $otp, string $emailOrPhone): PasswordResponseInterface;
 
 	/**
 	 * Reset customer password using verified OTP
 	 *
 	 * This method resets the customer's password using the previously verified OTP.
-	 * The customer is identified from the current session or token.
+	 * The customer is identified by emailOrPhone.
 	 *
 	 * @param string $newPassword
 	 * @param string $confirmPassword
+	 * @param string $emailOrPhone The customer's email or phone number for identification.
 	 * @return \Josequal\APIMobile\Api\Data\PasswordResponseInterface
 	 */
-	public function resetPassword(string $newPassword, string $confirmPassword): PasswordResponseInterface;
+	public function resetPassword(string $newPassword, string $confirmPassword, string $emailOrPhone): PasswordResponseInterface;
 
 }
