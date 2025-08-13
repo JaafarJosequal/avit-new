@@ -387,19 +387,9 @@ class Password implements PasswordInterface
         $response = new PasswordResponse();
 
         try {
-            // Get customer ID from session or token
-            $customerId = $this->validateToken();
-
-            if (!$customerId) {
-                return $response->setStatus(false)
-                    ->setMessage('Unauthorized - Please login or provide valid token')
-                    ->setData([])
-                    ->setStatusCode(401);
-            }
-
+            // Find OTP in database without requiring authentication
             $storedOtp = $this->otpFactory->create()
                 ->getCollection()
-                ->addFieldToFilter('customer_id', $customerId)
                 ->addFieldToFilter('otp', $otp)
                 ->addFieldToFilter('expires_at', ['gteq' => (new \DateTime())->format('Y-m-d H:i:s')])
                 ->getFirstItem();
@@ -411,10 +401,13 @@ class Password implements PasswordInterface
                     ->setStatusCode(401);
             }
 
-            // OTP is valid, return success
+            // OTP is valid, return success with customer ID for next step
             return $response->setStatus(true)
                 ->setMessage('OTP verified successfully')
-                ->setData(['verified' => true])
+                ->setData([
+                    'verified' => true,
+                    'customer_id' => $storedOtp->getCustomerId()
+                ])
                 ->setStatusCode(200);
 
         } catch (\Exception $e) {
@@ -431,18 +424,19 @@ class Password implements PasswordInterface
         $response = new PasswordResponse();
 
         try {
-            // Get customer ID from session or token
-            $customerId = $this->validateToken();
+            // Get OTP from request data (this should be passed from the previous step)
+            $otp = $this->request->getParam('otp');
+            $email = $this->request->getParam('email');
 
-            if (!$customerId) {
+            if (!$otp || !$email) {
                 return $response->setStatus(false)
-                    ->setMessage('Unauthorized - Please login or provide valid token')
+                    ->setMessage('OTP and email are required')
                     ->setData([])
-                    ->setStatusCode(401);
+                    ->setStatusCode(400);
             }
 
-            $customer = $this->customerRepository->getById($customerId);
-
+            // Find customer by email
+            $customer = $this->customerRepository->get($email);
             if (!$customer || !$customer->getId()) {
                 return $response->setStatus(false)
                     ->setMessage('Customer not found')
@@ -450,16 +444,19 @@ class Password implements PasswordInterface
                     ->setStatusCode(404);
             }
 
+            $customerId = $customer->getId();
+
             // Check if there's a valid OTP for this customer
             $storedOtp = $this->otpFactory->create()
                 ->getCollection()
                 ->addFieldToFilter('customer_id', $customerId)
+                ->addFieldToFilter('otp', $otp)
                 ->addFieldToFilter('expires_at', ['gteq' => (new \DateTime())->format('Y-m-d H:i:s')])
                 ->getFirstItem();
 
             if (!$storedOtp->getId()) {
                 return $response->setStatus(false)
-                    ->setMessage('No valid OTP found. Please request a new OTP first.')
+                    ->setMessage('OTP expired or not found')
                     ->setData([])
                     ->setStatusCode(401);
             }
