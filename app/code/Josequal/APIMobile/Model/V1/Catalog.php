@@ -240,61 +240,130 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     public function _getCategoryProducts($category_id, $limit = 20, $page = 1, $sort = 'name-a-z', $search = '', $return_size = false) {
-        $model = $this->objectManager->get('\Magento\Catalog\Model\Category');
-
-        $productsQuery = $model->load($category_id)->getProductCollection()
-                ->addAttributeToSelect($this->catalogConfig->getProductAttributes())
-                ->addAttributeToSelect('*')
-                ->addAttributeToFilter('status', '1')
-                ->addAttributeToFilter('visibility', '4')
-                ->setStoreId($this->_getStoreId())
-                ->addMinimalPrice()
-                ->addFinalPrice();
-
-        $productsQuery = $this->_sortProductCollection($sort, $productsQuery);
-
-        if($search != '') {
-            $productsQuery->addAttributeToFilter([
-                ['attribute' => 'name','like' => "%" . $search . "%" ],
-                ['attribute' => 'sku','eq' => $search ]
-            ]);
-        }
-
-        $product_count = $productsQuery->getSize();
-
-        $productsQuery->getSelect()->limit($limit, ($page - 1) * $limit);
-        $productsQuery->getSelect()->group('entity_id');
-
-        $products = [];
-        if ($productsQuery->getSize() > 0) {
-            foreach ($productsQuery as $_collection) {
-                $products[] = $this->processProduct($_collection);
+        try {
+            if (!$category_id) {
+                return $return_size ? ['products' => [], 'count' => 0] : [];
             }
+
+            $model = $this->objectManager->get('\Magento\Catalog\Model\Category');
+            $productsQuery = null;
+
+            try {
+                $category = $model->load($category_id);
+                if (!$category || !$category->getId()) {
+                    return $return_size ? ['products' => [], 'count' => 0] : [];
+                }
+
+                $productsQuery = $category->getProductCollection()
+                        ->addAttributeToSelect($this->catalogConfig->getProductAttributes())
+                        ->addAttributeToSelect('*')
+                        ->addAttributeToFilter('status', '1')
+                        ->addAttributeToFilter('visibility', '4')
+                        ->setStoreId($this->_getStoreId())
+                        ->addMinimalPrice()
+                        ->addFinalPrice();
+            } catch (\Exception $e) {
+                return $return_size ? ['products' => [], 'count' => 0] : [];
+            }
+
+            if (!$productsQuery) {
+                return $return_size ? ['products' => [], 'count' => 0] : [];
+            }
+
+            try {
+                $productsQuery = $this->_sortProductCollection($sort, $productsQuery);
+            } catch (\Exception $e) {
+                // Continue with default sorting if there's an error
+            }
+
+            if($search != '') {
+                try {
+                    $productsQuery->addAttributeToFilter([
+                        ['attribute' => 'name','like' => "%" . $search . "%" ],
+                        ['attribute' => 'sku','eq' => $search ]
+                    ]);
+                } catch (\Exception $e) {
+                    // Continue without search filter if there's an error
+                }
+            }
+
+            $product_count = 0;
+            try {
+                $product_count = $productsQuery->getSize();
+            } catch (\Exception $e) {
+                $product_count = 0;
+            }
+
+            try {
+                $productsQuery->getSelect()->limit($limit, ($page - 1) * $limit);
+                $productsQuery->getSelect()->group('entity_id');
+            } catch (\Exception $e) {
+                // Continue without pagination if there's an error
+            }
+
+            $products = [];
+            try {
+                if ($productsQuery->getSize() > 0) {
+                    foreach ($productsQuery as $_collection) {
+                        try {
+                            if ($_collection && $_collection->getId()) {
+                                $products[] = $this->processProduct($_collection);
+                            }
+                        } catch (\Exception $e) {
+                            // Skip this product if there's an error
+                            continue;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                $products = [];
+            }
+
+            if($return_size) {
+                return [
+                    'products' => $products,
+                    'count' => $product_count
+                ];
+            }
+            return $products;
+        } catch (\Exception $e) {
+            return $return_size ? ['products' => [], 'count' => 0] : [];
         }
-        if($return_size) {
-            return [
-                'products' => $products,
-                'count' => $product_count
-            ];
-        }
-        return $products;
     }
 
     //Product Details
     public function productInfo($data) {
-        if(!isset($data['product_id'])) {
-            return $this->errorStatus(["Product Id is required"]);
-        }
+        try {
+            if(!isset($data['product_id'])) {
+                return $this->errorStatus(["Product Id is required"]);
+            }
 
-        $storeId = $this->storeManager->getStore()->getId();
-        $productId = $data['product_id'];
-        $product = $this->_productLoader->create()->load($productId);
+            $storeId = $this->storeManager->getStore()->getId();
+            $productId = $data['product_id'];
 
-        if ($product->getId()) {
-            $productWebsiteIds = $product->getWebsiteIds();
+            // Safely load product
+            $product = null;
+            try {
+                $product = $this->_productLoader->create()->load($productId);
+            } catch (\Exception $e) {
+                return $this->errorStatus('product_not_available');
+            }
+
+            if (!$product || !$product->getId()) {
+                return $this->errorStatus('product_not_available');
+            }
+
+            // Safely get website IDs
+            $productWebsiteIds = [];
+            try {
+                $productWebsiteIds = $product->getWebsiteIds();
+            } catch (\Exception $e) {
+                $productWebsiteIds = [];
+            }
+
             $currentWebsiteId = $this->storeManager->getStore()->getWebsiteId();
 
-            if (!in_array($currentWebsiteId, $productWebsiteIds)) {
+            if (!empty($productWebsiteIds) && !in_array($currentWebsiteId, $productWebsiteIds)) {
                 return $this->errorStatus('product_not_available');
             }
 
@@ -303,9 +372,14 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $info = $this->successStatus('Product Details');
             $info['data'] = $_product;
             return $info;
-        }
 
-        return $this->errorStatus('product_not_available');
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            if (isset($this->logger)) {
+                $this->logger->error('Error in productInfo: ' . $e->getMessage());
+            }
+            return $this->errorStatus('product_not_available');
+        }
     }
 
     function _productInfo($product) {
@@ -332,10 +406,14 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
         $images = [];
         try {
-            $mediaGalleryImages = $product->getMediaGalleryImages();
-            if ($mediaGalleryImages) {
-                foreach ($mediaGalleryImages as $image) {
-                    $images[] = $image->getUrl();
+            if ($product && $product->getId()) {
+                $mediaGalleryImages = $product->getMediaGalleryImages();
+                if ($mediaGalleryImages) {
+                    foreach ($mediaGalleryImages as $image) {
+                        if ($image && method_exists($image, 'getUrl')) {
+                            $images[] = $image->getUrl();
+                        }
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -345,17 +423,33 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         if ($product->getTypeId() == 'configurable') {
             try {
                 $configurable_images = [];
-                $associated_products = $product->loadByAttribute('sku', $product->getSku())->getTypeInstance()->getUsedProducts($product);
+                // Safely get associated products
+                if ($product && $product->getId()) {
+                    $typeInstance = $product->getTypeInstance();
+                    if ($typeInstance) {
+                        $associated_products = $typeInstance->getUsedProducts($product);
 
-                if (count($associated_products) > 0) {
-                    foreach ($associated_products as $key => $ap) {
-                        if ($key > 0) {
-                            continue;
-                        }
+                        if ($associated_products && count($associated_products) > 0) {
+                            foreach ($associated_products as $key => $ap) {
+                                if ($key > 0) {
+                                    continue;
+                                }
 
-                        $ap = $this->productModel->setStoreId($storeId)->load($ap->getId());
-                        foreach ($ap->getMediaGalleryImages() as $image) {
-                            $images[] = $image->getUrl();
+                                try {
+                                    $ap = $this->productModel->setStoreId($storeId)->load($ap->getId());
+                                    if ($ap && $ap->getId()) {
+                                        $apImages = $ap->getMediaGalleryImages();
+                                        if ($apImages) {
+                                            foreach ($apImages as $image) {
+                                                $images[] = $image->getUrl();
+                                            }
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    // Skip this associated product if there's an error
+                                    continue;
+                                }
+                            }
                         }
                     }
                 }
@@ -372,7 +466,16 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         $_product['images'] = $images;
 
         try {
-            $_product['description'] = $outputHelper->productAttribute($product, $product->getShortDescription(), 'short_description') ?? '';
+            if ($product && $product->getId()) {
+                $shortDescription = $product->getShortDescription();
+                if ($shortDescription) {
+                    $_product['description'] = $outputHelper->productAttribute($product, $shortDescription, 'short_description') ?? '';
+                } else {
+                    $_product['description'] = '';
+                }
+            } else {
+                $_product['description'] = '';
+            }
         } catch (\Exception $e) {
             $_product['description'] = '';
         }
@@ -384,31 +487,52 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         }
 
         try {
-            $_product['options'] = $this->formatCartOptions($product->getOptions());
+            if ($product && $product->getId()) {
+                $options = $product->getOptions();
+                if ($options) {
+                    $_product['options'] = $this->formatCartOptions($options);
+                } else {
+                    $_product['options'] = [];
+                }
+            } else {
+                $_product['options'] = [];
+            }
         } catch (\Exception $e) {
             $_product['options'] = [];
         }
 
         try {
-            $reviews = $reviewModel->getReviews([
-                'page' => 1,
-                'limit' => 100,
-                'product_id' => $product->getId(),
-                'store' => $storeId,
-            ]);
-            $_product['reviews'] = isset($reviews['data']['reviews']) ? $reviews['data']['reviews'] : [];
+            if ($product && $product->getId()) {
+                $reviews = $reviewModel->getReviews([
+                    'page' => 1,
+                    'limit' => 100,
+                    'product_id' => $product->getId(),
+                    'store' => $storeId,
+                ]);
+                $_product['reviews'] = isset($reviews['data']['reviews']) ? $reviews['data']['reviews'] : [];
+            } else {
+                $_product['reviews'] = [];
+            }
         } catch (\Exception $e) {
             $_product['reviews'] = [];
         }
 
         try {
-            $_product['attributes'] = $this->getCustomProductAttributes($product);
+            if ($product && $product->getId()) {
+                $_product['attributes'] = $this->getCustomProductAttributes($product);
+            } else {
+                $_product['attributes'] = [];
+            }
         } catch (\Exception $e) {
             $_product['attributes'] = [];
         }
 
         try {
-            $_product['related'] = $this->getRelatedProducts($product);
+            if ($product && $product->getId()) {
+                $_product['related'] = $this->getRelatedProducts($product);
+            } else {
+                $_product['related'] = [];
+            }
         } catch (\Exception $e) {
             $_product['related'] = [];
         }
@@ -623,65 +747,148 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
     //Product Sort
     protected function _sortProductCollection($sort, $productsQuery) {
-        switch ($sort) {
-            case "position":
-                $productsQuery->setOrder('relevance', 'ASC');
-                break;
-            case "price-l-h":
-                $productsQuery->setOrder('price', 'asc');
-                break;
-            case "price-h-l":
-                $productsQuery->setOrder('price', 'desc');
-                break;
-            case "rating-h-l":
-                $productsQuery->setOrder('rating_summary', 'desc');
-                break;
-            case "rating-l-h":
-                $productsQuery->setOrder('rating_summary', 'asc');
-                break;
-            case "name-a-z":
+        try {
+            if (!$productsQuery) {
+                return $productsQuery;
+            }
+
+            switch ($sort) {
+                case "position":
+                    try {
+                        $productsQuery->setOrder('relevance', 'ASC');
+                    } catch (\Exception $e) {
+                        // Fallback to default sorting
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "price-l-h":
+                    try {
+                        $productsQuery->setOrder('price', 'asc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "price-h-l":
+                    try {
+                        $productsQuery->setOrder('price', 'desc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "rating-h-l":
+                    try {
+                        $productsQuery->setOrder('rating_summary', 'desc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "rating-l-h":
+                    try {
+                        $productsQuery->setOrder('rating_summary', 'asc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "name-a-z":
+                    try {
+                        $productsQuery->setOrder('name', 'asc');
+                    } catch (\Exception $e) {
+                        // Already default
+                    }
+                    break;
+                case "name-z-a":
+                    try {
+                        $productsQuery->setOrder('name', 'desc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "newest":
+                    try {
+                        $productsQuery->setOrder('created_at', 'desc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                case "oldest":
+                    try {
+                        $productsQuery->setOrder('created_at', 'asc');
+                    } catch (\Exception $e) {
+                        $productsQuery->setOrder('name', 'asc');
+                    }
+                    break;
+                default:
+                    try {
+                        $productsQuery->setOrder('name', 'asc');
+                    } catch (\Exception $e) {
+                        // This is the safest fallback
+                    }
+                    break;
+            }
+        } catch (\Exception $e) {
+            // If there's any error, use default sorting
+            try {
                 $productsQuery->setOrder('name', 'asc');
-                break;
-            case "name-z-a":
-                $productsQuery->setOrder('name', 'desc');
-                break;
-            case "newest":
-                $productsQuery->setOrder('created_at', 'desc');
-                break;
-            case "oldest":
-                $productsQuery->setOrder('created_at', 'asc');
-                break;
-            default:
-                $productsQuery->setOrder('name', 'asc');
-                break;
+            } catch (\Exception $e2) {
+                // If even this fails, return as is
+            }
         }
+
         return $productsQuery;
     }
 
     //format Product options
     private function formatCartOptions($options) {
-        $data = [];
-        foreach ($options as $option) {
-            $optionData = [
-                'option_id' => $option->getOptionId(),
-                'title' => $option->getTitle(),
-                'type' => $option->getType(),
-                'values' => []
-            ];
-
-            if ($option->getValues()) {
-                foreach ($option->getValues() as $value) {
-                    $optionData['values'][] = [
-                        'option_type_id' => $value->getOptionTypeId(),
-                        'title' => $value->getTitle(),
-                        'price' => $value->getPrice()
-                    ];
-                }
+        try {
+            if (!$options || !is_array($options)) {
+                return [];
             }
 
-            $data[] = $optionData;
+            $data = [];
+            foreach ($options as $option) {
+                try {
+                    if (!$option || !$option->getId()) {
+                        continue;
+                    }
+
+                    $optionData = [
+                        'option_id' => $option->getOptionId() ?: '',
+                        'title' => $option->getTitle() ?: '',
+                        'type' => $option->getType() ?: '',
+                        'values' => []
+                    ];
+
+                    try {
+                        if ($option->getValues()) {
+                            foreach ($option->getValues() as $value) {
+                                try {
+                                    if ($value && $value->getId()) {
+                                        $optionData['values'][] = [
+                                            'option_type_id' => $value->getOptionTypeId() ?: '',
+                                            'title' => $value->getTitle() ?: '',
+                                            'price' => $value->getPrice() ?: 0
+                                        ];
+                                    }
+                                } catch (\Exception $e) {
+                                    // Skip this value if there's an error
+                                    continue;
+                                }
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Continue without values if there's an error
+                    }
+
+                    $data[] = $optionData;
+                } catch (\Exception $e) {
+                    // Skip this option if there's an error
+                    continue;
+                }
+            }
+            return $data;
+        } catch (\Exception $e) {
+            return [];
         }
-        return $data;
     }
 
     public function getCustomProductAttributes($product) {
@@ -748,26 +955,52 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     public function getRelatedProducts($product) {
-        $storeId = $this->storeManager->getStore()->getId();
-        $relatedProductIds = $product->getRelatedProductCollection()->setPositionOrder();
-
-        $relatedProducts = [];
-        if ($relatedProductIds) {
-            foreach ($relatedProductIds as $_relatedProductId) {
-                $id = $_relatedProductId->getEntityId();
-                $productData = $this->productModel->load($id);
-                $relatedProducts[] = $this->processProduct($productData);
+        try {
+            if (!$product || !$product->getId()) {
+                return [];
             }
-        }
 
-        if(empty($relatedProducts)) {
-            $categories = $product->getCategoryIds();
-            if(!empty($categories)) {
-                $relatedProducts = $this->_getCategoryProducts($categories[0], 7);
+            $storeId = $this->storeManager->getStore()->getId();
+            $relatedProducts = [];
+
+            try {
+                $relatedProductIds = $product->getRelatedProductCollection()->setPositionOrder();
+
+                if ($relatedProductIds) {
+                    foreach ($relatedProductIds as $_relatedProductId) {
+                        try {
+                            $id = $_relatedProductId->getEntityId();
+                            if ($id) {
+                                $productData = $this->productModel->load($id);
+                                if ($productData && $productData->getId()) {
+                                    $relatedProducts[] = $this->processProduct($productData);
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            // Skip this related product if there's an error
+                            continue;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // If there's an error getting related products, try categories
             }
-        }
 
-        return $relatedProducts;
+            if(empty($relatedProducts)) {
+                try {
+                    $categories = $product->getCategoryIds();
+                    if(!empty($categories)) {
+                        $relatedProducts = $this->_getCategoryProducts($categories[0], 7);
+                    }
+                } catch (\Exception $e) {
+                    // If there's an error getting category products, return empty array
+                }
+            }
+
+            return $relatedProducts;
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     public function _getFilters($categoryId = '') {
