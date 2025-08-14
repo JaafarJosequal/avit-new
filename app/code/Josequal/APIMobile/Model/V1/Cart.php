@@ -131,35 +131,9 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $list = [];
         $items = $quote->getAllVisibleItems();
 
-        // Group items by product ID and options
-        $groupedItems = [];
-
+        // Display each item separately without grouping
         foreach ($items as $item) {
-            $productId = $item->getProductId();
-            $options = $this->formatCartOptions($item->getOptions());
-
-            // Create a unique key based on product ID and options
-            $optionsKey = $this->createOptionsKey($options);
-            $uniqueKey = $productId . '_' . $optionsKey;
-
-            if (!isset($groupedItems[$uniqueKey])) {
-                $groupedItems[$uniqueKey] = [
-                    'item' => $item,
-                    'options' => $options,
-                    'total_qty' => 0
-                ];
-            }
-
-            $groupedItems[$uniqueKey]['total_qty'] += $item->getQty();
-        }
-
-        // Process grouped items
-        foreach ($groupedItems as $uniqueKey => $groupedItem) {
-            $item = $groupedItem['item'];
-            $options = $groupedItem['options'];
-            $totalQty = $groupedItem['total_qty'];
-
-            $productData = $this->processProductWithOptions($item, $options, $totalQty);
+            $productData = $this->processProduct($item);
             $list[] = $productData;
         }
 
@@ -200,62 +174,6 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         ];
 
         return $data;
-    }
-
-    /**
-     * Create a unique key based on options
-     */
-    private function createOptionsKey($options) {
-        if (empty($options)) {
-            return 'no_options';
-        }
-
-        $optionsArray = [];
-        foreach ($options as $option) {
-            // Check if options exist in the value
-            if (isset($option['value']['options']) && is_array($option['value']['options'])) {
-                foreach ($option['value']['options'] as $key => $val) {
-                    $optionsArray[] = $key . ':' . $val;
-                }
-            }
-
-            // Also check extracted_options if available
-            if (isset($option['extracted_options']) && is_array($option['extracted_options'])) {
-                foreach ($option['extracted_options'] as $extractedOption) {
-                    if (isset($extractedOption['type']) && isset($extractedOption['value'])) {
-                        $optionsArray[] = $extractedOption['type'] . ':' . $extractedOption['value'];
-                    }
-                }
-            }
-        }
-
-        if (empty($optionsArray)) {
-            return 'no_options';
-        }
-
-        sort($optionsArray);
-        return md5(implode('|', $optionsArray));
-    }
-
-    /**
-     * Process product with options and total quantity
-     */
-    public function processProductWithOptions($item, $options, $totalQty) {
-        $product = $item->getProduct();
-
-        $productData = [
-            'id' => $item->getItemId(),
-            'product_id' => $product->getId(),
-            'name' => $item->getName(),
-            'sku' => $item->getSku(),
-            'qty' => $totalQty,
-            'price' => $this->currencyHelper->currency($item->getPrice(), true, false),
-            'row_total' => $this->currencyHelper->currency($item->getPrice() * $totalQty, true, false),
-            'image' => $this->getImage($product, 'product_thumbnail_image'),
-            'options' => $options
-        ];
-
-        return $productData;
     }
 
     public function processProduct($item) {
