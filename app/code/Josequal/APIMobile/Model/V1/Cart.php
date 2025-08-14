@@ -100,33 +100,11 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(["Product not exist"],404);
             }
 
-            // Check if product already exists in cart with same options
-            $existingItem = $this->findExistingCartItem($product->getId(), $params['options'] ?? []);
-
-            // Debug logging
-            if (isset($params['options']) && !empty($params['options'])) {
-                error_log("Adding product {$product->getId()} with options: " . json_encode($params['options']));
-                if ($existingItem) {
-                    error_log("Found existing item with ID: " . $existingItem->getItemId());
-                } else {
-                    error_log("No existing item found, will create new one");
-                }
-            }
-
-            if ($existingItem) {
-                // Update existing item quantity
-                $newQty = $existingItem->getQty() + $params['qty'];
-                $this->cart->updateItem($existingItem->getItemId(), ['qty' => $newQty]);
-                $message = 'Product quantity updated successfully';
-            } else {
-                // Add new item with custom options
-                $this->cart->addProduct($product, $params);
-                $message = 'Product added successfully';
-            }
-
+            // Always add as new item to ensure options are preserved
+            $this->cart->addProduct($product, $params);
             $this->cart->save();
 
-            $info = $this->successStatus($message);
+            $info = $this->successStatus('Product added successfully');
             $info['data'] = $this->getCartDetails();
 
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -136,130 +114,6 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         }
 
         return $info;
-    }
-
-    /**
-     * Find existing cart item with same product and options
-     */
-    private function findExistingCartItem($productId, $options = []) {
-        $quote = $this->checkoutSession->getQuote();
-        $items = $quote->getAllVisibleItems();
-
-        error_log("Searching for product {$productId} with options: " . json_encode($options));
-        error_log("Total items in cart: " . count($items));
-
-        foreach ($items as $item) {
-            if ($item->getProduct()->getId() == $productId) {
-                // Check if options match exactly
-                $itemOptions = $this->getItemOptions($item);
-                error_log("Item {$item->getItemId()} has options: " . json_encode($itemOptions));
-
-                if ($this->compareOptions($itemOptions, $options)) {
-                    error_log("Options match for item {$item->getItemId()}");
-                    return $item;
-                } else {
-                    error_log("Options don't match for item {$item->getItemId()}");
-                }
-            }
-        }
-
-        error_log("No matching item found");
-        return null;
-    }
-
-    /**
-     * Get formatted options from cart item
-     */
-    private function getItemOptions($item) {
-        $options = [];
-
-        // Try to get options from item options
-        $itemOptions = $item->getOptions();
-        if ($itemOptions) {
-            foreach ($itemOptions as $option) {
-                if (is_array($option)) {
-                    if (isset($option['code']) && isset($option['value'])) {
-                        $options[$option['code']] = $option['value'];
-                    } elseif (isset($option['label']) && isset($option['value'])) {
-                        $code = strtolower(str_replace(' ', '_', $option['label']));
-                        $options[$code] = $option['value'];
-                    }
-                } elseif (is_object($option)) {
-                    if (method_exists($option, 'getCode') && method_exists($option, 'getValue')) {
-                        $options[$option->getCode()] = $option->getValue();
-                    } elseif (method_exists($option, 'getLabel') && method_exists($option, 'getValue')) {
-                        $code = strtolower(str_replace(' ', '_', $option->getLabel()));
-                        $options[$code] = $code;
-                    }
-                }
-            }
-        }
-
-        // Try to get options from buy request
-        try {
-            $buyRequest = $item->getBuyRequest();
-            if ($buyRequest) {
-                $buyRequestData = $buyRequest->getData();
-                if (isset($buyRequestData['options']) && is_array($buyRequestData['options'])) {
-                    foreach ($buyRequestData['options'] as $key => $value) {
-                        $options[$key] = $value;
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // Continue without buy request
-        }
-
-        // Try to get options from product custom options
-        try {
-            $product = $item->getProduct();
-            if ($product && method_exists($product, 'getCustomOptions')) {
-                $customOptions = $product->getCustomOptions();
-                if ($customOptions) {
-                    foreach ($customOptions as $key => $value) {
-                        if (strpos($key, 'option_') === 0) {
-                            $optionId = str_replace('option_', '', $key);
-                            $options['option_' . $optionId] = $value;
-                        }
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // Continue without custom options
-        }
-
-        return $options;
-    }
-
-    /**
-     * Compare two option arrays
-     */
-    private function compareOptions($options1, $options2) {
-        // If both are empty, they match
-        if (empty($options1) && empty($options2)) {
-            return true;
-        }
-
-        // If one is empty and the other is not, they don't match
-        if (empty($options1) || empty($options2)) {
-            return false;
-        }
-
-        // Check if all options in options1 exist in options2 with same values
-        foreach ($options1 as $key => $value) {
-            if (!isset($options2[$key]) || $options2[$key] != $value) {
-                return false;
-            }
-        }
-
-        // Check if all options in options2 exist in options1 with same values
-        foreach ($options2 as $key => $value) {
-            if (!isset($options1[$key]) || $options1[$key] != $value) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public function getCartInfo($data = []) {
