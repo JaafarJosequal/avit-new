@@ -122,6 +122,13 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $info = $this->successStatus('Product added successfully');
             $info['data'] = $this->getCartDetails();
 
+            // Add debug info to response
+            $info['debug'] = [
+                'params_sent' => $params,
+                'cart_items_count' => count($this->checkoutSession->getQuote()->getAllVisibleItems()),
+                'last_item_options' => isset($itemOptions) ? $itemOptions : 'No options found'
+            ];
+
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             return $this->errorStatus($e->getMessage());
         } catch (\Exception $e) {
