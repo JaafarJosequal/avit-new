@@ -45,6 +45,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
     protected $imageBuilder;
 
+    protected $objectManager;
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -61,7 +63,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         $this->productModel = $this->objectManager->get('\Magento\Catalog\Model\Product');
         $this->cart = $this->objectManager->get('\Magento\Checkout\Model\Cart');
-        $this->_checkoutSession = $this->objectManager->get('\Magento\Checkout\Model\Session');
+        $this->checkoutSession = $this->objectManager->get('\Magento\Checkout\Model\Session');
         $this->stockState = $this->objectManager->get('\Magento\CatalogInventory\Api\StockRegistryInterface');
         $this->currencyHelper = $this->objectManager->get('\Magento\Framework\Pricing\Helper\Data');
         $this->imageBuilder = $this->objectManager->get('\Magento\Catalog\Block\Product\ImageBuilder');
@@ -77,16 +79,43 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         $params['qty'] = isset($data['quantity']) ? (int) $data['quantity'] : 1;
 
+        // Handle custom options (color, size, etc.)
+        if (isset($data['options']) && is_array($data['options'])) {
+            $params['options'] = $data['options'];
+        }
+
+        // Handle specific color and size options
+        if (isset($data['color']) && !empty($data['color'])) {
+            $params['options']['color'] = $data['color'];
+        }
+
+        if (isset($data['size']) && !empty($data['size'])) {
+            $params['options']['size'] = $data['size'];
+        }
+
         try {
             $product = $this->productModel->setStoreId($this->storeManager->getStore()->getId())->load($data['product_id']);
             if (!$product) {
                 return $this->errorStatus(["Product not exist"],404);
             }
 
-            $this->cart->addProduct($product, $params);
+            // Check if product already exists in cart with same options
+            $existingItem = $this->findExistingCartItem($product->getId(), $params['options'] ?? []);
+
+            if ($existingItem) {
+                // Update existing item quantity
+                $newQty = $existingItem->getQty() + $params['qty'];
+                $this->cart->updateItem($existingItem->getItemId(), ['qty' => $newQty]);
+                $message = 'Product quantity updated successfully';
+            } else {
+                // Add new item
+                $this->cart->addProduct($product, $params);
+                $message = 'Product added successfully';
+            }
+
             $this->cart->save();
 
-            $info = $this->successStatus('Product added successfully');
+            $info = $this->successStatus($message);
             $info['data'] = $this->getCartDetails();
 
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -98,6 +127,85 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         return $info;
     }
 
+    /**
+     * Find existing cart item with same product and options
+     */
+    private function findExistingCartItem($productId, $options = []) {
+        $quote = $this->checkoutSession->getQuote();
+        $items = $quote->getAllVisibleItems();
+
+        foreach ($items as $item) {
+            if ($item->getProduct()->getId() == $productId) {
+                // Check if options match
+                $itemOptions = $this->getItemOptions($item);
+                if ($this->compareOptions($itemOptions, $options)) {
+                    return $item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get formatted options from cart item
+     */
+    private function getItemOptions($item) {
+        $options = [];
+        $itemOptions = $item->getOptions();
+
+        if ($itemOptions) {
+            foreach ($itemOptions as $option) {
+                // Handle different option formats
+                if (is_array($option)) {
+                    if (isset($option['code']) && isset($option['value'])) {
+                        $options[$option['code']] = $option['value'];
+                    } elseif (isset($option['label']) && isset($option['value'])) {
+                        // Convert label to code format
+                        $code = strtolower(str_replace(' ', '_', $option['label']));
+                        $options[$code] = $option['value'];
+                    }
+                } elseif (is_object($option)) {
+                    if (method_exists($option, 'getCode') && method_exists($option, 'getValue')) {
+                        $options[$option->getCode()] = $option->getValue();
+                    } elseif (method_exists($option, 'getLabel') && method_exists($option, 'getValue')) {
+                        $code = strtolower(str_replace(' ', '_', $option->getLabel()));
+                        $options[$code] = $option->getValue();
+                    }
+                }
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Compare two option arrays
+     */
+    private function compareOptions($options1, $options2) {
+        if (empty($options1) && empty($options2)) {
+            return true;
+        }
+
+        if (empty($options1) || empty($options2)) {
+            return false;
+        }
+
+        foreach ($options1 as $key => $value) {
+            if (!isset($options2[$key]) || $options2[$key] != $value) {
+                return false;
+            }
+        }
+
+        foreach ($options2 as $key => $value) {
+            if (!isset($options1[$key]) || $options1[$key] != $value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function getCartInfo($data = []) {
         $info = $this->successStatus('Cart Details');
         $info['data'] = $this->getCartDetails();
@@ -106,7 +214,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
     //Get cart Details
     public function getCartDetails() {
-        $quote = $this->_checkoutSession->getQuote();
+        $quote = $this->checkoutSession->getQuote();
         $quote->collectTotals();
         $quote->save();
 
