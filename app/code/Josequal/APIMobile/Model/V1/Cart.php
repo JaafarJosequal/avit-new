@@ -94,6 +94,12 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $params['options']['size'] = $data['size'];
         }
 
+        // Create a unique identifier for this product with options
+        $optionsHash = '';
+        if (isset($params['options']) && !empty($params['options'])) {
+            $optionsHash = md5(json_encode($params['options']));
+        }
+
         // Debug logging
         error_log("Adding product to cart with params: " . json_encode($params));
 
@@ -103,12 +109,50 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(["Product not exist"],404);
             }
 
-            // Always add as new item to ensure options are preserved
+            // Add product with options
             $this->cart->addProduct($product, $params);
             $this->cart->save();
 
-            // Debug logging after adding
+            // Get the last added item and manually set its options
             $quote = $this->checkoutSession->getQuote();
+            $items = $quote->getAllVisibleItems();
+            $lastItem = null;
+
+            if (!empty($items)) {
+                $lastItem = end($items);
+
+                if ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) {
+                    // Store options in item custom data
+                    $buyRequest = $lastItem->getBuyRequest();
+                    if ($buyRequest) {
+                        $buyRequest->setData('options', $params['options'] ?? []);
+                        $lastItem->setBuyRequest($buyRequest);
+                    }
+
+                    // Also store in item options
+                    $itemOptions = [];
+                    if (isset($params['options']['color'])) {
+                        $itemOptions[] = [
+                            'code' => 'color',
+                            'value' => $params['options']['color']
+                        ];
+                    }
+                    if (isset($params['options']['size'])) {
+                        $itemOptions[] = [
+                            'code' => 'size',
+                            'value' => $params['options']['size']
+                        ];
+                    }
+
+                    if (!empty($itemOptions)) {
+                        $lastItem->setOptions($itemOptions);
+                    }
+
+                    $quote->save();
+                }
+            }
+
+            // Debug logging after adding
             $items = $quote->getAllVisibleItems();
             error_log("Cart now contains " . count($items) . " items");
 
@@ -126,7 +170,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $info['debug'] = [
                 'params_sent' => $params,
                 'cart_items_count' => count($this->checkoutSession->getQuote()->getAllVisibleItems()),
-                'last_item_options' => isset($itemOptions) ? $itemOptions : 'No options found'
+                'last_item_options' => ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
+                'options_hash' => $optionsHash
             ];
 
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
