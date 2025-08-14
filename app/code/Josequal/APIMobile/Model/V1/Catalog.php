@@ -479,33 +479,185 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             // Ensure qty is never negative
             $qty = max(0, $qty);
 
-            // Check if product quantity is 0 - if so, return error
-            if ($qty == 0) {
-                return $this->errorStatus('Product is out of stock (quantity = 0)');
-            }
-
-            // Safely get product info
-            $_product = [];
+            // Safely get product name, SKU, and type
+            $productName = '';
+            $productSku = '';
+            $productType = '';
             try {
-                $_product = $this->_productInfo($product);
-                if (!is_array($_product)) {
-                    $_product = [];
+                if ($product && method_exists($product, 'getName')) {
+                    $productName = $product->getName() ?: '';
+                }
+                if ($product && method_exists($product, 'getSku')) {
+                    $productSku = $product->getSku() ?: '';
+                }
+                if ($product && method_exists($product, 'getTypeId')) {
+                    $productType = $product->getTypeId() ?: '';
                 }
             } catch (\Exception $e) {
-                // If _productInfo fails, try to get minimal product data
-                try {
-                    $_product = $this->processProduct($product);
-                    if (!is_array($_product)) {
-                        $_product = [];
+                $productName = '';
+                $productSku = '';
+                $productType = '';
+            }
+
+            // Safely get stock status
+            $stockStatus = false;
+            try {
+                if ($product && method_exists($product, 'isSaleable')) {
+                    $stockStatus = $product->isSaleable();
+                } else {
+                    $stockStatus = ($qty > 0);
+                }
+            } catch (\Exception $e) {
+                $stockStatus = ($qty > 0);
+            }
+
+            // Safely get review summary
+            $reviewSummary = [
+                'count' => 0,
+                'summary' => 0,
+                'averageRating' => 0
+            ];
+            try {
+                $reviewSummary = $this->getReviewSummary($product);
+            } catch (\Exception $e) {
+                $reviewSummary = [
+                    'count' => 0,
+                    'summary' => 0,
+                    'averageRating' => 0
+                ];
+            }
+
+            // Safely get prices with null checks
+            $regularPrice = 0;
+            $finalPrice = 0;
+            $minPrice = 0;
+
+            try {
+                // Only try to get price info if product is valid
+                if ($product && $product->getId()) {
+                    $priceInfo = $product->getPriceInfo();
+                    if ($priceInfo) {
+                        $regularPriceObj = $priceInfo->getPrice('regular_price');
+                        $finalPriceObj = $priceInfo->getPrice('final_price');
+
+                        if ($regularPriceObj) {
+                            $regularPrice = (float) $regularPriceObj->getValue() ?: 0;
+                        }
+
+                        if ($finalPriceObj) {
+                            $finalPrice = (float) $finalPriceObj->getValue() ?: 0;
+                        }
                     }
+                }
+            } catch (\Exception $e) {
+                // If price info is not available, use product price methods
+                try {
+                    $regularPrice = (float) $product->getPrice() ?: 0;
+                    $finalPrice = (float) $product->getFinalPrice() ?: 0;
                 } catch (\Exception $e2) {
-                    $_product = [];
+                    $regularPrice = 0;
+                    $finalPrice = 0;
                 }
             }
 
-            $info = $this->successStatus('Product Details');
-            $info['data'] = $_product;
-            return $info;
+            // Safely get min price
+            try {
+                if ($product && $product->getId()) {
+                    $minPrice = (float) $product->getMinPrice() ?: 0;
+                } else {
+                    $minPrice = $finalPrice;
+                }
+            } catch (\Exception $e) {
+                $minPrice = $finalPrice;
+            }
+
+            $difference = $regularPrice - $finalPrice;
+
+            // Calculate discount percentage safely
+            $discountPercentage = 0;
+            if ($regularPrice > 0 && $difference > 0) {
+                $discountPercentage = round((100 * $difference) / $regularPrice);
+            }
+
+            // Safely get image
+            $imageUrl = '';
+            try {
+                // Method 1: Try getImage method
+                if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
+                    $image = $this->getImage($product, 'product_page_image_large');
+                    if ($image && method_exists($image, 'getImageUrl')) {
+                        $imageUrlValue = $image->getImageUrl();
+                        $imageUrl = is_string($imageUrlValue) ? $imageUrlValue : '';
+                    }
+                }
+
+                // Method 2: If no image found, try direct product attributes
+                if (empty($imageUrl)) {
+                    if (method_exists($product, 'getImage') && $product->getImage()) {
+                        $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+                    } elseif (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
+                        $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
+                    } elseif (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
+                        $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
+                    }
+                }
+
+                // Method 3: Try to get from media gallery entries
+                if (empty($imageUrl)) {
+                    try {
+                        $mediaGalleryEntries = $product->getMediaGalleryEntries();
+                        if ($mediaGalleryEntries && count($mediaGalleryEntries) > 0) {
+                            $firstEntry = $mediaGalleryEntries[0];
+                            if ($firstEntry && method_exists($firstEntry, 'getFile')) {
+                                $file = $firstEntry->getFile();
+                                if ($file) {
+                                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $file;
+                                }
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Continue without media gallery entries
+                    }
+                }
+            } catch (\Exception $e) {
+                $imageUrl = '';
+            }
+
+            // Safely check if product is in favorites
+            $isFavorite = false;
+            try {
+                if ($productId > 0) {
+                    $isFavorite = $this->productInFav($productId);
+                }
+            } catch (\Exception $e) {
+                $isFavorite = false;
+            }
+
+            // Ensure all values are safe
+            $formattedPrice = is_string($formattedPrice) ? $formattedPrice : number_format($finalPrice, 2);
+            $formattedSpecialPrice = is_string($formattedSpecialPrice) ? $formattedSpecialPrice : number_format($finalPrice, 2);
+            $formattedLowestPrice = is_string($formattedLowestPrice) ? $formattedLowestPrice : number_format($minPrice, 2);
+            $discountPercentage = is_numeric($discountPercentage) ? max(0, min(100, $discountPercentage)) : 0;
+            $stockStatus = is_bool($stockStatus) ? $stockStatus : false;
+            $hasDiscount = is_bool($difference > 0) ? ($difference > 0) : false;
+            $isFavorite = is_bool($isFavorite) ? $isFavorite : false;
+
+            return [
+                'product_id' => $productId,
+                'name' => $productName,
+                'type' => $productType,
+                'qty' => $qty,
+                'sku' => $productSku,
+                'price' => $formattedPrice,
+                'special_price' => $formattedSpecialPrice,
+                'lowest_price' => $formattedLowestPrice,
+                'stock_status' => $stockStatus,
+                'review_summary' => $reviewSummary,
+                'image' => $imageUrl,
+                'has_discount' => $hasDiscount,
+                'discount' => $discountPercentage . '%',
+                'is_favorite' => $isFavorite
+            ];
 
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             return $this->errorStatus('Product not found');
@@ -835,6 +987,54 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
         // Ensure qty is never negative
         $qty = max(0, $qty);
+
+        // Safely get product name, SKU, and type
+        $productName = '';
+        $productSku = '';
+        $productType = '';
+        try {
+            if ($product && method_exists($product, 'getName')) {
+                $productName = $product->getName() ?: '';
+            }
+            if ($product && method_exists($product, 'getSku')) {
+                $productSku = $product->getSku() ?: '';
+            }
+            if ($product && method_exists($product, 'getTypeId')) {
+                $productType = $product->getTypeId() ?: '';
+            }
+        } catch (\Exception $e) {
+            $productName = '';
+            $productSku = '';
+            $productType = '';
+        }
+
+        // Safely get stock status
+        $stockStatus = false;
+        try {
+            if ($product && method_exists($product, 'isSaleable')) {
+                $stockStatus = $product->isSaleable();
+            } else {
+                $stockStatus = ($qty > 0);
+            }
+        } catch (\Exception $e) {
+            $stockStatus = ($qty > 0);
+        }
+
+        // Safely get review summary
+        $reviewSummary = [
+            'count' => 0,
+            'summary' => 0,
+            'averageRating' => 0
+        ];
+        try {
+            $reviewSummary = $this->getReviewSummary($product);
+        } catch (\Exception $e) {
+            $reviewSummary = [
+                'count' => 0,
+                'summary' => 0,
+                'averageRating' => 0
+            ];
+        }
 
         // Safely get prices with null checks
         $regularPrice = 0;
