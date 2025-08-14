@@ -38,7 +38,19 @@ class Details extends \Josequal\APIMobile\Controller\Action\Action
                 ]);
             }
 
-            $info = $model->productInfo($data);
+            // Load the product first
+            $product = $objectManager->create('Magento\Catalog\Model\Product')->load($data['product_id']);
+
+            if (!$product || !$product->getId()) {
+                return $this->printResult([
+                    'status' => false,
+                    'message' => 'Product not found',
+                    'data' => [],
+                    'error_code' => 'PRODUCT_NOT_FOUND'
+                ]);
+            }
+
+            $info = $model->_productInfo($product);
 
             // Validate response
             if (!$info || !is_array($info)) {
