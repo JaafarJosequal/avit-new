@@ -119,60 +119,40 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 $uniqueIdentifier .= '_' . $optionsHash;
             }
 
-            // Check if we already have an item with the same product and options
-            $quote = $this->checkoutSession->getQuote();
-            $existingItems = $quote->getAllVisibleItems();
-            $foundExisting = false;
-
-            foreach ($existingItems as $item) {
-                if ($item->getProduct()->getId() == $data['product_id']) {
-                    $itemBuyRequest = $item->getBuyRequest();
-                    if ($itemBuyRequest && $itemBuyRequest->getData('options')) {
-                        $itemOptions = $itemBuyRequest->getData('options');
-                        $itemOptionsHash = md5(json_encode($itemOptions));
-
-                        if ($itemOptionsHash === $optionsHash) {
-                            // Found existing item with same options, update quantity
-                            $newQty = $item->getQty() + $params['qty'];
-                            $this->cart->updateItem($item->getItemId(), ['qty' => $newQty]);
-                            $foundExisting = true;
-                            break;
-                        }
-                    }
-                }
+            // Force Magento to create a new item by adding a unique identifier
+            if (isset($params['options']) && !empty($params['options'])) {
+                $params['super_attribute'] = []; // Clear any existing super attributes
+                $params['options_hash'] = $optionsHash; // Add our custom hash
+                $params['unique_id'] = uniqid(); // Add unique ID to force new item
             }
 
-            if (!$foundExisting) {
-                // Add new item with options
-                $this->cart->addProduct($product, $params);
+            // Always add as new item to ensure options are preserved
+            $this->cart->addProduct($product, $params);
+            $this->cart->save();
 
-                // Get the newly added item and ensure options are saved
-                $this->cart->save();
-                $quote = $this->checkoutSession->getQuote();
-                $items = $quote->getAllVisibleItems();
-                $lastItem = end($items);
+            // Get the newly added item and ensure options are saved
+            $quote = $this->checkoutSession->getQuote();
+            $items = $quote->getAllVisibleItems();
+            $lastItem = end($items);
 
-                if ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) {
-                    // Store options in buy request
-                    $buyRequest = $lastItem->getBuyRequest();
-                    if ($buyRequest) {
-                        $buyRequest->setData('options', $params['options'] ?? []);
-                        $lastItem->setBuyRequest($buyRequest);
-                    }
-
-                    // Store options in item custom data
-                    $customData = $lastItem->getCustomData();
-                    if (!$customData) {
-                        $customData = [];
-                    }
-                    $customData['options'] = $params['options'] ?? [];
-                    $lastItem->setCustomData($customData);
-
-                    // Save the quote again
-                    $quote->save();
+            if ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) {
+                // Store options in buy request
+                $buyRequest = $lastItem->getBuyRequest();
+                if ($buyRequest) {
+                    $buyRequest->setData('options', $params['options'] ?? []);
+                    $lastItem->setBuyRequest($buyRequest);
                 }
-            } else {
-                $this->cart->save();
+
+                // Store options in item custom data
+                $customData = $lastItem->getCustomData();
+                if (!$customData) {
+                    $customData = [];
+                }
+                $customData['options'] = $params['options'] ?? [];
+                $lastItem->setCustomData($customData);
+
+                // Save the quote again
+                $quote->save();
             }
 
             // Debug logging after adding
@@ -196,8 +176,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'last_item_options' => (isset($lastItem) && $lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
                 'options_hash' => $optionsHash,
                 'unique_identifier' => $uniqueIdentifier,
-                'found_existing' => $foundExisting,
-                'action_taken' => $foundExisting ? 'Updated existing item quantity' : 'Created new item',
+                'found_existing' => false, // This will be false as we force new item
+                'action_taken' => 'Created new item',
                 'cart_items_details' => []
             ];
 
@@ -292,6 +272,54 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     public function processProduct($item) {
         $product = $item->getProduct();
 
+        // Get options from item options
+        $itemOptions = $this->formatCartOptions($item->getOptions());
+
+        // Also get options from buy request if available
+        $buyRequestOptions = [];
+        try {
+            $buyRequest = $item->getBuyRequest();
+            if ($buyRequest && $buyRequest->getData('options')) {
+                $buyRequestOptions = $buyRequest->getData('options');
+                error_log("Buy request options for item " . $item->getItemId() . ": " . json_encode($buyRequestOptions));
+            }
+        } catch (\Exception $e) {
+            // Continue without buy request
+        }
+
+        // If we have buy request options, use them to create formatted options
+        if (!empty($buyRequestOptions)) {
+            $formattedBuyRequestOptions = [];
+            foreach ($buyRequestOptions as $key => $value) {
+                $formattedBuyRequestOptions[] = [
+                    'label' => $key,
+                    'value' => [
+                        'qty' => $item->getQty(),
+                        'options' => $buyRequestOptions
+                    ],
+                    'extracted_options' => [
+                        [
+                            'type' => $key,
+                            'value' => $value
+                        ]
+                    ]
+                ];
+
+                // Add specific color and size if available
+                if ($key === 'color') {
+                    $formattedBuyRequestOptions[count($formattedBuyRequestOptions) - 1]['color'] = $value;
+                }
+                if ($key === 'size') {
+                    $formattedBuyRequestOptions[count($formattedBuyRequestOptions) - 1]['size'] = $value;
+                }
+            }
+
+            // Use buy request options if they exist, otherwise use item options
+            $finalOptions = !empty($formattedBuyRequestOptions) ? $formattedBuyRequestOptions : $itemOptions;
+        } else {
+            $finalOptions = $itemOptions;
+        }
+
         $productData = [
             'id' => $item->getItemId(),
             'product_id' => $product->getId(),
@@ -301,7 +329,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             'price' => $this->currencyHelper->currency($item->getPrice(), true, false),
             'row_total' => $this->currencyHelper->currency($item->getRowTotal(), true, false),
             'image' => $this->getImage($product, 'product_thumbnail_image'),
-            'options' => $this->formatCartOptions($item->getOptions())
+            'options' => $finalOptions
         ];
 
         return $productData;
