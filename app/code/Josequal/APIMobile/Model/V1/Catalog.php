@@ -307,7 +307,32 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                     foreach ($productsQuery as $_collection) {
                         try {
                             if ($_collection && $_collection->getId()) {
-                                $products[] = $this->processProduct($_collection);
+                                // Check if product quantity is 0 before adding to results
+                                $productQty = 0;
+                                try {
+                                    // Try to get quantity from the collection item
+                                    if (method_exists($_collection, 'getQty')) {
+                                        $productQty = (float) $_collection->getQty() ?: 0;
+                                    }
+
+                                    // If still 0, try other methods
+                                    if ($productQty == 0) {
+                                        $productId = $_collection->getId();
+                                        if ($this->stockState && method_exists($this->stockState, 'getStockItem')) {
+                                            $quantity = $this->stockState->getStockItem($productId);
+                                            if ($quantity && $quantity->getId()) {
+                                                $productQty = (float) $quantity->getQty() ?: 0;
+                                            }
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    $productQty = 0;
+                                }
+
+                                // Only add products with quantity > 0
+                                if ($productQty > 0) {
+                                    $products[] = $this->processProduct($_collection);
+                                }
                             }
                         } catch (\Exception $e) {
                             // Skip this product if there's an error
@@ -390,6 +415,65 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
             if (!empty($productWebsiteIds) && !in_array($currentWebsiteId, $productWebsiteIds)) {
                 return $this->errorStatus('Product not available in current website');
+            }
+
+            // Check product quantity before proceeding
+            $qty = 0;
+            try {
+                // Try MSI first (Magento 2.3+)
+                if ($this->stockState && method_exists($this->stockState, 'getStockItem')) {
+                    $quantity = $this->stockState->getStockItem($productId);
+                    if ($quantity && $quantity->getId()) {
+                        $qty = (float) $quantity->getQty() ?: 0;
+                    }
+                }
+
+                // Fallback: Try to get quantity from product directly
+                if ($qty == 0 && $product && method_exists($product, 'getQty')) {
+                    $qty = (float) $product->getQty() ?: 0;
+                }
+
+                // Fallback: Try to get quantity from stock registry
+                if ($qty == 0) {
+                    try {
+                        $stockRegistry = $this->objectManager->get('\Magento\CatalogInventory\Api\StockRegistryInterface');
+                        if ($stockRegistry) {
+                            $stockItem = $stockRegistry->getStockItem($productId);
+                            if ($stockItem && $stockItem->getId()) {
+                                $qty = (float) $stockItem->getQty() ?: 0;
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Continue with qty = 0
+                    }
+                }
+
+                // Fallback: Try to get quantity from product collection
+                if ($qty == 0) {
+                    try {
+                        $productCollection = $this->objectManager->get('\Magento\Catalog\Model\ResourceModel\Product\Collection');
+                        if ($productCollection) {
+                            $productItem = $productCollection->addFieldToFilter('entity_id', $productId)
+                                                          ->addFieldToSelect(['qty', 'stock_status'])
+                                                          ->getFirstItem();
+                            if ($productItem && $productItem->getId()) {
+                                $qty = (float) $productItem->getQty() ?: 0;
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Continue with qty = 0
+                    }
+                }
+            } catch (\Exception $e) {
+                $qty = 0;
+            }
+
+            // Ensure qty is never negative
+            $qty = max(0, $qty);
+
+            // Check if product quantity is 0 - if so, return error
+            if ($qty == 0) {
+                return $this->errorStatus('Product is out of stock (quantity = 0)');
             }
 
             // Safely get product info
