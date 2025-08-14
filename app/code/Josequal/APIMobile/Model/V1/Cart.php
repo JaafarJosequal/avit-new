@@ -111,17 +111,42 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(["Product not exist"],404);
             }
 
-            // Always add as new item to ensure options are preserved
-            // This will create a separate cart item for each unique combination of product + options
-
             // Create a unique identifier for this product with options
             $optionsHash = '';
+            $uniqueIdentifier = $data['product_id'];
             if (isset($params['options']) && !empty($params['options'])) {
                 $optionsHash = md5(json_encode($params['options']));
+                $uniqueIdentifier .= '_' . $optionsHash;
             }
 
-            // Add product with options
-            $this->cart->addProduct($product, $params);
+            // Check if we already have an item with the same product and options
+            $quote = $this->checkoutSession->getQuote();
+            $existingItems = $quote->getAllVisibleItems();
+            $foundExisting = false;
+
+            foreach ($existingItems as $item) {
+                if ($item->getProduct()->getId() == $data['product_id']) {
+                    $itemBuyRequest = $item->getBuyRequest();
+                    if ($itemBuyRequest && $itemBuyRequest->getData('options')) {
+                        $itemOptions = $itemBuyRequest->getData('options');
+                        $itemOptionsHash = md5(json_encode($itemOptions));
+
+                        if ($itemOptionsHash === $optionsHash) {
+                            // Found existing item with same options, update quantity
+                            $newQty = $item->getQty() + $params['qty'];
+                            $this->cart->updateItem($item->getItemId(), ['qty' => $newQty]);
+                            $foundExisting = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$foundExisting) {
+                // Add new item with options
+                $this->cart->addProduct($product, $params);
+            }
+
             $this->cart->save();
 
             // Get the last added item and manually set its options
@@ -129,7 +154,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $items = $quote->getAllVisibleItems();
             $lastItem = null;
 
-            if (!empty($items)) {
+            if (!$foundExisting && !empty($items)) {
                 $lastItem = end($items);
 
                 if ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) {
