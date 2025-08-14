@@ -429,8 +429,12 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         // Safely get quantity
         $qty = 0;
         try {
-            $quantity = $this->stockState->getStockItem($productId);
-            $qty = $quantity->getQty();
+            if ($productId > 0) {
+                $quantity = $this->stockState->getStockItem($productId);
+                if ($quantity && $quantity->getId()) {
+                    $qty = (float) $quantity->getQty() ?: 0;
+                }
+            }
         } catch (\Exception $e) {
             $qty = 0;
         }
@@ -441,28 +445,40 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         $minPrice = 0;
 
         try {
-            $priceInfo = $product->getPriceInfo();
-            if ($priceInfo) {
-                $regularPriceObj = $priceInfo->getPrice('regular_price');
-                $finalPriceObj = $priceInfo->getPrice('final_price');
+            // Only try to get price info if product is valid
+            if ($product && $product->getId()) {
+                $priceInfo = $product->getPriceInfo();
+                if ($priceInfo) {
+                    $regularPriceObj = $priceInfo->getPrice('regular_price');
+                    $finalPriceObj = $priceInfo->getPrice('final_price');
 
-                if ($regularPriceObj) {
-                    $regularPrice = (float) $regularPriceObj->getValue() ?: 0;
-                }
+                    if ($regularPriceObj) {
+                        $regularPrice = (float) $regularPriceObj->getValue() ?: 0;
+                    }
 
-                if ($finalPriceObj) {
-                    $finalPrice = (float) $finalPriceObj->getValue() ?: 0;
+                    if ($finalPriceObj) {
+                        $finalPrice = (float) $finalPriceObj->getValue() ?: 0;
+                    }
                 }
             }
         } catch (\Exception $e) {
             // If price info is not available, use product price methods
-            $regularPrice = (float) $product->getPrice() ?: 0;
-            $finalPrice = (float) $product->getFinalPrice() ?: 0;
+            try {
+                $regularPrice = (float) $product->getPrice() ?: 0;
+                $finalPrice = (float) $product->getFinalPrice() ?: 0;
+            } catch (\Exception $e2) {
+                $regularPrice = 0;
+                $finalPrice = 0;
+            }
         }
 
         // Safely get min price
         try {
-            $minPrice = (float) $product->getMinPrice() ?: 0;
+            if ($product && $product->getId()) {
+                $minPrice = (float) $product->getMinPrice() ?: 0;
+            } else {
+                $minPrice = $finalPrice;
+            }
         } catch (\Exception $e) {
             $minPrice = $finalPrice;
         }
@@ -505,9 +521,15 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         // Safely check stock status
         $stockStatus = false;
         try {
-            $stockStatus = $product->isSaleable() && $product->isAvailable();
+            // Check if product is saleable and available, but also consider quantity
+            if ($qty > 0) {
+                $stockStatus = $product->isSaleable() && $product->isAvailable();
+            } else {
+                $stockStatus = false; // If quantity is 0, stock status should be false
+            }
         } catch (\Exception $e) {
-            $stockStatus = false;
+            // If there's an error checking stock status, set it based on quantity
+            $stockStatus = ($qty > 0);
         }
 
         // Safely get product name and SKU
