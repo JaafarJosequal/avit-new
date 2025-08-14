@@ -209,6 +209,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'last_item_options' => ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
                 'options_hash' => $optionsHash,
                 'unique_identifier' => $uniqueIdentifier,
+                'found_existing' => $foundExisting,
+                'action_taken' => $foundExisting ? 'Updated existing item quantity' : 'Created new item',
                 'cart_items_details' => []
             ];
 
