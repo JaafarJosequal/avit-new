@@ -647,6 +647,26 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             // Get colors and sizes
             $colorsAndSizes = $this->getProductColorsAndSizes($product);
 
+            // Get description
+            $description = '';
+            try {
+                if ($product && method_exists($product, 'getShortDescription')) {
+                    $description = $product->getShortDescription() ?: '';
+                }
+            } catch (\Exception $e) {
+                $description = '';
+            }
+
+            // Get related products
+            $relatedProducts = [];
+            try {
+                if ($product && $product->getId()) {
+                    $relatedProducts = $this->getRelatedProducts($product);
+                }
+            } catch (\Exception $e) {
+                $relatedProducts = [];
+            }
+
             return [
                 'product_id' => $productId,
                 'name' => $productName,
@@ -663,7 +683,9 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 'discount' => $discountPercentage . '%',
                 'is_favorite' => $isFavorite,
                 'colors' => $colorsAndSizes['colors'],
-                'sizes' => $colorsAndSizes['sizes']
+                'sizes' => $colorsAndSizes['sizes'],
+                'description' => $description,
+                'related' => $relatedProducts
             ];
 
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
