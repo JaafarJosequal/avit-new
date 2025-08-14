@@ -633,10 +633,12 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 $isFavorite = false;
             }
 
+            // Format prices
+            $formattedPrice = number_format($finalPrice, 2);
+            $formattedSpecialPrice = number_format($finalPrice, 2);
+            $formattedLowestPrice = number_format($minPrice, 2);
+
             // Ensure all values are safe
-            $formattedPrice = is_string($formattedPrice) ? $formattedPrice : number_format($finalPrice, 2);
-            $formattedSpecialPrice = is_string($formattedSpecialPrice) ? $formattedSpecialPrice : number_format($finalPrice, 2);
-            $formattedLowestPrice = is_string($formattedLowestPrice) ? $formattedLowestPrice : number_format($minPrice, 2);
             $discountPercentage = is_numeric($discountPercentage) ? max(0, min(100, $discountPercentage)) : 0;
             $stockStatus = is_bool($stockStatus) ? $stockStatus : false;
             $hasDiscount = is_bool($difference > 0) ? ($difference > 0) : false;
