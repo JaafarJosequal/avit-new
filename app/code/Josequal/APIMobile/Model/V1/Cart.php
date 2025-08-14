@@ -387,15 +387,41 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     public function deleteItem($data) {
-        if(!isset($data['item_id'])){
-            return $this->errorStatus(["Item ID is required"]);
+        if(!isset($data['item_id']) && !isset($data['product_id'])){
+            return $this->errorStatus(["Item ID or Product ID is required"]);
         }
 
         try {
-            $this->cart->removeItem($data['item_id']);
+            if (isset($data['item_id'])) {
+                // Delete by item ID (direct deletion)
+                $this->cart->removeItem($data['item_id']);
+                $message = 'Item removed successfully';
+            } else {
+                // Delete by product ID (all items of this product)
+                $productId = $data['product_id'];
+
+                // Find all items with this product ID
+                $quote = $this->checkoutSession->getQuote();
+                $items = $quote->getAllVisibleItems();
+                $removedCount = 0;
+
+                foreach ($items as $item) {
+                    if ($item->getProduct()->getId() == $productId) {
+                        $this->cart->removeItem($item->getItemId());
+                        $removedCount++;
+                    }
+                }
+
+                if ($removedCount > 0) {
+                    $message = "Removed {$removedCount} item(s) of product ID {$productId}";
+                } else {
+                    return $this->errorStatus(["Product not found in cart"]);
+                }
+            }
+
             $this->cart->save();
 
-            $info = $this->successStatus('Item removed successfully');
+            $info = $this->successStatus($message);
             $info['data'] = $this->getCartDetails();
 
         } catch (\Exception $e) {
