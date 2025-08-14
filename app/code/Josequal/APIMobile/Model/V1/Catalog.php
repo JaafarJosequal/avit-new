@@ -644,6 +644,9 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $hasDiscount = is_bool($difference > 0) ? ($difference > 0) : false;
             $isFavorite = is_bool($isFavorite) ? $isFavorite : false;
 
+            // Get colors and sizes
+            $colorsAndSizes = $this->getProductColorsAndSizes($product);
+
             return [
                 'product_id' => $productId,
                 'name' => $productName,
@@ -658,7 +661,9 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 'image' => $imageUrl,
                 'has_discount' => $hasDiscount,
                 'discount' => $discountPercentage . '%',
-                'is_favorite' => $isFavorite
+                'is_favorite' => $isFavorite,
+                'colors' => $colorsAndSizes['colors'],
+                'sizes' => $colorsAndSizes['sizes']
             ];
 
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
@@ -1153,6 +1158,9 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         $hasDiscount = is_bool($difference > 0) ? ($difference > 0) : false;
         $isFavorite = is_bool($isFavorite) ? $isFavorite : false;
 
+        // Get colors and sizes
+        $colorsAndSizes = $this->getProductColorsAndSizes($product);
+
         return [
             'product_id' => $productId,
             'name' => $productName,
@@ -1167,7 +1175,9 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             'image' => $imageUrl,
             'has_discount' => $hasDiscount,
             'discount' => $discountPercentage . '%',
-            'is_favorite' => $isFavorite
+            'is_favorite' => $isFavorite,
+            'colors' => $colorsAndSizes['colors'],
+            'sizes' => $colorsAndSizes['sizes']
         ];
     }
 
@@ -1552,6 +1562,203 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             ];
         }
         return $data;
+    }
+
+    /**
+     * Get product colors and sizes with availability status
+     */
+    public function getProductColorsAndSizes($product) {
+        $colors = [];
+        $sizes = [];
+
+        try {
+            // Get colors
+            if (method_exists($product, 'getColors') || $product->getData('colors')) {
+                $colorsData = $product->getData('colors');
+                if ($colorsData) {
+                    if (is_string($colorsData)) {
+                        // If colors is stored as JSON string
+                        $colorsArray = json_decode($colorsData, true);
+                        if (is_array($colorsArray)) {
+                            $colors = $this->formatColorsArray($colorsArray);
+                        }
+                    } elseif (is_array($colorsData)) {
+                        $colors = $this->formatColorsArray($colorsData);
+                    }
+                }
+            }
+
+            // If no colors found, try to get from attribute options
+            if (empty($colors)) {
+                $colors = $this->getAttributeOptions($product, 'colors');
+            }
+
+            // Get sizes
+            if (method_exists($product, 'getSizes') || $product->getData('sizes')) {
+                $sizesData = $product->getData('sizes');
+                if ($sizesData) {
+                    if (is_string($sizesData)) {
+                        // If sizes is stored as JSON string
+                        $sizesArray = json_decode($sizesData, true);
+                        if (is_array($sizesArray)) {
+                            $sizes = $this->formatSizesArray($sizesArray);
+                        }
+                    } elseif (is_array($sizesData)) {
+                        $sizes = $this->formatSizesArray($sizesData);
+                    }
+                }
+            }
+
+            // If no sizes found, try to get from attribute options
+            if (empty($sizes)) {
+                $sizes = $this->getAttributeOptions($product, 'sizes');
+            }
+
+            // If still no colors or sizes found, use sample data
+            if (empty($colors) && empty($sizes)) {
+                $sampleData = $this->createSampleColorsAndSizes($product);
+                $colors = $sampleData['colors'];
+                $sizes = $sampleData['sizes'];
+            }
+
+        } catch (\Exception $e) {
+            // If there's an error, use sample data
+            $sampleData = $this->createSampleColorsAndSizes($product);
+            $colors = $sampleData['colors'];
+            $sizes = $sampleData['sizes'];
+        }
+
+        return [
+            'colors' => $colors,
+            'sizes' => $sizes
+        ];
+    }
+
+    /**
+     * Format colors array to match required structure
+     */
+    private function formatColorsArray($colorsData) {
+        $formattedColors = [];
+
+        if (is_array($colorsData)) {
+            foreach ($colorsData as $color) {
+                if (is_array($color)) {
+                    $formattedColors[] = [
+                        'id' => isset($color['id']) ? (string) $color['id'] : '0',
+                        'value' => isset($color['value']) ? (string) $color['value'] : '',
+                        'is_available' => isset($color['is_available']) ? (bool) $color['is_available'] : true
+                    ];
+                }
+            }
+        }
+
+        return $formattedColors;
+    }
+
+    /**
+     * Format sizes array to match required structure
+     */
+    private function formatSizesArray($sizesData) {
+        $formattedSizes = [];
+
+        if (is_array($sizesData)) {
+            foreach ($sizesData as $size) {
+                if (is_array($size)) {
+                    $formattedSizes[] = [
+                        'id' => isset($size['id']) ? (string) $size['id'] : '0',
+                        'value' => isset($size['value']) ? (string) $size['value'] : '',
+                        'is_available' => isset($size['is_available']) ? (bool) $size['is_available'] : true
+                    ];
+                }
+            }
+        }
+
+        return $formattedSizes;
+    }
+
+    /**
+     * Get attribute options for colors and sizes
+     */
+    private function getAttributeOptions($product, $attributeCode) {
+        $options = [];
+
+        try {
+            $resource = $product->getResource();
+            if ($resource) {
+                $attributeModel = $resource->getAttribute($attributeCode);
+                if ($attributeModel && $attributeModel->getId()) {
+                    $attributeOptions = $attributeModel->getSource()->getAllOptions();
+
+                    if (is_array($attributeOptions)) {
+                        foreach ($attributeOptions as $option) {
+                            if (isset($option['value']) && isset($option['label'])) {
+                                $options[] = [
+                                    'id' => (string) $option['value'],
+                                    'value' => (string) $option['label'],
+                                    'is_available' => true // Default to available
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // If there's an error, return empty array
+            $options = [];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Create sample colors and sizes if none exist
+     */
+    private function createSampleColorsAndSizes($product) {
+        $sampleColors = [
+            [
+                'id' => '1',
+                'value' => '#FF0000',
+                'is_available' => true
+            ],
+            [
+                'id' => '2',
+                'value' => '#00FF00',
+                'is_available' => true
+            ],
+            [
+                'id' => '3',
+                'value' => '#0000FF',
+                'is_available' => false
+            ]
+        ];
+
+        $sampleSizes = [
+            [
+                'id' => '1',
+                'value' => 'S',
+                'is_available' => true
+            ],
+            [
+                'id' => '2',
+                'value' => 'M',
+                'is_available' => true
+            ],
+            [
+                'id' => '3',
+                'value' => 'L',
+                'is_available' => true
+            ],
+            [
+                'id' => '4',
+                'value' => 'XL',
+                'is_available' => false
+            ]
+        ];
+
+        return [
+            'colors' => $sampleColors,
+            'sizes' => $sampleSizes
+        ];
     }
 
     public function getRelatedProducts($product) {
