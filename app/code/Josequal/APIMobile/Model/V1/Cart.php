@@ -96,8 +96,10 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         // Create a unique identifier for this product with options
         $optionsHash = '';
+        $uniqueIdentifier = $data['product_id'];
         if (isset($params['options']) && !empty($params['options'])) {
             $optionsHash = md5(json_encode($params['options']));
+            $uniqueIdentifier .= '_' . $optionsHash;
         }
 
         // Debug logging
@@ -107,6 +109,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $product = $this->productModel->setStoreId($this->storeManager->getStore()->getId())->load($data['product_id']);
             if (!$product) {
                 return $this->errorStatus(["Product not exist"],404);
+            }
+
+            // Always add as new item to ensure options are preserved
+            // This will create a separate cart item for each unique combination of product + options
+
+            // Create a unique identifier for this product with options
+            $optionsHash = '';
+            if (isset($params['options']) && !empty($params['options'])) {
+                $optionsHash = md5(json_encode($params['options']));
             }
 
             // Add product with options
@@ -171,8 +182,22 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'params_sent' => $params,
                 'cart_items_count' => count($this->checkoutSession->getQuote()->getAllVisibleItems()),
                 'last_item_options' => ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
-                'options_hash' => $optionsHash
+                'options_hash' => $optionsHash,
+                'unique_identifier' => $uniqueIdentifier,
+                'cart_items_details' => []
             ];
+
+            // Add details about all cart items for debugging
+            $allItems = $this->checkoutSession->getQuote()->getAllVisibleItems();
+            foreach ($allItems as $item) {
+                $info['debug']['cart_items_details'][] = [
+                    'item_id' => $item->getItemId(),
+                    'product_id' => $item->getProduct()->getId(),
+                    'qty' => $item->getQty(),
+                    'options' => $item->getOptions(),
+                    'buy_request' => $item->getBuyRequest() ? $item->getBuyRequest()->getData() : null
+                ];
+            }
 
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             return $this->errorStatus($e->getMessage());
