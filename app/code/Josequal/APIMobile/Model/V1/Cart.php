@@ -10,6 +10,8 @@ use Magento\Quote\Model\ShippingAssignmentFactory;
 use Magento\Quote\Model\ShippingFactory;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\ScopeInterface;
 
 class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
@@ -68,7 +70,6 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $this->currencyHelper = $this->objectManager->get('\Magento\Framework\Pricing\Helper\Data');
         $this->imageBuilder = $this->objectManager->get('\Magento\Catalog\Block\Product\ImageBuilder');
         $this->scopeConfig = $this->objectManager->get('\Magento\Framework\App\Config\ScopeConfigInterface');
-        $this->customerSession = $this->objectManager->get('\Magento\Customer\Model\Session');
     }
 
     //Add To Cart
@@ -293,14 +294,74 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
     private function formatCartOptions($options) {
         $formattedOptions = [];
+
         if ($options) {
             foreach ($options as $option) {
-                $formattedOptions[] = [
-                    'label' => $option['label'],
-                    'value' => $option['value']
-                ];
+                try {
+                    $label = null;
+                    $value = null;
+                    $optionData = [];
+
+                    // Handle different option formats
+                    if (is_array($option)) {
+                        $label = isset($option['label']) ? $option['label'] : null;
+                        $value = isset($option['value']) ? $option['value'] : null;
+                    } elseif (is_object($option)) {
+                        $label = method_exists($option, 'getLabel') ? $option->getLabel() : null;
+                        $value = method_exists($option, 'getValue') ? $option->getValue() : null;
+                    }
+
+                    // If value is JSON string, decode it
+                    if (is_string($value) && !empty($value)) {
+                        $decodedValue = json_decode($value, true);
+                        if (is_array($decodedValue)) {
+                            $optionData = $decodedValue;
+                        } else {
+                            $optionData = ['raw_value' => $value];
+                        }
+                    } else {
+                        $optionData = ['raw_value' => $value];
+                    }
+
+                    // Extract specific options like color and size
+                    $extractedOptions = [];
+                    if (isset($optionData['options']) && is_array($optionData['options'])) {
+                        foreach ($optionData['options'] as $key => $val) {
+                            $extractedOptions[] = [
+                                'type' => $key,
+                                'value' => $val
+                            ];
+                        }
+                    }
+
+                    // Create formatted option
+                    $formattedOption = [
+                        'label' => $label,
+                        'value' => $optionData,
+                        'extracted_options' => $extractedOptions
+                    ];
+
+                    // Add specific color and size if available
+                    if (isset($optionData['options']['color'])) {
+                        $formattedOption['color'] = $optionData['options']['color'];
+                    }
+                    if (isset($optionData['options']['size'])) {
+                        $formattedOption['size'] = $optionData['options']['size'];
+                    }
+
+                    $formattedOptions[] = $formattedOption;
+
+                } catch (\Exception $e) {
+                    // If there's an error processing this option, add it as is
+                    $formattedOptions[] = [
+                        'label' => is_array($option) ? ($option['label'] ?? null) : null,
+                        'value' => is_array($option) ? ($option['value'] ?? null) : null,
+                        'error' => 'Failed to process option'
+                    ];
+                }
             }
         }
+
         return $formattedOptions;
     }
 
