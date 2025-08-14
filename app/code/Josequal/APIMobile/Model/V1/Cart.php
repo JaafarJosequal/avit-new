@@ -109,7 +109,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 $this->cart->updateItem($existingItem->getItemId(), ['qty' => $newQty]);
                 $message = 'Product quantity updated successfully';
             } else {
-                // Add new item
+                // Add new item with custom options
                 $this->cart->addProduct($product, $params);
                 $message = 'Product added successfully';
             }
@@ -137,7 +137,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         foreach ($items as $item) {
             if ($item->getProduct()->getId() == $productId) {
-                // Check if options match
+                // Check if options match exactly
                 $itemOptions = $this->getItemOptions($item);
                 if ($this->compareOptions($itemOptions, $options)) {
                     return $item;
@@ -184,20 +184,24 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Compare two option arrays
      */
     private function compareOptions($options1, $options2) {
+        // If both are empty, they match
         if (empty($options1) && empty($options2)) {
             return true;
         }
 
+        // If one is empty and the other is not, they don't match
         if (empty($options1) || empty($options2)) {
             return false;
         }
 
+        // Check if all options in options1 exist in options2 with same values
         foreach ($options1 as $key => $value) {
             if (!isset($options2[$key]) || $options2[$key] != $value) {
                 return false;
             }
         }
 
+        // Check if all options in options2 exist in options1 with same values
         foreach ($options2 as $key => $value) {
             if (!isset($options1[$key]) || $options1[$key] != $value) {
                 return false;
