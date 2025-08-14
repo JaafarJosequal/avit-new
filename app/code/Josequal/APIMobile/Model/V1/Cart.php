@@ -145,47 +145,34 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             if (!$foundExisting) {
                 // Add new item with options
                 $this->cart->addProduct($product, $params);
-            }
 
-            $this->cart->save();
-
-            // Get the last added item and manually set its options
-            $quote = $this->checkoutSession->getQuote();
-            $items = $quote->getAllVisibleItems();
-            $lastItem = null;
-
-            if (!$foundExisting && !empty($items)) {
+                // Get the newly added item and ensure options are saved
+                $this->cart->save();
+                $quote = $this->checkoutSession->getQuote();
+                $items = $quote->getAllVisibleItems();
                 $lastItem = end($items);
 
                 if ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) {
-                    // Store options in item custom data
+                    // Store options in buy request
                     $buyRequest = $lastItem->getBuyRequest();
                     if ($buyRequest) {
                         $buyRequest->setData('options', $params['options'] ?? []);
                         $lastItem->setBuyRequest($buyRequest);
                     }
 
-                    // Also store in item options
-                    $itemOptions = [];
-                    if (isset($params['options']['color'])) {
-                        $itemOptions[] = [
-                            'code' => 'color',
-                            'value' => $params['options']['color']
-                        ];
+                    // Store options in item custom data
+                    $customData = $lastItem->getCustomData();
+                    if (!$customData) {
+                        $customData = [];
                     }
-                    if (isset($params['options']['size'])) {
-                        $itemOptions[] = [
-                            'code' => 'size',
-                            'value' => $params['options']['size']
-                        ];
-                    }
+                    $customData['options'] = $params['options'] ?? [];
+                    $lastItem->setCustomData($customData);
 
-                    if (!empty($itemOptions)) {
-                        $lastItem->setOptions($itemOptions);
-                    }
-
+                    // Save the quote again
                     $quote->save();
                 }
+            } else {
+                $this->cart->save();
             }
 
             // Debug logging after adding
@@ -206,7 +193,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $info['debug'] = [
                 'params_sent' => $params,
                 'cart_items_count' => count($this->checkoutSession->getQuote()->getAllVisibleItems()),
-                'last_item_options' => ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
+                'last_item_options' => (isset($lastItem) && $lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
                 'options_hash' => $optionsHash,
                 'unique_identifier' => $uniqueIdentifier,
                 'found_existing' => $foundExisting,
