@@ -69,15 +69,36 @@ class AbstractModel extends \Magento\Framework\Model\AbstractModel {
     }
 
     public function _getStoreId() {
-        return $this->storeManager->getStore()->getStoreId();
+        try {
+            if ($this->storeManager && $this->storeManager->getStore()) {
+                return $this->storeManager->getStore()->getStoreId();
+            }
+            return 1; // Default store ID
+        } catch (\Exception $e) {
+            return 1; // Default store ID
+        }
     }
 
     public function _getStoreName() {
-        return $this->storeManager->getStore()->getName();
+        try {
+            if ($this->storeManager && $this->storeManager->getStore()) {
+                return $this->storeManager->getStore()->getName();
+            }
+            return 'Default Store'; // Default store name
+        } catch (\Exception $e) {
+            return 'Default Store'; // Default store name
+        }
     }
 
     public function _getWebsiteId() {
-        return $this->storeManager->getWebsite()->getWebsiteId();
+        try {
+            if ($this->storeManager && $this->storeManager->getWebsite()) {
+                return $this->storeManager->getWebsite()->getWebsiteId();
+            }
+            return 1; // Default website ID
+        } catch (\Exception $e) {
+            return 1; // Default website ID
+        }
     }
 
     public function getStoreConfig($path = '', $store = null, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE) {

@@ -384,160 +384,213 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
     function _productInfo($product) {
         try {
-            $storeId = $this->storeManager->getStore()->getId();
-        } catch (\Exception $e) {
-            $storeId = 1; // Default store ID
-        }
-
-        $catalogHelper = $this->objectManager->get('\Magento\Catalog\Helper\Product');
-        $dataHelper = $this->objectManager->get('\Magento\Catalog\Helper\Data');
-        $reviewModel = $this->objectManager->get('\Josequal\APIMobile\Model\V1\Review');
-
-        try {
-            $currency_code = $this->storeManager->getStore()->getCurrentCurrencyCode();
-        } catch (\Exception $e) {
-            $currency_code = 'USD'; // Default currency
-        }
-
-        $getBlockByIdentifier = $this->objectManager->get('\Magento\Cms\Api\GetBlockByIdentifierInterface');
-
-        $outputHelper = $this->objectManager->get('Magento\Catalog\Helper\Output');
-        $imageHelper = $this->objectManager->get('Magento\Catalog\Helper\Image');
-
-        $images = [];
-        try {
-            if ($product && $product->getId()) {
-                $mediaGalleryImages = $product->getMediaGalleryImages();
-                if ($mediaGalleryImages) {
-                    foreach ($mediaGalleryImages as $image) {
-                        if ($image && method_exists($image, 'getUrl')) {
-                            $images[] = $image->getUrl();
-                        }
-                    }
-                }
+            if (!$product || !$product->getId()) {
+                return [];
             }
-        } catch (\Exception $e) {
-            $images = [];
-        }
 
-        if ($product->getTypeId() == 'configurable') {
+            $storeId = 1; // Default store ID
             try {
-                $configurable_images = [];
-                // Safely get associated products
+                $storeId = $this->storeManager->getStore()->getId();
+            } catch (\Exception $e) {
+                $storeId = 1; // Default store ID
+            }
+
+            $catalogHelper = null;
+            $dataHelper = null;
+            $reviewModel = null;
+            $getBlockByIdentifier = null;
+            $outputHelper = null;
+            $imageHelper = null;
+
+            try {
+                $catalogHelper = $this->objectManager->get('\Magento\Catalog\Helper\Product');
+            } catch (\Exception $e) {
+                // Continue without catalogHelper
+            }
+
+            try {
+                $dataHelper = $this->objectManager->get('\Magento\Catalog\Helper\Data');
+            } catch (\Exception $e) {
+                // Continue without dataHelper
+            }
+
+            try {
+                $reviewModel = $this->objectManager->get('\Josequal\APIMobile\Model\V1\Review');
+            } catch (\Exception $e) {
+                // Continue without reviewModel
+            }
+
+            try {
+                $getBlockByIdentifier = $this->objectManager->get('\Magento\Cms\Api\GetBlockByIdentifierInterface');
+            } catch (\Exception $e) {
+                // Continue without getBlockByIdentifier
+            }
+
+            try {
+                $outputHelper = $this->objectManager->get('Magento\Catalog\Helper\Output');
+            } catch (\Exception $e) {
+                // Continue without outputHelper
+            }
+
+            try {
+                $imageHelper = $this->objectManager->get('Magento\Catalog\Helper\Image');
+            } catch (\Exception $e) {
+                // Continue without imageHelper
+            }
+
+            $currency_code = 'USD'; // Default currency
+            try {
+                $currency_code = $this->storeManager->getStore()->getCurrentCurrencyCode();
+            } catch (\Exception $e) {
+                $currency_code = 'USD'; // Default currency
+            }
+
+            $images = [];
+            try {
                 if ($product && $product->getId()) {
-                    $typeInstance = $product->getTypeInstance();
-                    if ($typeInstance) {
-                        $associated_products = $typeInstance->getUsedProducts($product);
-
-                        if ($associated_products && count($associated_products) > 0) {
-                            foreach ($associated_products as $key => $ap) {
-                                if ($key > 0) {
-                                    continue;
-                                }
-
-                                try {
-                                    $ap = $this->productModel->setStoreId($storeId)->load($ap->getId());
-                                    if ($ap && $ap->getId()) {
-                                        $apImages = $ap->getMediaGalleryImages();
-                                        if ($apImages) {
-                                            foreach ($apImages as $image) {
-                                                $images[] = $image->getUrl();
-                                            }
-                                        }
-                                    }
-                                } catch (\Exception $e) {
-                                    // Skip this associated product if there's an error
-                                    continue;
-                                }
+                    $mediaGalleryImages = $product->getMediaGalleryImages();
+                    if ($mediaGalleryImages) {
+                        foreach ($mediaGalleryImages as $image) {
+                            if ($image && method_exists($image, 'getUrl')) {
+                                $images[] = $image->getUrl();
                             }
                         }
                     }
                 }
-
-                if (!empty($configurable_images)) {
-                    $images = $configurable_images;
-                }
             } catch (\Exception $e) {
-                // If there's an error with configurable products, continue with empty images
+                $images = [];
             }
-        }
 
-        $_product = $this->processProduct($product);
-        $_product['images'] = $images;
+            if ($product->getTypeId() == 'configurable') {
+                try {
+                    $configurable_images = [];
+                    // Safely get associated products
+                    if ($product && $product->getId()) {
+                        $typeInstance = $product->getTypeInstance();
+                        if ($typeInstance) {
+                            $associated_products = $typeInstance->getUsedProducts($product);
 
-        try {
-            if ($product && $product->getId()) {
-                $shortDescription = $product->getShortDescription();
-                if ($shortDescription) {
-                    $_product['description'] = $outputHelper->productAttribute($product, $shortDescription, 'short_description') ?? '';
+                            if ($associated_products && count($associated_products) > 0) {
+                                foreach ($associated_products as $key => $ap) {
+                                    if ($key > 0) {
+                                        continue;
+                                    }
+
+                                    try {
+                                        $ap = $this->productModel->setStoreId($storeId)->load($ap->getId());
+                                        if ($ap && $ap->getId()) {
+                                            $apImages = $ap->getMediaGalleryImages();
+                                            if ($apImages) {
+                                                foreach ($apImages as $image) {
+                                                    $images[] = $image->getUrl();
+                                                }
+                                            }
+                                        }
+                                    } catch (\Exception $e) {
+                                        // Skip this associated product if there's an error
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (!empty($configurable_images)) {
+                        $images = $configurable_images;
+                    }
+                } catch (\Exception $e) {
+                    // If there's an error with configurable products, continue with empty images
+                }
+            }
+
+            $_product = $this->processProduct($product);
+            $_product['images'] = $images;
+
+            try {
+                if ($product && $product->getId() && $outputHelper) {
+                    $shortDescription = $product->getShortDescription();
+                    if ($shortDescription) {
+                        $_product['description'] = $outputHelper->productAttribute($product, $shortDescription, 'short_description') ?? '';
+                    } else {
+                        $_product['description'] = '';
+                    }
                 } else {
                     $_product['description'] = '';
                 }
-            } else {
+            } catch (\Exception $e) {
                 $_product['description'] = '';
             }
-        } catch (\Exception $e) {
-            $_product['description'] = '';
-        }
 
-        try {
-            $_product['care_tips'] = strip_tags(html_entity_decode($getBlockByIdentifier->execute('care-tips', $storeId)->getContent()));
-        } catch (\Exception $e) {
-            $_product['care_tips'] = '';
-        }
+            try {
+                if ($getBlockByIdentifier) {
+                    $_product['care_tips'] = strip_tags(html_entity_decode($getBlockByIdentifier->execute('care-tips', $storeId)->getContent()));
+                } else {
+                    $_product['care_tips'] = '';
+                }
+            } catch (\Exception $e) {
+                $_product['care_tips'] = '';
+            }
 
-        try {
-            if ($product && $product->getId()) {
-                $options = $product->getOptions();
-                if ($options) {
-                    $_product['options'] = $this->formatCartOptions($options);
+            try {
+                if ($product && $product->getId()) {
+                    $options = $product->getOptions();
+                    if ($options) {
+                        $_product['options'] = $this->formatCartOptions($options);
+                    } else {
+                        $_product['options'] = [];
+                    }
                 } else {
                     $_product['options'] = [];
                 }
-            } else {
+            } catch (\Exception $e) {
                 $_product['options'] = [];
             }
-        } catch (\Exception $e) {
-            $_product['options'] = [];
-        }
 
-        try {
-            if ($product && $product->getId()) {
-                $reviews = $reviewModel->getReviews([
-                    'page' => 1,
-                    'limit' => 100,
-                    'product_id' => $product->getId(),
-                    'store' => $storeId,
-                ]);
-                $_product['reviews'] = isset($reviews['data']['reviews']) ? $reviews['data']['reviews'] : [];
-            } else {
+            try {
+                if ($product && $product->getId() && $reviewModel) {
+                    $reviews = $reviewModel->getReviews([
+                        'page' => 1,
+                        'limit' => 100,
+                        'product_id' => $product->getId(),
+                        'store' => $storeId,
+                    ]);
+                    $_product['reviews'] = isset($reviews['data']['reviews']) ? $reviews['data']['reviews'] : [];
+                } else {
+                    $_product['reviews'] = [];
+                }
+            } catch (\Exception $e) {
                 $_product['reviews'] = [];
             }
-        } catch (\Exception $e) {
-            $_product['reviews'] = [];
-        }
 
-        try {
-            if ($product && $product->getId()) {
-                $_product['attributes'] = $this->getCustomProductAttributes($product);
-            } else {
+            try {
+                if ($product && $product->getId()) {
+                    $_product['attributes'] = $this->getCustomProductAttributes($product);
+                } else {
+                    $_product['attributes'] = [];
+                }
+            } catch (\Exception $e) {
                 $_product['attributes'] = [];
             }
-        } catch (\Exception $e) {
-            $_product['attributes'] = [];
-        }
 
-        try {
-            if ($product && $product->getId()) {
-                $_product['related'] = $this->getRelatedProducts($product);
-            } else {
+            try {
+                if ($product && $product->getId()) {
+                    $_product['related'] = $this->getRelatedProducts($product);
+                } else {
+                    $_product['related'] = [];
+                }
+            } catch (\Exception $e) {
                 $_product['related'] = [];
             }
-        } catch (\Exception $e) {
-            $_product['related'] = [];
-        }
 
-        return $_product;
+            return $_product;
+        } catch (\Exception $e) {
+            // If there's any critical error, return minimal product data
+            try {
+                return $this->processProduct($product);
+            } catch (\Exception $e2) {
+                return [];
+            }
+        }
     }
 
     //Product List Data
@@ -553,7 +606,7 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         // Safely get quantity
         $qty = 0;
         try {
-            if ($productId > 0) {
+            if ($productId > 0 && $this->stockState) {
                 $quantity = $this->stockState->getStockItem($productId);
                 if ($quantity && $quantity->getId()) {
                     $qty = (float) $quantity->getQty() ?: 0;
@@ -633,10 +686,18 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         $formattedLowestPrice = '';
 
         try {
-            $formattedPrice = $this->currencyHelper->currency($finalPrice, true, false);
-            $formattedSpecialPrice = $this->currencyHelper->currency($finalPrice, true, false);
-            $formattedLowestPrice = $this->currencyHelper->currency($minPrice, true, false);
+            if ($this->currencyHelper) {
+                $formattedPrice = $this->currencyHelper->currency($finalPrice, true, false);
+                $formattedSpecialPrice = $this->currencyHelper->currency($finalPrice, true, false);
+                $formattedLowestPrice = $this->currencyHelper->currency($minPrice, true, false);
+            } else {
+                // Fallback to number_format if currencyHelper is not available
+                $formattedPrice = number_format($finalPrice, 2);
+                $formattedSpecialPrice = number_format($finalPrice, 2);
+                $formattedLowestPrice = number_format($minPrice, 2);
+            }
         } catch (\Exception $e) {
+            // Fallback to number_format if there's an error
             $formattedPrice = number_format($finalPrice, 2);
             $formattedSpecialPrice = number_format($finalPrice, 2);
             $formattedLowestPrice = number_format($minPrice, 2);
@@ -692,7 +753,21 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
     //Get Product image from cache
     private function getImage($product, $imageId, $attributes = []) {
         try {
-            return $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
+            if (!$product || !$product->getId()) {
+                return null;
+            }
+
+            if (!$this->imageBuilder) {
+                return null;
+            }
+
+            $image = $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
+
+            if ($image && method_exists($image, 'getImageUrl')) {
+                return $image;
+            }
+
+            return null;
         } catch (\Exception $e) {
             // Return a default image if there's an error
             return null;
@@ -702,13 +777,60 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
     //Get products Review Summary
     private function getReviewSummary($product) {
         try {
-            $this->_reviewFactory->create()->getEntitySummary($product, $this->_getStoreId());
+            if (!$product || !$product->getId()) {
+                return [
+                    'count' => 0,
+                    'summary' => 0,
+                    'averageRating' => 0
+                ];
+            }
 
-            $summary = $product->getRatingSummary()->getRatingSummary();
-            $averageRating = round($summary * 0.05, 1);
+            // Safely get store ID
+            $storeId = 1;
+            try {
+                $storeId = $this->_getStoreId();
+            } catch (\Exception $e) {
+                $storeId = 1;
+            }
+
+            // Safely create review factory
+            try {
+                $this->_reviewFactory->create()->getEntitySummary($product, $storeId);
+            } catch (\Exception $e) {
+                // If review factory fails, return default values
+                return [
+                    'count' => 0,
+                    'summary' => 0,
+                    'averageRating' => 0
+                ];
+            }
+
+            // Safely get rating summary
+            $summary = 0;
+            $reviewsCount = 0;
+            try {
+                $ratingSummary = $product->getRatingSummary();
+                if ($ratingSummary) {
+                    $summary = $ratingSummary->getRatingSummary() ?: 0;
+                    $reviewsCount = $ratingSummary->getReviewsCount() ?: 0;
+                }
+            } catch (\Exception $e) {
+                $summary = 0;
+                $reviewsCount = 0;
+            }
+
+            $averageRating = 0;
+            try {
+                if ($summary > 0) {
+                    $averageRating = round($summary * 0.05, 1);
+                }
+            } catch (\Exception $e) {
+                $averageRating = 0;
+            }
+
             $data = [
-                'count' => (int) $product->getRatingSummary()->getReviewsCount() ?? 0,
-                'summary' => (int) $summary ?? 0, // out of 100
+                'count' => (int) $reviewsCount,
+                'summary' => (int) $summary, // out of 100
                 'averageRating' => (int) $averageRating, // out of 5
             ];
             return $data;
