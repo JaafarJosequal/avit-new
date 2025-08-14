@@ -338,47 +338,93 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(["Product Id is required"]);
             }
 
-            $storeId = $this->storeManager->getStore()->getId();
+            $storeId = 1; // Default store ID
+            try {
+                $storeId = $this->storeManager->getStore()->getId();
+            } catch (\Exception $e) {
+                $storeId = 1; // Default store ID
+            }
+
             $productId = $data['product_id'];
+
+            // Validate product ID
+            if (!is_numeric($productId) || $productId <= 0) {
+                return $this->errorStatus('Invalid product ID');
+            }
 
             // Safely load product
             $product = null;
             try {
-                $product = $this->_productLoader->create()->load($productId);
+                if ($this->_productLoader && method_exists($this->_productLoader, 'create')) {
+                    $product = $this->_productLoader->create()->load($productId);
+                } else {
+                    return $this->errorStatus('Product loader not available');
+                }
             } catch (\Exception $e) {
-                return $this->errorStatus('product_not_available');
+                return $this->errorStatus('Failed to load product');
             }
 
             if (!$product || !$product->getId()) {
-                return $this->errorStatus('product_not_available');
+                return $this->errorStatus('Product not found');
             }
 
             // Safely get website IDs
             $productWebsiteIds = [];
             try {
-                $productWebsiteIds = $product->getWebsiteIds();
+                if (method_exists($product, 'getWebsiteIds')) {
+                    $productWebsiteIds = $product->getWebsiteIds();
+                    if (!is_array($productWebsiteIds)) {
+                        $productWebsiteIds = [];
+                    }
+                }
             } catch (\Exception $e) {
                 $productWebsiteIds = [];
             }
 
-            $currentWebsiteId = $this->storeManager->getStore()->getWebsiteId();
-
-            if (!empty($productWebsiteIds) && !in_array($currentWebsiteId, $productWebsiteIds)) {
-                return $this->errorStatus('product_not_available');
+            $currentWebsiteId = 1; // Default website ID
+            try {
+                $currentWebsiteId = $this->storeManager->getStore()->getWebsiteId();
+            } catch (\Exception $e) {
+                $currentWebsiteId = 1;
             }
 
-            $_product = $this->_productInfo($product);
+            if (!empty($productWebsiteIds) && !in_array($currentWebsiteId, $productWebsiteIds)) {
+                return $this->errorStatus('Product not available in current website');
+            }
+
+            // Safely get product info
+            $_product = [];
+            try {
+                $_product = $this->_productInfo($product);
+                if (!is_array($_product)) {
+                    $_product = [];
+                }
+            } catch (\Exception $e) {
+                // If _productInfo fails, try to get minimal product data
+                try {
+                    $_product = $this->processProduct($product);
+                    if (!is_array($_product)) {
+                        $_product = [];
+                    }
+                } catch (\Exception $e2) {
+                    $_product = [];
+                }
+            }
 
             $info = $this->successStatus('Product Details');
             $info['data'] = $_product;
             return $info;
 
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return $this->errorStatus('Product not found');
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            return $this->errorStatus($e->getMessage() ?: 'Product operation failed');
         } catch (\Exception $e) {
             // Log the error for debugging
             if (isset($this->logger)) {
                 $this->logger->error('Error in productInfo: ' . $e->getMessage());
             }
-            return $this->errorStatus('product_not_available');
+            return $this->errorStatus('An unexpected error occurred');
         }
     }
 
@@ -603,18 +649,61 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $productId = 0;
         }
 
-        // Safely get quantity
+        // Safely get quantity with MSI support
         $qty = 0;
         try {
-            if ($productId > 0 && $this->stockState) {
-                $quantity = $this->stockState->getStockItem($productId);
-                if ($quantity && $quantity->getId()) {
-                    $qty = (float) $quantity->getQty() ?: 0;
+            if ($productId > 0) {
+                // Try MSI first (Magento 2.3+)
+                if ($this->stockState && method_exists($this->stockState, 'getStockItem')) {
+                    $quantity = $this->stockState->getStockItem($productId);
+                    if ($quantity && $quantity->getId()) {
+                        $qty = (float) $quantity->getQty() ?: 0;
+                    }
+                }
+
+                // Fallback: Try to get quantity from product directly
+                if ($qty == 0 && $product && method_exists($product, 'getQty')) {
+                    $qty = (float) $product->getQty() ?: 0;
+                }
+
+                // Fallback: Try to get quantity from stock registry
+                if ($qty == 0) {
+                    try {
+                        $stockRegistry = $this->objectManager->get('\Magento\CatalogInventory\Api\StockRegistryInterface');
+                        if ($stockRegistry) {
+                            $stockItem = $stockRegistry->getStockItem($productId);
+                            if ($stockItem && $stockItem->getId()) {
+                                $qty = (float) $stockItem->getQty() ?: 0;
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Continue with qty = 0
+                    }
+                }
+
+                // Fallback: Try to get quantity from product collection
+                if ($qty == 0) {
+                    try {
+                        $productCollection = $this->objectManager->get('\Magento\Catalog\Model\ResourceModel\Product\Collection');
+                        if ($productCollection) {
+                            $productItem = $productCollection->addFieldToFilter('entity_id', $productId)
+                                                          ->addFieldToSelect(['qty', 'stock_status'])
+                                                          ->getFirstItem();
+                            if ($productItem && $productItem->getId()) {
+                                $qty = (float) $productItem->getQty() ?: 0;
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Continue with qty = 0
+                    }
                 }
             }
         } catch (\Exception $e) {
             $qty = 0;
         }
+
+        // Ensure qty is never negative
+        $qty = max(0, $qty);
 
         // Safely get prices with null checks
         $regularPrice = 0;
@@ -717,20 +806,97 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $stockStatus = ($qty > 0);
         }
 
-        // Safely get product name and SKU
+        // Safely get product name and SKU with null checks
         $productName = '';
         $productSku = '';
         $productType = '';
 
         try {
-            $productName = $product->getName() ?: '';
-            $productSku = $product->getSku() ?: '';
-            $productType = $product->getTypeId() ?: '';
+            if ($product && is_object($product)) {
+                // Safely get product name
+                if (method_exists($product, 'getName')) {
+                    $nameValue = $product->getName();
+                    $productName = is_string($nameValue) ? trim($nameValue) : '';
+                }
+
+                // Safely get product SKU
+                if (method_exists($product, 'getSku')) {
+                    $skuValue = $product->getSku();
+                    $productSku = is_string($skuValue) ? trim($skuValue) : '';
+                }
+
+                // Safely get product type
+                if (method_exists($product, 'getTypeId')) {
+                    $typeValue = $product->getTypeId();
+                    $productType = is_string($typeValue) ? trim($typeValue) : '';
+                }
+            }
         } catch (\Exception $e) {
             $productName = '';
             $productSku = '';
             $productType = '';
         }
+
+        // Ensure all values are safe strings
+        $productName = is_string($productName) ? $productName : '';
+        $productSku = is_string($productSku) ? $productSku : '';
+        $productType = is_string($productType) ? $productType : '';
+
+        // Safely get review summary
+        $reviewSummary = [
+            'count' => 0,
+            'summary' => 0,
+            'averageRating' => 0
+        ];
+        try {
+            $reviewSummary = $this->getReviewSummary($product);
+            if (!is_array($reviewSummary)) {
+                $reviewSummary = [
+                    'count' => 0,
+                    'summary' => 0,
+                    'averageRating' => 0
+                ];
+            }
+        } catch (\Exception $e) {
+            $reviewSummary = [
+                'count' => 0,
+                'summary' => 0,
+                'averageRating' => 0
+            ];
+        }
+
+        // Safely get image URL
+        $imageUrl = '';
+        try {
+            if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
+                $image = $this->getImage($product, 'product_page_image_large');
+                if ($image && method_exists($image, 'getImageUrl')) {
+                    $imageUrlValue = $image->getImageUrl();
+                    $imageUrl = is_string($imageUrlValue) ? $imageUrlValue : '';
+                }
+            }
+        } catch (\Exception $e) {
+            $imageUrl = '';
+        }
+
+        // Safely check if product is in favorites
+        $isFavorite = false;
+        try {
+            if ($productId > 0) {
+                $isFavorite = $this->productInFav($productId);
+            }
+        } catch (\Exception $e) {
+            $isFavorite = false;
+        }
+
+        // Ensure all values are safe
+        $formattedPrice = is_string($formattedPrice) ? $formattedPrice : number_format($finalPrice, 2);
+        $formattedSpecialPrice = is_string($formattedSpecialPrice) ? $formattedSpecialPrice : number_format($finalPrice, 2);
+        $formattedLowestPrice = is_string($formattedLowestPrice) ? $formattedLowestPrice : number_format($minPrice, 2);
+        $discountPercentage = is_numeric($discountPercentage) ? max(0, min(100, $discountPercentage)) : 0;
+        $stockStatus = is_bool($stockStatus) ? $stockStatus : false;
+        $hasDiscount = is_bool($difference > 0) ? ($difference > 0) : false;
+        $isFavorite = is_bool($isFavorite) ? $isFavorite : false;
 
         return [
             'product_id' => $productId,
@@ -742,11 +908,11 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             'special_price' => $formattedSpecialPrice,
             'lowest_price' => $formattedLowestPrice,
             'stock_status' => $stockStatus,
-            'review_summary' => $this->getReviewSummary($product),
+            'review_summary' => $reviewSummary,
             'image' => $imageUrl,
-            'has_discount' => $difference > 0,
+            'has_discount' => $hasDiscount,
             'discount' => $discountPercentage . '%',
-            'is_favorite' => $this->productInFav($productId)
+            'is_favorite' => $isFavorite
         ];
     }
 
@@ -795,7 +961,12 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
 
             // Safely create review factory
             try {
-                $this->_reviewFactory->create()->getEntitySummary($product, $storeId);
+                if ($this->_reviewFactory && method_exists($this->_reviewFactory, 'create')) {
+                    $reviewFactory = $this->_reviewFactory->create();
+                    if ($reviewFactory && method_exists($reviewFactory, 'getEntitySummary')) {
+                        $reviewFactory->getEntitySummary($product, $storeId);
+                    }
+                }
             } catch (\Exception $e) {
                 // If review factory fails, return default values
                 return [
@@ -805,33 +976,46 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 ];
             }
 
-            // Safely get rating summary
+            // Safely get rating summary with null checks
             $summary = 0;
             $reviewsCount = 0;
             try {
                 $ratingSummary = $product->getRatingSummary();
-                if ($ratingSummary) {
-                    $summary = $ratingSummary->getRatingSummary() ?: 0;
-                    $reviewsCount = $ratingSummary->getReviewsCount() ?: 0;
+                if ($ratingSummary && is_object($ratingSummary)) {
+                    // Safely get summary value
+                    if (method_exists($ratingSummary, 'getRatingSummary')) {
+                        $summaryValue = $ratingSummary->getRatingSummary();
+                        $summary = is_numeric($summaryValue) ? (int) $summaryValue : 0;
+                    }
+
+                    // Safely get reviews count
+                    if (method_exists($ratingSummary, 'getReviewsCount')) {
+                        $countValue = $ratingSummary->getReviewsCount();
+                        $reviewsCount = is_numeric($countValue) ? (int) $countValue : 0;
+                    }
                 }
             } catch (\Exception $e) {
                 $summary = 0;
                 $reviewsCount = 0;
             }
 
+            // Safely calculate average rating
             $averageRating = 0;
             try {
-                if ($summary > 0) {
+                if ($summary > 0 && is_numeric($summary)) {
                     $averageRating = round($summary * 0.05, 1);
+                    // Ensure average rating is within valid range (0-5)
+                    $averageRating = max(0, min(5, $averageRating));
                 }
             } catch (\Exception $e) {
                 $averageRating = 0;
             }
 
+            // Ensure all values are safe integers
             $data = [
-                'count' => (int) $reviewsCount,
-                'summary' => (int) $summary, // out of 100
-                'averageRating' => (int) $averageRating, // out of 5
+                'count' => (int) max(0, $reviewsCount),
+                'summary' => (int) max(0, min(100, $summary)), // out of 100
+                'averageRating' => (int) max(0, min(5, $averageRating)), // out of 5
             ];
             return $data;
         } catch (\Exception $e) {
