@@ -103,6 +103,16 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             // Check if product already exists in cart with same options
             $existingItem = $this->findExistingCartItem($product->getId(), $params['options'] ?? []);
 
+            // Debug logging
+            if (isset($params['options']) && !empty($params['options'])) {
+                error_log("Adding product {$product->getId()} with options: " . json_encode($params['options']));
+                if ($existingItem) {
+                    error_log("Found existing item with ID: " . $existingItem->getItemId());
+                } else {
+                    error_log("No existing item found, will create new one");
+                }
+            }
+
             if ($existingItem) {
                 // Update existing item quantity
                 $newQty = $existingItem->getQty() + $params['qty'];
@@ -135,16 +145,25 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $quote = $this->checkoutSession->getQuote();
         $items = $quote->getAllVisibleItems();
 
+        error_log("Searching for product {$productId} with options: " . json_encode($options));
+        error_log("Total items in cart: " . count($items));
+
         foreach ($items as $item) {
             if ($item->getProduct()->getId() == $productId) {
                 // Check if options match exactly
                 $itemOptions = $this->getItemOptions($item);
+                error_log("Item {$item->getItemId()} has options: " . json_encode($itemOptions));
+
                 if ($this->compareOptions($itemOptions, $options)) {
+                    error_log("Options match for item {$item->getItemId()}");
                     return $item;
+                } else {
+                    error_log("Options don't match for item {$item->getItemId()}");
                 }
             }
         }
 
+        error_log("No matching item found");
         return null;
     }
 
@@ -153,16 +172,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function getItemOptions($item) {
         $options = [];
-        $itemOptions = $item->getOptions();
 
+        // Try to get options from item options
+        $itemOptions = $item->getOptions();
         if ($itemOptions) {
             foreach ($itemOptions as $option) {
-                // Handle different option formats
                 if (is_array($option)) {
                     if (isset($option['code']) && isset($option['value'])) {
                         $options[$option['code']] = $option['value'];
                     } elseif (isset($option['label']) && isset($option['value'])) {
-                        // Convert label to code format
                         $code = strtolower(str_replace(' ', '_', $option['label']));
                         $options[$code] = $option['value'];
                     }
@@ -171,10 +189,43 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                         $options[$option->getCode()] = $option->getValue();
                     } elseif (method_exists($option, 'getLabel') && method_exists($option, 'getValue')) {
                         $code = strtolower(str_replace(' ', '_', $option->getLabel()));
-                        $options[$code] = $option->getValue();
+                        $options[$code] = $code;
                     }
                 }
             }
+        }
+
+        // Try to get options from buy request
+        try {
+            $buyRequest = $item->getBuyRequest();
+            if ($buyRequest) {
+                $buyRequestData = $buyRequest->getData();
+                if (isset($buyRequestData['options']) && is_array($buyRequestData['options'])) {
+                    foreach ($buyRequestData['options'] as $key => $value) {
+                        $options[$key] = $value;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Continue without buy request
+        }
+
+        // Try to get options from product custom options
+        try {
+            $product = $item->getProduct();
+            if ($product && method_exists($product, 'getCustomOptions')) {
+                $customOptions = $product->getCustomOptions();
+                if ($customOptions) {
+                    foreach ($customOptions as $key => $value) {
+                        if (strpos($key, 'option_') === 0) {
+                            $optionId = str_replace('option_', '', $key);
+                            $options['option_' . $optionId] = $value;
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Continue without custom options
         }
 
         return $options;
