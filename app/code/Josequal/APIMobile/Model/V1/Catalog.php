@@ -1010,31 +1010,19 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             if (method_exists($product, 'getImage') && $product->getImage()) {
                 // Create a simple image object
                 $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
-                return new class($imageUrl) {
-                    private $url;
-                    public function __construct($url) { $this->url = $url; }
-                    public function getImageUrl() { return $this->url; }
-                };
+                return $this->createSimpleImageObject($imageUrl);
             }
 
             // Method 4: Try to get small image
             if (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
                 $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
-                return new class($imageUrl) {
-                    private $url;
-                    public function __construct($url) { $this->url = $url; }
-                    public function getImageUrl() { return $this->url; }
-                };
+                return $this->createSimpleImageObject($imageUrl);
             }
 
             // Method 5: Try to get thumbnail
             if (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
                 $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
-                return new class($imageUrl) {
-                    private $url;
-                    public function __construct($url) { $this->url = $url; }
-                    public function getImageUrl() { return $this->url; }
-                };
+                return $this->createSimpleImageObject($imageUrl);
             }
 
             return null;
@@ -1673,5 +1661,22 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         $info['data'] = $categoriesData;
         $info['total_count'] = count($categoriesData);
         return $info;
+    }
+
+    /**
+     * Create a simple image object for fallback image handling
+     */
+    private function createSimpleImageObject($imageUrl) {
+        $imageObject = new \Magento\Framework\DataObject();
+        $imageObject->setData('url', $imageUrl);
+        $imageObject->setData('image_url', $imageUrl);
+
+        // Add method to get image URL
+        $imageObject->addData([
+            'getImageUrl' => $imageUrl,
+            'getUrl' => $imageUrl
+        ]);
+
+        return $imageObject;
     }
 }
