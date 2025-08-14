@@ -651,8 +651,35 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $description = '';
             try {
                 if ($product && method_exists($product, 'getShortDescription')) {
-                    $description = $product->getShortDescription() ?: '';
+                    $shortDesc = $product->getShortDescription();
+                    if (!empty($shortDesc)) {
+                        $description = $shortDesc;
+                    }
                 }
+
+                // If short description is empty, try full description
+                if (empty($description) && $product && method_exists($product, 'getDescription')) {
+                    $fullDesc = $product->getDescription();
+                    if (!empty($fullDesc)) {
+                        $description = $fullDesc;
+                    }
+                }
+
+                // If still empty, try to get from attribute
+                if (empty($description)) {
+                    try {
+                        $description = $product->getAttributeText('description') ?: '';
+                    } catch (\Exception $e) {
+                        // Continue without attribute
+                    }
+                }
+
+                // Clean HTML tags if description exists
+                if (!empty($description)) {
+                    $description = strip_tags($description);
+                    $description = html_entity_decode($description, ENT_QUOTES, 'UTF-8');
+                }
+
             } catch (\Exception $e) {
                 $description = '';
             }
