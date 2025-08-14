@@ -94,6 +94,9 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $params['options']['size'] = $data['size'];
         }
 
+        // Debug logging
+        error_log("Adding product to cart with params: " . json_encode($params));
+
         try {
             $product = $this->productModel->setStoreId($this->storeManager->getStore()->getId())->load($data['product_id']);
             if (!$product) {
@@ -103,6 +106,18 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             // Always add as new item to ensure options are preserved
             $this->cart->addProduct($product, $params);
             $this->cart->save();
+
+            // Debug logging after adding
+            $quote = $this->checkoutSession->getQuote();
+            $items = $quote->getAllVisibleItems();
+            error_log("Cart now contains " . count($items) . " items");
+
+            foreach ($items as $item) {
+                if ($item->getProduct()->getId() == $data['product_id']) {
+                    $itemOptions = $item->getOptions();
+                    error_log("Item " . $item->getItemId() . " has options: " . json_encode($itemOptions));
+                }
+            }
 
             $info = $this->successStatus('Product added successfully');
             $info['data'] = $this->getCartDetails();
@@ -131,8 +146,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $list = [];
         $items = $quote->getAllVisibleItems();
 
+        // Debug logging
+        error_log("getCartDetails: Found " . count($items) . " items in cart");
+
         // Display each item separately without grouping
         foreach ($items as $item) {
+            error_log("Processing item " . $item->getItemId() . " with product_id " . $item->getProduct()->getId());
+            $itemOptions = $item->getOptions();
+            error_log("Item options: " . json_encode($itemOptions));
+
             $productData = $this->processProduct($item);
             $list[] = $productData;
         }
@@ -201,6 +223,9 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     private function formatCartOptions($options) {
         $formattedOptions = [];
 
+        // Debug logging
+        error_log("formatCartOptions: Input options: " . json_encode($options));
+
         if ($options) {
             foreach ($options as $option) {
                 try {
@@ -257,6 +282,9 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
                     $formattedOptions[] = $formattedOption;
 
+                    // Debug logging
+                    error_log("Formatted option: " . json_encode($formattedOption));
+
                 } catch (\Exception $e) {
                     // If there's an error processing this option, add it as is
                     $formattedOptions[] = [
@@ -268,6 +296,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             }
         }
 
+        error_log("formatCartOptions: Final formatted options: " . json_encode($formattedOptions));
         return $formattedOptions;
     }
 
