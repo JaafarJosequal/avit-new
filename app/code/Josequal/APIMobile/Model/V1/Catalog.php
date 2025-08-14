@@ -56,7 +56,8 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         \Magento\Search\Model\QueryFactory $searchData,
         \Magento\Review\Model\ReviewFactory $reviewFactory,
         \Magento\Catalog\Model\Config $catalogConfig,
-        \Magento\Framework\Filesystem\DirectoryList $dir
+        \Magento\Framework\Filesystem\DirectoryList $dir,
+        \Magento\Catalog\Block\Product\ImageBuilder $imageBuilder = null
     ) {
         $this->imageFactory = $imageFactory;
         $this->request = $request;
@@ -76,7 +77,14 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         $this->currencyHelper = $this->objectManager->get('\Magento\Framework\Pricing\Helper\Data');
         $this->productModel = $this->objectManager->get('\Magento\Catalog\Model\Product');
         $this->_productLoader = $this->objectManager->get('\Magento\Catalog\Model\ProductFactory');
-        $this->imageBuilder = $this->objectManager->get('\Magento\Catalog\Block\Product\ImageBuilder');
+
+        // Use injected imageBuilder if available, otherwise get from objectManager
+        if ($imageBuilder) {
+            $this->imageBuilder = $imageBuilder;
+        } else {
+            $this->imageBuilder = $this->objectManager->get('\Magento\Catalog\Block\Product\ImageBuilder');
+        }
+
         $this->customerSession = $this->objectManager->get('\Magento\Customer\Model\Session');
         $this->wishlist = $this->objectManager->get('\Magento\Wishlist\Model\Wishlist');
         $this->wishlistProvider = $this->objectManager->get('\Magento\Wishlist\Controller\WishlistProviderInterface');
@@ -578,12 +586,51 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $images = [];
             try {
                 if ($product && $product->getId()) {
+                    // Method 1: Try getMediaGalleryImages
                     $mediaGalleryImages = $product->getMediaGalleryImages();
                     if ($mediaGalleryImages) {
                         foreach ($mediaGalleryImages as $image) {
                             if ($image && method_exists($image, 'getUrl')) {
                                 $images[] = $image->getUrl();
                             }
+                        }
+                    }
+
+                    // Method 2: If no images found, try direct image attributes
+                    if (empty($images)) {
+                        if (method_exists($product, 'getImage') && $product->getImage()) {
+                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+                            $images[] = $imageUrl;
+                        }
+
+                        if (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
+                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
+                            $images[] = $imageUrl;
+                        }
+
+                        if (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
+                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
+                            $images[] = $imageUrl;
+                        }
+                    }
+
+                    // Method 3: Try to get images from media gallery entries
+                    if (empty($images)) {
+                        try {
+                            $mediaGalleryEntries = $product->getMediaGalleryEntries();
+                            if ($mediaGalleryEntries) {
+                                foreach ($mediaGalleryEntries as $entry) {
+                                    if ($entry && method_exists($entry, 'getFile')) {
+                                        $file = $entry->getFile();
+                                        if ($file) {
+                                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $file;
+                                            $images[] = $imageUrl;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            // Continue without media gallery entries
                         }
                     }
                 }
@@ -844,119 +891,41 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         // Safely get image
         $imageUrl = '';
         try {
-            $image = $this->getImage($product, 'product_page_image_large');
-            if ($image) {
-                $imageUrl = $image->getImageUrl();
-            }
-        } catch (\Exception $e) {
-            // Use default image or empty string
-            $imageUrl = '';
-        }
-
-        // Safely format currency
-        $formattedPrice = '';
-        $formattedSpecialPrice = '';
-        $formattedLowestPrice = '';
-
-        try {
-            if ($this->currencyHelper) {
-                $formattedPrice = $this->currencyHelper->currency($finalPrice, true, false);
-                $formattedSpecialPrice = $this->currencyHelper->currency($finalPrice, true, false);
-                $formattedLowestPrice = $this->currencyHelper->currency($minPrice, true, false);
-            } else {
-                // Fallback to number_format if currencyHelper is not available
-                $formattedPrice = number_format($finalPrice, 2);
-                $formattedSpecialPrice = number_format($finalPrice, 2);
-                $formattedLowestPrice = number_format($minPrice, 2);
-            }
-        } catch (\Exception $e) {
-            // Fallback to number_format if there's an error
-            $formattedPrice = number_format($finalPrice, 2);
-            $formattedSpecialPrice = number_format($finalPrice, 2);
-            $formattedLowestPrice = number_format($minPrice, 2);
-        }
-
-        // Safely check stock status
-        $stockStatus = false;
-        try {
-            // Check if product is saleable and available, but also consider quantity
-            if ($qty > 0) {
-                $stockStatus = $product->isSaleable() && $product->isAvailable();
-            } else {
-                $stockStatus = false; // If quantity is 0, stock status should be false
-            }
-        } catch (\Exception $e) {
-            // If there's an error checking stock status, set it based on quantity
-            $stockStatus = ($qty > 0);
-        }
-
-        // Safely get product name and SKU with null checks
-        $productName = '';
-        $productSku = '';
-        $productType = '';
-
-        try {
-            if ($product && is_object($product)) {
-                // Safely get product name
-                if (method_exists($product, 'getName')) {
-                    $nameValue = $product->getName();
-                    $productName = is_string($nameValue) ? trim($nameValue) : '';
-                }
-
-                // Safely get product SKU
-                if (method_exists($product, 'getSku')) {
-                    $skuValue = $product->getSku();
-                    $productSku = is_string($skuValue) ? trim($skuValue) : '';
-                }
-
-                // Safely get product type
-                if (method_exists($product, 'getTypeId')) {
-                    $typeValue = $product->getTypeId();
-                    $productType = is_string($typeValue) ? trim($typeValue) : '';
-                }
-            }
-        } catch (\Exception $e) {
-            $productName = '';
-            $productSku = '';
-            $productType = '';
-        }
-
-        // Ensure all values are safe strings
-        $productName = is_string($productName) ? $productName : '';
-        $productSku = is_string($productSku) ? $productSku : '';
-        $productType = is_string($productType) ? $productType : '';
-
-        // Safely get review summary
-        $reviewSummary = [
-            'count' => 0,
-            'summary' => 0,
-            'averageRating' => 0
-        ];
-        try {
-            $reviewSummary = $this->getReviewSummary($product);
-            if (!is_array($reviewSummary)) {
-                $reviewSummary = [
-                    'count' => 0,
-                    'summary' => 0,
-                    'averageRating' => 0
-                ];
-            }
-        } catch (\Exception $e) {
-            $reviewSummary = [
-                'count' => 0,
-                'summary' => 0,
-                'averageRating' => 0
-            ];
-        }
-
-        // Safely get image URL
-        $imageUrl = '';
-        try {
+            // Method 1: Try getImage method
             if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
                 $image = $this->getImage($product, 'product_page_image_large');
                 if ($image && method_exists($image, 'getImageUrl')) {
                     $imageUrlValue = $image->getImageUrl();
                     $imageUrl = is_string($imageUrlValue) ? $imageUrlValue : '';
+                }
+            }
+
+            // Method 2: If no image found, try direct product attributes
+            if (empty($imageUrl)) {
+                if (method_exists($product, 'getImage') && $product->getImage()) {
+                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+                } elseif (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
+                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
+                } elseif (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
+                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
+                }
+            }
+
+            // Method 3: Try to get from media gallery entries
+            if (empty($imageUrl)) {
+                try {
+                    $mediaGalleryEntries = $product->getMediaGalleryEntries();
+                    if ($mediaGalleryEntries && count($mediaGalleryEntries) > 0) {
+                        $firstEntry = $mediaGalleryEntries[0];
+                        if ($firstEntry && method_exists($firstEntry, 'getFile')) {
+                            $file = $firstEntry->getFile();
+                            if ($file) {
+                                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $file;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Continue without media gallery entries
                 }
             }
         } catch (\Exception $e) {
@@ -1007,14 +976,65 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 return null;
             }
 
-            if (!$this->imageBuilder) {
-                return null;
+            // Try multiple methods to get the image
+            $image = null;
+
+            // Method 1: Try imageBuilder first
+            if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
+                try {
+                    $image = $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
+                    if ($image && method_exists($image, 'getImageUrl')) {
+                        return $image;
+                    }
+                } catch (\Exception $e) {
+                    // Continue to next method
+                }
             }
 
-            $image = $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
+            // Method 2: Try different image IDs
+            $imageIds = ['product_page_image_large', 'product_page_image_medium', 'product_small_image', 'product_thumbnail_image'];
+            foreach ($imageIds as $id) {
+                if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
+                    try {
+                        $image = $this->imageBuilder->setProduct($product)->setImageId($id)->setAttributes($attributes)->create();
+                        if ($image && method_exists($image, 'getImageUrl')) {
+                            return $image;
+                        }
+                    } catch (\Exception $e) {
+                        // Continue to next image ID
+                    }
+                }
+            }
 
-            if ($image && method_exists($image, 'getImageUrl')) {
-                return $image;
+            // Method 3: Try to get image directly from product
+            if (method_exists($product, 'getImage') && $product->getImage()) {
+                // Create a simple image object
+                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+                return new class($imageUrl) {
+                    private $url;
+                    public function __construct($url) { $this->url = $url; }
+                    public function getImageUrl() { return $this->url; }
+                };
+            }
+
+            // Method 4: Try to get small image
+            if (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
+                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
+                return new class($imageUrl) {
+                    private $url;
+                    public function __construct($url) { $this->url = $url; }
+                    public function getImageUrl() { return $this->url; }
+                };
+            }
+
+            // Method 5: Try to get thumbnail
+            if (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
+                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
+                return new class($imageUrl) {
+                    private $url;
+                    public function __construct($url) { $this->url = $url; }
+                    public function getImageUrl() { return $this->url; }
+                };
             }
 
             return null;
