@@ -668,24 +668,28 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             }
 
             return [
-                'product_id' => $productId,
-                'name' => $productName,
-                'type' => $productType,
-                'qty' => $qty,
-                'sku' => $productSku,
-                'price' => $formattedPrice,
-                'special_price' => $formattedSpecialPrice,
-                'lowest_price' => $formattedLowestPrice,
-                'stock_status' => $stockStatus,
-                'review_summary' => $reviewSummary,
-                'image' => $imageUrl,
-                'has_discount' => $hasDiscount,
-                'discount' => $discountPercentage . '%',
-                'is_favorite' => $isFavorite,
-                'colors' => $colorsAndSizes['colors'],
-                'sizes' => $colorsAndSizes['sizes'],
-                'description' => $description,
-                'related' => $relatedProducts
+                'status' => true,
+                'message' => 'Product details retrieved successfully',
+                'data' => [
+                    'product_id' => $productId,
+                    'name' => $productName,
+                    'type' => $productType,
+                    'qty' => $qty,
+                    'sku' => $productSku,
+                    'price' => $formattedPrice,
+                    'special_price' => $formattedSpecialPrice,
+                    'lowest_price' => $formattedLowestPrice,
+                    'stock_status' => $stockStatus,
+                    'review_summary' => $reviewSummary,
+                    'image' => $imageUrl,
+                    'has_discount' => $hasDiscount,
+                    'discount' => $discountPercentage . '%',
+                    'is_favorite' => $isFavorite,
+                    'colors' => $colorsAndSizes['colors'],
+                    'sizes' => $colorsAndSizes['sizes'],
+                    'description' => $description,
+                    'related' => $relatedProducts
+                ]
             ];
 
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
