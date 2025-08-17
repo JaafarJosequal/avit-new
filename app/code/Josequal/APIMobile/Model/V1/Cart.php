@@ -41,6 +41,33 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     protected $eventManager;
 
+    /**
+     * Debug log file path
+     */
+    protected $debugLogFile = 'var/log/cart_debug.log';
+
+    /**
+     * Log debug information
+     *
+     * @param string $message
+     * @return void
+     */
+    protected function logDebug($message) {
+        $timestamp = date('Y-m-d H:i:s');
+        $logMessage = "[$timestamp] [CART DEBUG] $message" . PHP_EOL;
+
+        // Write to debug log file
+        $logDir = dirname($this->debugLogFile);
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+
+        file_put_contents($this->debugLogFile, $logMessage, FILE_APPEND | LOCK_EX);
+
+        // Also output to console for immediate debugging
+        echo "<!-- DEBUG: $message -->\n";
+    }
+
     public function __construct(
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
@@ -64,7 +91,12 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     public function addToCart($data) {
         try {
+            // Debug: Log input data
+            $this->logDebug('=== ADD TO CART START ===');
+            $this->logDebug('Input data: ' . json_encode($data));
+
             if (!isset($data['product_id'])) {
+                $this->logDebug('ERROR: Product ID is required');
                 return $this->errorStatus(['Product ID is required']);
             }
 
@@ -72,28 +104,45 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $quantity = isset($data['quantity']) ? (int)$data['quantity'] : 1;
             $options = $this->prepareProductOptions($data);
 
+            $this->logDebug("Product ID: $productId");
+            $this->logDebug("Quantity: $quantity");
+            $this->logDebug("Prepared options: " . json_encode($options));
+
             // Check if product exists
             try {
                 $product = $this->productRepository->getById($productId);
+                $this->logDebug("Product found: " . $product->getName());
             } catch (NoSuchEntityException $e) {
+                $this->logDebug('ERROR: Product not found - ' . $e->getMessage());
                 return $this->errorStatus(['Product not found']);
             }
 
             // Check if product with exactly same options already exists in cart
+            $this->logDebug('Searching for existing cart item...');
             $existingItem = $this->findExistingCartItem($productId, $options);
 
-            if ($existingItem && !empty($options)) {
-                // Only merge if options are exactly identical
+            if ($existingItem) {
+                $this->logDebug('Existing item found with ID: ' . $existingItem->getItemId());
                 $existingItemOptions = $this->getItemOptions($existingItem);
-                if ($this->compareOptions($options, $existingItemOptions)) {
+                $this->logDebug('Existing item options: ' . json_encode($existingItemOptions));
+
+                $this->logDebug('Comparing options...');
+                $optionsMatch = $this->compareOptions($options, $existingItemOptions);
+                $this->logDebug('Options match: ' . ($optionsMatch ? 'YES' : 'NO'));
+
+                if ($optionsMatch && !empty($options)) {
                     // Update quantity for existing item with identical options
-                    $newQty = $existingItem->getQty() + $quantity;
+                    $oldQty = $existingItem->getQty();
+                    $newQty = $oldQty + $quantity;
                     $existingItem->setQty($newQty);
                     $this->cartItemRepository->save($existingItem);
 
+                    $this->logDebug("Quantity updated: $oldQty -> $newQty");
                     $message = "Quantity updated for existing item with identical options";
                 } else {
                     // Options are different, add as new item
+                    $this->logDebug('Options are different, adding as new item');
+
                     $buyRequest = new \Magento\Framework\DataObject();
                     $buyRequest->setQty($quantity);
 
@@ -101,14 +150,18 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     if (!empty($options)) {
                         foreach ($options as $key => $value) {
                             $buyRequest->setData($key, $value);
+                            $this->logDebug("Setting option: $key = $value");
                         }
                     }
 
                     $this->cart->addProduct($product, $buyRequest);
                     $this->cart->save();
                     $message = "Product added successfully with different options";
+                    $this->logDebug('New item added to cart');
                 }
             } else {
+                $this->logDebug('No existing item found, adding new item');
+
                 // Add new item to cart with options
                 $buyRequest = new \Magento\Framework\DataObject();
                 $buyRequest->setQty($quantity);
@@ -117,12 +170,14 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 if (!empty($options)) {
                     foreach ($options as $key => $value) {
                         $buyRequest->setData($key, $value);
+                        $this->logDebug("Setting option: $key = $value");
                     }
                 }
 
                 $this->cart->addProduct($product, $buyRequest);
                 $this->cart->save();
                 $message = "Product added successfully";
+                $this->logDebug('New item added to cart');
             }
 
             // Dispatch event for cart modification
@@ -133,7 +188,11 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             ]);
 
             // Get updated cart info
+            $this->logDebug('Getting updated cart info...');
             $cartInfo = $this->getCartInfo();
+
+            $this->logDebug("Final message: $message");
+            $this->logDebug('=== ADD TO CART END ===');
 
             return [
                 'status' => true,
@@ -142,6 +201,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             ];
 
         } catch (\Exception $e) {
+            $this->logDebug('EXCEPTION in addToCart: ' . $e->getMessage());
+            $this->logDebug('Stack trace: ' . $e->getTraceAsString());
             return $this->errorStatus([$e->getMessage()]);
         }
     }
@@ -386,22 +447,29 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Prepare product options from request data
      */
     private function prepareProductOptions($data) {
+        $this->logDebug("=== PREPARE PRODUCT OPTIONS ===");
+        $this->logDebug("Input data: " . json_encode($data));
+
         $options = [];
 
         // Standard options
         if (isset($data['color']) && !empty($data['color'])) {
             $options['color'] = trim($data['color']);
+            $this->logDebug("Added color option: " . $options['color']);
         }
 
         if (isset($data['size']) && !empty($data['size'])) {
             $options['size'] = trim($data['size']);
+            $this->logDebug("Added size option: " . $options['size']);
         }
 
         // Additional custom options
         if (isset($data['custom_options']) && is_array($data['custom_options'])) {
+            $this->logDebug("Custom options found: " . json_encode($data['custom_options']));
             foreach ($data['custom_options'] as $key => $value) {
                 if (!empty($value)) {
                     $options[$key] = trim($value);
+                    $this->logDebug("Added custom option: $key = $value");
                 }
             }
         }
@@ -411,9 +479,11 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         foreach ($optionFields as $field) {
             if (isset($data[$field]) && !empty($data[$field])) {
                 $options[$field] = trim($data[$field]);
+                $this->logDebug("Added field option: $field = $options[$field]");
             }
         }
 
+        $this->logDebug("Final prepared options: " . json_encode($options));
         return $options;
     }
 
@@ -474,24 +544,43 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Find existing cart item with same product and options
      */
     private function findExistingCartItem($productId, $options) {
+        $this->logDebug("=== FIND EXISTING CART ITEM ===");
+        $this->logDebug("Product ID: $productId");
+        $this->logDebug("Options to find: " . json_encode($options));
+
         $quote = $this->cart->getQuote();
+        $this->logDebug("Cart quote ID: " . $quote->getId());
 
         // If no options, don't merge quantities
         if (empty($options)) {
+            $this->logDebug("No options provided, returning null");
             return null;
         }
 
-        foreach ($quote->getAllVisibleItems() as $item) {
+        $allItems = $quote->getAllVisibleItems();
+        $this->logDebug("Total cart items: " . count($allItems));
+
+        foreach ($allItems as $item) {
+            $this->logDebug("Checking item ID: " . $item->getItemId());
+            $this->logDebug("Item product ID: " . $item->getProductId());
+
             if ($item->getProductId() == $productId) {
+                $this->logDebug("Product ID matches, checking options...");
                 $itemOptions = $this->getItemOptions($item);
+                $this->logDebug("Item options: " . json_encode($itemOptions));
 
                 // Compare options - must be exactly the same
-                if ($this->compareOptions($options, $itemOptions)) {
+                $optionsMatch = $this->compareOptions($options, $itemOptions);
+                $this->logDebug("Options match: " . ($optionsMatch ? 'YES' : 'NO'));
+
+                if ($optionsMatch) {
+                    $this->logDebug("Found matching item with ID: " . $item->getItemId());
                     return $item;
                 }
             }
         }
 
+        $this->logDebug("No matching item found");
         return null;
     }
 
@@ -499,24 +588,35 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Compare two option arrays - must be exactly identical
      */
     private function compareOptions($options1, $options2) {
+        $this->logDebug("=== COMPARE OPTIONS ===");
+        $this->logDebug("Options1: " . json_encode($options1));
+        $this->logDebug("Options2: " . json_encode($options2));
+
         // If both are empty, they are the same
         if (empty($options1) && empty($options2)) {
+            $this->logDebug("Both options are empty - MATCH");
             return true;
         }
 
         // If one is empty and the other is not, they are different
         if (empty($options1) || empty($options2)) {
+            $this->logDebug("One set is empty - NO MATCH");
             return false;
         }
 
         // Check if arrays have the same number of keys
         if (count($options1) !== count($options2)) {
+            $this->logDebug("Different number of keys: " . count($options1) . " vs " . count($options2) . " - NO MATCH");
             return false;
         }
 
         // Check if all keys exist and have exactly the same values
         foreach ($options1 as $key => $value) {
-            if (!isset($options2[$key]) || $options2[$key] !== $value) {
+            if (!isset($options2[$key])) {
+                $this->logDebug("Key '$key' missing in options2 - NO MATCH");
+                return false;
+            } elseif ($options2[$key] !== $value) {
+                $this->logDebug("Value mismatch for '$key': '$value' vs '{$options2[$key]}' - NO MATCH");
                 return false;
             }
         }
@@ -524,10 +624,12 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         // Double check - ensure all keys in options2 exist in options1
         foreach ($options2 as $key => $value) {
             if (!isset($options1[$key]) || $options1[$key] !== $value) {
+                $this->logDebug("Key '$key' missing or different in options1 - NO MATCH");
                 return false;
             }
         }
 
+        $this->logDebug("All options match - MATCH");
         return true;
     }
 
@@ -535,28 +637,36 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Get item options
      */
     private function getItemOptions($item) {
+        $this->logDebug("=== GET ITEM OPTIONS ===");
+        $this->logDebug("Item ID: " . $item->getItemId());
+
         $options = [];
 
         try {
             // Get options from buy request
             if ($item->getBuyRequest()) {
+                $this->logDebug("Buy request exists, extracting options...");
                 $buyRequest = $item->getBuyRequest();
 
                 // Check for color option
                 if ($buyRequest->getColor()) {
                     $options['color'] = $buyRequest->getColor();
+                    $this->logDebug("Found color option: " . $options['color']);
                 }
 
                 // Check for size option
                 if ($buyRequest->getSize()) {
                     $options['size'] = $buyRequest->getSize();
+                    $this->logDebug("Found size option: " . $options['size']);
                 }
 
                 // Check for other custom options
                 if ($buyRequest->getCustomOptions()) {
+                    $this->logDebug("Custom options found: " . json_encode($buyRequest->getCustomOptions()));
                     foreach ($buyRequest->getCustomOptions() as $key => $value) {
                         if (!isset($options[$key])) {
                             $options[$key] = $value;
+                            $this->logDebug("Added custom option: $key = $value");
                         }
                     }
                 }
@@ -567,35 +677,47 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     $value = $buyRequest->getData($field);
                     if ($value && !empty($value)) {
                         $options[$field] = $value;
+                        $this->logDebug("Added field option: $field = $value");
                     }
                 }
+            } else {
+                $this->logDebug("No buy request found");
             }
 
             // Also check for product options if buy request doesn't have them
             if (empty($options)) {
+                $this->logDebug("No options from buy request, checking product options...");
                 $productOptions = $item->getProductOptions();
                 if (isset($productOptions['info_buyRequest'])) {
                     $infoBuyRequest = $productOptions['info_buyRequest'];
+                    $this->logDebug("Product options buy request: " . json_encode($infoBuyRequest));
+
                     if (isset($infoBuyRequest['color'])) {
                         $options['color'] = $infoBuyRequest['color'];
+                        $this->logDebug("Found color from product options: " . $options['color']);
                     }
                     if (isset($infoBuyRequest['size'])) {
                         $options['size'] = $infoBuyRequest['size'];
+                        $this->logDebug("Found size from product options: " . $options['size']);
                     }
 
                     // Check for other options
                     foreach ($optionFields as $field) {
                         if (isset($infoBuyRequest[$field]) && !empty($infoBuyRequest[$field])) {
                             $options[$field] = $infoBuyRequest[$field];
+                            $this->logDebug("Found $field from product options: " . $options[$field]);
                         }
                     }
+                } else {
+                    $this->logDebug("No product options found");
                 }
             }
 
         } catch (\Exception $e) {
-            // Log error if needed
+            $this->logDebug("Exception in getItemOptions: " . $e->getMessage());
         }
 
+        $this->logDebug("Final extracted options: " . json_encode($options));
         return $options;
     }
 
