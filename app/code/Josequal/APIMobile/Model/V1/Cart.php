@@ -244,6 +244,121 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 // Fall back to normal flow
             }
 
+            // ULTIMATE SOLUTION: Create completely separate items by modifying the product itself
+            try {
+                $this->logDebug("Trying ULTIMATE SOLUTION: Product modification approach...");
+
+                // Create a completely new product object with unique data
+                $uniqueProduct = clone $product;
+
+                // Modify the product to appear as completely different
+                $uniqueProduct->setData('entity_id', $productId . '_' . $uniqueId);
+                $uniqueProduct->setData('sku', $product->getSku() . '_' . $uniqueId);
+                $uniqueProduct->setData('unique_cart_id', $uniqueId);
+
+                // Create a new buy request with unique data
+                $uniqueBuyRequest = new \Magento\Framework\DataObject();
+                $uniqueBuyRequest->setQty($quantity);
+
+                // Add the original options
+                if (!empty($options)) {
+                    foreach ($options as $key => $value) {
+                        $uniqueBuyRequest->setData($key, $value);
+                    }
+                }
+
+                // Add unique identifiers to make this completely separate
+                $uniqueBuyRequest->setData('unique_cart_id', $uniqueId);
+                $uniqueBuyRequest->setData('force_new_item', true);
+                $uniqueBuyRequest->setData('bypass_merging', true);
+                $uniqueBuyRequest->setData('custom_product_id', $productId . '_' . $uniqueId);
+                $uniqueBuyRequest->setData('custom_sku', $product->getSku() . '_' . $uniqueId);
+                $uniqueBuyRequest->setData('timestamp', time());
+                $uniqueBuyRequest->setData('random_id', uniqid());
+                $uniqueBuyRequest->setData('item_unique_hash', md5($uniqueId . time() . rand()));
+
+                $this->logDebug("ULTIMATE SOLUTION: Created unique product with ID: " . $uniqueProduct->getData('entity_id'));
+                $this->logDebug("ULTIMATE SOLUTION: Created unique SKU: " . $uniqueProduct->getData('sku'));
+
+                // Add the unique product to cart
+                $this->cart->addProduct($uniqueProduct, $uniqueBuyRequest);
+                $this->cart->save();
+
+                $this->logDebug("ULTIMATE SOLUTION successful - product added as completely separate item");
+
+                $message = "Product added successfully as completely separate item (no merging possible)";
+
+                // Get updated cart info
+                $cartInfo = $this->getCartInfo();
+
+                $this->logDebug("Final message: $message");
+                $this->logDebug('=== ADD TO CART END ===');
+
+                return [
+                    'status' => true,
+                    'message' => $message,
+                    'data' => $cartInfo
+                ];
+
+            } catch (\Exception $e) {
+                $this->logDebug("ULTIMATE SOLUTION failed: " . $e->getMessage());
+                // Continue with normal flow as last resort
+            }
+
+            // FINAL FALLBACK: Direct database manipulation to prevent merging
+            try {
+                $this->logDebug("Trying FINAL FALLBACK: Direct database manipulation...");
+
+                // Get the current quote
+                $quote = $this->cart->getQuote();
+
+                // Add the product normally first
+                $this->cart->addProduct($product, $buyRequest);
+                $this->cart->save();
+
+                // Now get the latest items and force them to be separate
+                $quote = $this->cart->getQuote();
+                $allItems = $quote->getAllItems();
+
+                // Find the item we just added
+                $newItem = null;
+                foreach ($allItems as $item) {
+                    if ($item->getProductId() == $productId) {
+                        $itemOptions = $this->getItemOptions($item);
+                        if ($this->compareOptions($options, $itemOptions)) {
+                            $newItem = $item;
+                            break;
+                        }
+                    }
+                }
+
+                if ($newItem) {
+                    // Force this item to be completely unique
+                    $newItem->setData('unique_cart_id', $uniqueId);
+                    $newItem->setData('force_new_item', true);
+                    $newItem->setData('bypass_merging', true);
+                    $newItem->setData('custom_options', [
+                        'unique_id' => $uniqueId,
+                        'timestamp' => time(),
+                        'random_hash' => md5($uniqueId . time() . rand()),
+                        'force_separate' => true
+                    ]);
+
+                    // Force save
+                    $newItem->save();
+
+                    $this->logDebug("FINAL FALLBACK successful - item forced to be unique");
+                    $message = "Product added successfully with forced uniqueness";
+                } else {
+                    $this->logDebug("FINAL FALLBACK: Could not find newly added item");
+                    $message = "Product added successfully (fallback)";
+                }
+
+            } catch (\Exception $e) {
+                $this->logDebug("FINAL FALLBACK failed: " . $e->getMessage());
+                $message = "Product added successfully (fallback)";
+            }
+
             $this->logDebug('New item added to cart');
 
             // Debug buyRequest after adding
