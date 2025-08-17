@@ -113,4 +113,11 @@
         </resources>
     </route>
 
+    <route url="/apimobile/cart/clear" method="POST">
+        <service class="Josequal\APIMobile\Controller\Cart\Clear" method="execute"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+
 </routes>

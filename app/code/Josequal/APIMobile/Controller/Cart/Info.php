@@ -24,17 +24,15 @@ class Info extends \Josequal\APIMobile\Controller\Action\Action
         // Check authentication
         $customerId = $this->auth();
 
-        $data = $this->getData();
-
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $model = $objectManager->create('Josequal\APIMobile\Model\V1\Cart');
 
-        $result = $model->getCartInfo();
+        $cartData = $model->getCartDetails();
 
         $response = [
             'status' => true,
             'message' => 'Cart Details',
-            'data' => $result
+            'data' => $cartData
         ];
 
         $this->printResult($response);
