@@ -107,7 +107,13 @@ public function addToCart($data) {
         $quote = $this->checkoutSession->getQuote();
 
         // البحث عن نفس المنتج ونفس الخيارات
-        foreach ($quote->getAllVisibleItems() as $item) {
+        $foundExactMatch = false;
+        foreach ($quote->getAllItems() as $item) {
+            // تجاهل العناصر المخفية أو المحذوفة
+            if ($item->getParentItemId()) {
+                continue;
+            }
+
             if ($item->getProduct()->getId() == $data['product_id']) {
                 $buyRequest = $item->getBuyRequest();
                 $existingOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
@@ -117,15 +123,21 @@ public function addToCart($data) {
                     // نفس المنتج ونفس الخيارات → دمج الكمية
                     $item->setQty($item->getQty() + $params['qty']);
                     $quote->save();
-                    return $this->successStatus('Quantity updated for existing item', [
-                        'data' => $this->getCartDetails(),
-                        'debug' => [
-                            'action_taken' => 'Merged quantity',
-                            'options_hash' => $optionsHash
-                        ]
-                    ]);
+                    $foundExactMatch = true;
+                    break;
                 }
             }
+        }
+
+        // إذا وجدنا تطابق تام، نرجع النتيجة
+        if ($foundExactMatch) {
+            return $this->successStatus('Quantity updated for existing item', [
+                'data' => $this->getCartDetails(),
+                'debug' => [
+                    'action_taken' => 'Merged quantity',
+                    'options_hash' => $optionsHash
+                ]
+            ]);
         }
 
         // إضافة كـ item جديد مع تخزين الخيارات في buyRequest
@@ -135,8 +147,29 @@ public function addToCart($data) {
             'options' => $options
         ];
 
+        // إضافة المنتج كعنصر جديد
         $this->cart->addProduct($product, $params);
         $this->cart->save();
+
+        // تأكد من حفظ الخيارات بشكل صحيح
+        $quote = $this->checkoutSession->getQuote();
+        $quote->collectTotals();
+        $quote->save();
+
+        // تأكد من أن العنصر الجديد له معرف فريد
+        $newItems = $quote->getAllItems();
+        foreach ($newItems as $newItem) {
+            if ($newItem->getProduct()->getId() == $data['product_id']) {
+                $buyRequest = $newItem->getBuyRequest();
+                $newItemOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
+                $newItemHash = md5(json_encode($newItemOptions));
+
+                if ($newItemHash === $optionsHash) {
+                    error_log("New item added with ID: " . $newItem->getItemId() . " and options: " . json_encode($newItemOptions));
+                    break;
+                }
+            }
+        }
 
         return $this->successStatus('Product added successfully', [
             'data' => $this->getCartDetails(),
@@ -165,17 +198,24 @@ public function addToCart($data) {
         $quote->save();
 
         $list = [];
-        $items = $quote->getAllVisibleItems();
+        // استخدم getAllItems بدلاً من getAllVisibleItems لرؤية جميع العناصر
+        $items = $quote->getAllItems();
 
         // Debug logging
         error_log("getCartDetails: Found " . count($items) . " items in cart");
 
         // Display each item separately without grouping
         foreach ($items as $item) {
+            // تجاهل العناصر المخفية أو المحذوفة
+            if ($item->getParentItemId()) {
+                continue;
+            }
+
             error_log("Processing item " . $item->getItemId() . " with product_id " . $item->getProduct()->getId());
             $itemOptions = $item->getOptions();
             error_log("Item options: " . json_encode($itemOptions));
 
+            // تأكد من أن كل عنصر منفصل
             $productData = $this->processProduct($item);
             $list[] = $productData;
         }
@@ -245,7 +285,11 @@ public function addToCart($data) {
                     'label' => $key,
                     'value' => [
                         'qty' => $item->getQty(),
-                        'options' => $buyRequestOptions
+                        'info_buyRequest' => [
+                            'product' => $item->getProduct()->getId(),
+                            'qty' => $item->getQty(),
+                            'options' => $buyRequestOptions
+                        ]
                     ],
                     'extracted_options' => [
                         [
