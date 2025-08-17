@@ -124,16 +124,28 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     $existingOptions = [];
 
                     if ($buyRequest) {
+                        error_log("=== READING EXISTING ITEM DEBUG ===");
+                        error_log("Item ID: " . $item->getItemId());
+                        error_log("BuyRequest full data: " . json_encode($buyRequest->getData()));
+
                         if ($buyRequest->getData('options')) {
                             $existingOptions = $buyRequest->getData('options');
+                            error_log("Found options in 'options': " . json_encode($existingOptions));
                         } elseif ($buyRequest->getData('super_attribute')) {
                             $existingOptions = $buyRequest->getData('super_attribute');
+                            error_log("Found options in 'super_attribute': " . json_encode($existingOptions));
                         } elseif ($buyRequest->getData('info_buyRequest')) {
                             $infoBuyRequest = $buyRequest->getData('info_buyRequest');
+                            error_log("Found info_buyRequest: " . json_encode($infoBuyRequest));
                             if (isset($infoBuyRequest['options'])) {
                                 $existingOptions = $infoBuyRequest['options'];
+                                error_log("Found options in info_buyRequest['options']: " . json_encode($existingOptions));
                             }
+                        } else {
+                            error_log("No options found in any location!");
                         }
+                        error_log("Final existing options: " . json_encode($existingOptions));
+                        error_log("=====================================");
                     }
 
                                         // تطبيع الخيارات قبل المقارنة
@@ -141,9 +153,19 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     $existingHash = md5(json_encode($existingOptions));
 
                     // Debug: طباعة الخيارات للمقارنة
-                    error_log("Comparing options - New: " . json_encode($options) . " vs Existing: " . json_encode($existingOptions));
-                    error_log("Hash comparison - New: " . $optionsHash . " vs Existing: " . $existingHash);
+                    error_log("=== COMPARISON DEBUG ===");
+                    error_log("Item ID: " . $item->getItemId());
+                    error_log("New options: " . json_encode($options));
+                    error_log("Existing options: " . json_encode($existingOptions));
+                    error_log("New hash: " . $optionsHash);
+                    error_log("Existing hash: " . $existingHash);
                     error_log("Options source: " . ($buyRequest ? "buyRequest" : "none"));
+
+                    // Debug: طباعة جميع بيانات buyRequest
+                    if ($buyRequest) {
+                        error_log("BuyRequest data: " . json_encode($buyRequest->getData()));
+                    }
+                    error_log("========================");
 
                     if ($existingHash === $optionsHash) {
                         // نفس المنتج ونفس الخيارات → دمج الكمية
@@ -175,6 +197,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'qty' => $params['qty'],
                 'options' => $options
             ]);
+
+            // Debug: طباعة البيانات التي سيتم إرسالها
+            error_log("=== ADDING NEW PRODUCT DEBUG ===");
+            error_log("Product ID: " . $data['product_id']);
+            error_log("Quantity: " . $params['qty']);
+            error_log("Options: " . json_encode($options));
+            error_log("Options hash: " . $optionsHash);
+            error_log("BuyRequest data: " . json_encode($buyRequest->getData()));
+            error_log("================================");
 
             // إضافة المنتج كعنصر جديد مع BuyRequest
             $this->cart->addProduct($product, $buyRequest);
