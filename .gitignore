@@ -5,8 +5,6 @@
 Thumbs.db
 
 # مجلدات يتم إنشاؤها تلقائيًا
-/var/*
-!/var/.htaccess
 
 /pub/static/*
 !/pub/static/.htaccess
