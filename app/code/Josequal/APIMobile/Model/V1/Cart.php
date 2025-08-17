@@ -115,6 +115,11 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * @return array نتيجة العملية
      */
     public function addToCart($data) {
+        // Debug: تأكد من استدعاء الدالة
+        error_log("=== ADD TO CART FUNCTION CALLED ===");
+        error_log("Input data: " . json_encode($data));
+        error_log("==================================");
+
         if (!isset($data['product_id'])) {
             return $this->errorStatus(["Product is required"]);
         }
@@ -175,9 +180,24 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             // البحث عن نفس المنتج ونفس الخيارات
             // نستخدم شرط صريح للمقارنة: color و size يجب أن يكونا متطابقين
             $foundExactMatch = false;
+
+            // Debug: طباعة عدد العناصر الموجودة
+            error_log("=== SEARCHING EXISTING ITEMS ===");
+            error_log("Total items in quote: " . count($quote->getAllItems()));
+            error_log("Product ID to find: " . $data['product_id']);
+            error_log("================================");
+
             foreach ($quote->getAllItems() as $item) {
+                // Debug: طباعة معلومات كل عنصر
+                error_log("--- Processing item ---");
+                error_log("Item ID: " . $item->getItemId());
+                error_log("Product ID: " . $item->getProduct()->getId());
+                error_log("Parent Item ID: " . $item->getParentItemId());
+                error_log("---------------------");
+
                 // تجاهل العناصر المخفية أو المحذوفة
                 if ($item->getParentItemId()) {
+                    error_log("Skipping child item: " . $item->getItemId());
                     continue;
                 }
 
