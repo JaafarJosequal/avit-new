@@ -193,6 +193,57 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 // Continue with normal flow
             }
 
+            // COMPLETELY NEW APPROACH: Bypass Magento's cart logic entirely
+            try {
+                $this->logDebug("Trying COMPLETELY NEW APPROACH: Direct database insertion...");
+
+                // Get the quote
+                $quote = $this->cart->getQuote();
+
+                // Create a completely new quote item with unique data
+                $item = $quote->addProduct($product, $buyRequest);
+
+                // Force unique identification at the database level
+                $item->setData('unique_cart_id', $uniqueId);
+                $item->setData('force_new_item', true);
+                $item->setData('bypass_merging', true);
+
+                // Set custom options that make this item completely unique
+                $customOptions = [
+                    'unique_id' => $uniqueId,
+                    'timestamp' => time(),
+                    'random_hash' => md5($uniqueId . time() . rand()),
+                    'force_separate' => true
+                ];
+
+                $item->setData('custom_options', $customOptions);
+
+                // Force save without triggering merge logic
+                $item->save();
+
+                $this->logDebug("COMPLETELY NEW APPROACH successful - item ID: " . $item->getItemId());
+
+                // Skip the normal cart flow entirely
+                $this->cart->save();
+                $message = "Product added successfully as completely new item (bypassing merge logic)";
+
+                // Get updated cart info directly
+                $cartInfo = $this->getCartInfo();
+
+                $this->logDebug("Final message: $message");
+                $this->logDebug('=== ADD TO CART END ===');
+
+                return [
+                    'status' => true,
+                    'message' => $message,
+                    'data' => $cartInfo
+                ];
+
+            } catch (\Exception $e) {
+                $this->logDebug("COMPLETELY NEW APPROACH failed: " . $e->getMessage());
+                // Fall back to normal flow
+            }
+
             $this->logDebug('New item added to cart');
 
             // Debug buyRequest after adding
