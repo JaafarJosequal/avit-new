@@ -163,6 +163,17 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     // Debug buyRequest after adding
                     $this->logDebug("BuyRequest after addProduct (different options): " . json_encode($buyRequest->getData()));
 
+                    // Debug cart state immediately after addProduct
+                    $this->logDebug("Cart state immediately after addProduct (different options):");
+                    $tempQuote = $this->cart->getQuote();
+                    $tempItems = $tempQuote->getAllItems();
+                    $this->logDebug("Temp items count: " . count($tempItems));
+                    foreach ($tempItems as $tempItem) {
+                        $this->logDebug("Temp item - ID: " . $tempItem->getItemId() .
+                                       ", Product ID: " . $tempItem->getProductId() .
+                                       ", Qty: " . $tempItem->getQty());
+                    }
+
                     $this->cart->save();
                     $message = "Product added successfully with different options";
 
@@ -204,6 +215,17 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
                 // Debug buyRequest after adding
                 $this->logDebug("BuyRequest after addProduct: " . json_encode($buyRequest->getData()));
+
+                // Debug cart state immediately after addProduct
+                $this->logDebug("Cart state immediately after addProduct:");
+                $tempQuote = $this->cart->getQuote();
+                $tempItems = $tempQuote->getAllItems();
+                $this->logDebug("Temp items count: " . count($tempItems));
+                foreach ($tempItems as $tempItem) {
+                    $this->logDebug("Temp item - ID: " . $tempItem->getItemId() .
+                                   ", Product ID: " . $tempItem->getProductId() .
+                                   ", Qty: " . $tempItem->getQty());
+                }
 
                 $this->cart->save();
                 $message = "Product added successfully";
