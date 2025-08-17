@@ -116,7 +116,11 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     public function getCartInfo() {
         try {
             $cartInfo = $this->getCartDetails();
-            return $this->successStatus('Cart Details', $cartInfo);
+            return [
+                'status' => true,
+                'message' => 'Cart Details',
+                'data' => $cartInfo
+            ];
         } catch (\Exception $e) {
             return $this->errorStatus([$e->getMessage()]);
         }

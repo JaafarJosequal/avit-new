@@ -27,14 +27,8 @@ class Info extends \Josequal\APIMobile\Controller\Action\Action
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $model = $objectManager->create('Josequal\APIMobile\Model\V1\Cart');
 
-        $cartData = $model->getCartDetails();
+        $result = $model->getCartInfo();
 
-        $response = [
-            'status' => true,
-            'message' => 'Cart Details',
-            'data' => $cartData
-        ];
-
-        $this->printResult($response);
+        $this->printResult($result);
     }
 }
