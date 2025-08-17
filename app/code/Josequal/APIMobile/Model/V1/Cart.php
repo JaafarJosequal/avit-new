@@ -322,6 +322,20 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     continue;
                 }
 
+                // Get item options
+                $itemOptions = $this->getItemOptions($item);
+                $formattedOptions = [];
+
+                if (!empty($itemOptions)) {
+                    foreach ($itemOptions as $key => $value) {
+                        $formattedOptions[] = [
+                            'key' => $key,
+                            'label' => $key,
+                            'value' => $value
+                        ];
+                    }
+                }
+
                 $items[] = [
                     'id' => (string)$item->getItemId(),
                     'product_id' => (string)$item->getProductId(),
@@ -331,8 +345,9 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     'price' => $this->formatPrice($item->getPrice()),
                     'row_total' => $this->formatPrice($item->getRowTotal()),
                     'image' => $this->getProductImageUrl($product),
-                    'has_options' => false,
-                    'options_summary' => '',
+                    'options' => $formattedOptions,
+                    'has_options' => !empty($formattedOptions),
+                    'options_summary' => $this->getOptionsSummary($formattedOptions),
                     'is_available' => $this->isProductAvailable($product),
                     'stock_status' => $this->getStockStatus($product)
                 ];
@@ -515,10 +530,64 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function getProductImageUrl($product) {
         try {
-            if (!$product || !$product->getImage() || $product->getImage() == 'no_selection') {
+            if (!$product) {
                 return '';
             }
-            return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+
+            // Try to get image from different sources
+            $imagePath = '';
+
+            // Method 1: Try getImage()
+            if ($product->getImage() && $product->getImage() != 'no_selection') {
+                $imagePath = $product->getImage();
+            }
+            // Method 1.5: Try getData('image')
+            elseif ($product->getData('image') && $product->getData('image') != 'no_selection') {
+                $imagePath = $product->getData('image');
+            }
+            // Method 2: Try getSmallImage()
+            elseif ($product->getSmallImage() && $product->getSmallImage() != 'no_selection') {
+                $imagePath = $product->getSmallImage();
+            }
+            // Method 3: Try getThumbnail()
+            elseif ($product->getThumbnail() && $product->getThumbnail() != 'no_selection') {
+                $imagePath = $product->getThumbnail();
+            }
+
+            if ($imagePath) {
+                $baseUrl = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+                $fullUrl = $baseUrl . 'catalog/product' . $imagePath;
+                return $fullUrl;
+            }
+
+            // Method 4: Try using imageBuilder as fallback
+            try {
+                if ($this->imageBuilder) {
+                    $image = $this->imageBuilder->create($product, 'product_base_image');
+                    if ($image && $image->getImageUrl()) {
+                        return $image->getImageUrl();
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silent fail for imageBuilder
+            }
+
+            // Method 5: Try using getMediaGalleryEntries as final fallback
+            try {
+                $mediaGallery = $product->getMediaGalleryEntries();
+                if ($mediaGallery && count($mediaGallery) > 0) {
+                    $firstImage = $mediaGallery[0];
+                    if ($firstImage && $firstImage->getFile()) {
+                        $baseUrl = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+                        return $baseUrl . 'catalog/product' . $firstImage->getFile();
+                    }
+                }
+            } catch (\Exception $e) {
+                // Silent fail for mediaGallery
+            }
+
+            return '';
+
         } catch (\Exception $e) {
             return '';
         }
@@ -529,6 +598,16 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function prepareProductOptions($data) {
         $options = [];
+
+        // Handle simple options (color, size, etc.)
+        if (isset($data['color'])) {
+            $options['color'] = $data['color'];
+        }
+        if (isset($data['size'])) {
+            $options['size'] = $data['size'];
+        }
+
+        // Handle complex options array
         if (isset($data['options']) && is_array($data['options'])) {
             foreach ($data['options'] as $option) {
                 if (isset($option['label']) && isset($option['value'])) {
@@ -536,6 +615,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 }
             }
         }
+
         return $options;
     }
 
@@ -570,5 +650,21 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             }
         }
         return true;
+    }
+
+    /**
+     * Get options summary as text
+     */
+    private function getOptionsSummary($formattedOptions) {
+        if (empty($formattedOptions)) {
+            return '';
+        }
+
+        $summary = [];
+        foreach ($formattedOptions as $option) {
+            $summary[] = $option['label'] . ': ' . $option['value'];
+        }
+
+        return implode(', ', $summary);
     }
 }
