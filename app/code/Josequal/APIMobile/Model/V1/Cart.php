@@ -2,14 +2,6 @@
 namespace Josequal\APIMobile\Model\V1;
 
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Reflection\DataObjectProcessor;
-use Magento\Quote\Api\Data\AddressInterface;
-use Magento\Quote\Api\Data\CartExtensionFactory;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\ShippingAssignmentFactory;
-use Magento\Quote\Model\ShippingFactory;
-use Magento\Quote\Model\Quote;
-use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class Cart extends \Josequal\APIMobile\Model\AbstractModel {
@@ -277,21 +269,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 ];
             }
 
-            // Get all items including hidden ones
-            $allItems = $quote->getAllItems();
-            $visibleItems = [];
             $items = [];
+            $allItems = $quote->getAllItems();
 
-            // Filter for visible items manually
             foreach ($allItems as $item) {
-                if (!$item->getParentItemId() && ($item->getIsVisible() || $item->getBuyRequest())) {
-                    $visibleItems[] = $item;
+                if ($item->getParentItemId()) {
+                    continue; // Skip child items
                 }
-            }
 
-            foreach ($visibleItems as $item) {
                 $product = $item->getProduct();
-
                 if (!$product) {
                     continue;
                 }
@@ -299,8 +285,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 $items[] = [
                     'id' => (string)$item->getItemId(),
                     'product_id' => (string)$item->getProductId(),
-                    'name' => $item->getName(),
-                    'sku' => $item->getSku(),
+                    'name' => $item->getName() ?: 'Unknown Product',
+                    'sku' => $item->getSku() ?: 'Unknown SKU',
                     'qty' => (int)$item->getQty(),
                     'price' => $this->formatPrice($item->getPrice()),
                     'row_total' => $this->formatPrice($item->getRowTotal()),
@@ -324,23 +310,6 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'store_id' => (int)$this->storeManager->getStore()->getId()
             ];
 
-            // Ensure we never return null
-            if (empty($result['items'])) {
-                $result['items'] = [];
-            }
-            if (empty($result['totals'])) {
-                $result['totals'] = [
-                    [
-                        'label' => 'Subtotal',
-                        'value' => '$0.00'
-                    ],
-                    [
-                        'label' => 'Grand Total',
-                        'value' => '$0.00'
-                    ]
-                ];
-            }
-
             return $result;
 
         } catch (\Exception $e) {
@@ -360,8 +329,6 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Get cart totals
      */
     private function getCartTotals($quote) {
-        $totals = [];
-
         try {
             if (!$quote) {
                 return [
@@ -375,6 +342,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     ]
                 ];
             }
+
+            $totals = [];
 
             // Subtotal
             $totals[] = [
@@ -418,8 +387,10 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'value' => $this->formatPrice($quote->getGrandTotal())
             ];
 
+            return $totals;
+
         } catch (\Exception $e) {
-            $totals = [
+            return [
                 [
                     'label' => 'Subtotal',
                     'value' => '$0.00'
@@ -430,8 +401,6 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 ]
             ];
         }
-
-        return $totals;
     }
 
     /**
@@ -439,7 +408,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function formatPrice($price) {
         try {
-            if ($price === null || $price === '') {
+            if ($price === null || $price === '' || $price === 0) {
                 return '$0.00';
             }
             return $this->currencyHelper->currency($price, true, false);
