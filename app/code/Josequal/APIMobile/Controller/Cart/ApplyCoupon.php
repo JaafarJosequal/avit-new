@@ -1,7 +1,7 @@
 <?php
 namespace Josequal\APIMobile\Controller\Cart;
 
-class Delete extends \Josequal\APIMobile\Controller\Action\Action
+class ApplyCoupon extends \Josequal\APIMobile\Controller\Action\Action
 {
     /**
      * Constructor
@@ -29,7 +29,7 @@ class Delete extends \Josequal\APIMobile\Controller\Action\Action
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $model = $objectManager->create('Josequal\APIMobile\Model\V1\Cart');
 
-        $result = $model->deleteCartItem($data);
+        $result = $model->applyCoupon($data);
 
         $this->printResult($result);
     }
