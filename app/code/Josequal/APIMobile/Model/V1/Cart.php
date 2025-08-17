@@ -12,6 +12,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Framework\DataObject;
 
 class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
@@ -144,14 +145,15 @@ public function addToCart($data) {
         // هذا يضمن أن كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
 
                 // إضافة كـ item جديد مع تخزين الخيارات في buyRequest
-        $params['info_buyRequest'] = [
+        // إنشاء BuyRequest object يحتوي على الخيارات
+        $buyRequest = new \Magento\Framework\DataObject([
             'product' => $data['product_id'],
             'qty' => $params['qty'],
             'options' => $options
-        ];
+        ]);
 
-        // إضافة المنتج كعنصر جديد
-        $this->cart->addProduct($product, $params);
+        // إضافة المنتج كعنصر جديد مع BuyRequest
+        $this->cart->addProduct($product, $buyRequest);
         $this->cart->save();
 
         // تأكد من حفظ الخيارات بشكل صحيح
