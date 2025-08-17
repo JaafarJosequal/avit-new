@@ -73,6 +73,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
             $productId = (int)$data['product_id'];
             $quantity = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+            $options = $this->prepareProductOptions($data);
 
             // Check if product exists
             try {
@@ -84,16 +85,51 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(['Product not found']);
             }
 
-            // Simple approach - just add product with quantity
-            $params = ['qty' => $quantity];
+            // Check if product already exists in cart with same options
+            $quote = $this->cart->getQuote();
+            $existingItem = null;
 
-            $this->cart->addProduct($product, $params);
+            foreach ($quote->getAllItems() as $item) {
+                if ($item->getProductId() == $productId && !$item->getParentItemId()) {
+                    // Check if options match
+                    $itemOptions = $this->getItemOptions($item);
+                    if ($this->compareOptions($options, $itemOptions)) {
+                        $existingItem = $item;
+                        break;
+                    }
+                }
+            }
+
+            if ($existingItem) {
+                // Product already exists with same options - increase quantity
+                $currentQty = (int)$existingItem->getQty();
+                $newQty = $currentQty + $quantity;
+                $existingItem->setQty($newQty);
+
+                $message = "Product quantity increased from $currentQty to $newQty";
+            } else {
+                // Product doesn't exist or has different options - add new item
+                $params = ['qty' => $quantity];
+
+                // Add options to buy request
+                if (!empty($options)) {
+                    foreach ($options as $key => $value) {
+                        $params[$key] = $value;
+                    }
+                }
+
+                $this->cart->addProduct($product, $params);
+                $message = "Product added successfully";
+            }
+
             $this->cart->save();
 
             // Dispatch event for cart modification
             $this->eventManager->dispatch('josequal_cart_item_added', [
                 'product' => $product,
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'existing_item' => $existingItem ? true : false,
+                'options' => $options
             ]);
 
             // Get updated cart info
@@ -101,7 +137,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
             return [
                 'status' => true,
-                'message' => 'Product added successfully',
+                'message' => $message,
                 'data' => $cartInfo
             ];
 
@@ -486,5 +522,53 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         } catch (\Exception $e) {
             return '';
         }
+    }
+
+    /**
+     * Prepare product options from data
+     */
+    private function prepareProductOptions($data) {
+        $options = [];
+        if (isset($data['options']) && is_array($data['options'])) {
+            foreach ($data['options'] as $option) {
+                if (isset($option['label']) && isset($option['value'])) {
+                    $options[$option['label']] = $option['value'];
+                }
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * Get item options from Magento quote item
+     */
+    private function getItemOptions($item) {
+        $options = [];
+        if ($item->getProduct()) {
+            $productOptions = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+            if (isset($productOptions['options'])) {
+                foreach ($productOptions['options'] as $option) {
+                    if (isset($option['label']) && isset($option['value'])) {
+                        $options[$option['label']] = $option['value'];
+                    }
+                }
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * Compare two option arrays
+     */
+    private function compareOptions($options1, $options2) {
+        if (count($options1) !== count($options2)) {
+            return false;
+        }
+        foreach ($options1 as $key => $value) {
+            if (!isset($options2[$key]) || $options2[$key] !== $value) {
+                return false;
+            }
+        }
+        return true;
     }
 }
