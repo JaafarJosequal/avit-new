@@ -154,16 +154,21 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                         }
                     }
 
+                    // Add unique identifier to force new item
+                    $uniqueId = 'custom_' . time() . '_' . rand(1000, 9999);
+                    $buyRequest->setData('custom_unique_id', $uniqueId);
+                    $this->logDebug("Added unique ID (different options): $uniqueId");
+
                     // Debug buyRequest before adding
                     $this->logDebug("BuyRequest before addProduct (different options): " . json_encode($buyRequest->getData()));
 
-                    // Try different approach - use addProductById
+                    // Try different approach - use addProductBySku
                     try {
-                        $this->logDebug("Trying addProductById approach (different options)...");
-                        $this->cart->addProductById($productId, $buyRequest);
-                        $this->logDebug("addProductById successful (different options)");
+                        $this->logDebug("Trying addProductBySku approach (different options)...");
+                        $this->cart->addProductBySku($product->getSku(), $buyRequest);
+                        $this->logDebug("addProductBySku successful (different options)");
                     } catch (\Exception $e) {
-                        $this->logDebug("addProductById failed (different options): " . $e->getMessage());
+                        $this->logDebug("addProductBySku failed (different options): " . $e->getMessage());
                         // Fallback to original method
                         $this->cart->addProduct($product, $buyRequest);
                         $this->logDebug("Fallback addProduct successful (different options)");
@@ -218,16 +223,21 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     }
                 }
 
+                // Add unique identifier to force new item
+                $uniqueId = 'custom_' . time() . '_' . rand(1000, 9999);
+                $buyRequest->setData('custom_unique_id', $uniqueId);
+                $this->logDebug("Added unique ID: $uniqueId");
+
                 // Debug buyRequest before adding
                 $this->logDebug("BuyRequest before addProduct: " . json_encode($buyRequest->getData()));
 
-                // Try different approach - use addProductById
+                // Try different approach - use addProductBySku
                 try {
-                    $this->logDebug("Trying addProductById approach...");
-                    $this->cart->addProductById($productId, $buyRequest);
-                    $this->logDebug("addProductById successful");
+                    $this->logDebug("Trying addProductBySku approach...");
+                    $this->cart->addProductBySku($product->getSku(), $buyRequest);
+                    $this->logDebug("addProductBySku successful");
                 } catch (\Exception $e) {
-                    $this->logDebug("addProductById failed: " . $e->getMessage());
+                    $this->logDebug("addProductBySku failed: " . $e->getMessage());
                     // Fallback to original method
                     $this->cart->addProduct($product, $buyRequest);
                     $this->logDebug("Fallback addProduct successful");
