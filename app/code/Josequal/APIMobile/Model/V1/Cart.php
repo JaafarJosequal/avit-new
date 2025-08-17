@@ -76,6 +76,18 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     /**
      * إضافة منتج إلى السلة
      * الحل الجديد: كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
+     *
+     * @param array $data البيانات المطلوبة
+     * @param string $data['product_id'] معرف المنتج (مطلوب)
+     * @param int $data['quantity'] الكمية (اختياري، افتراضي: 1)
+     * @param string $data['color'] اللون (يتم إضافته إلى options)
+     * @param string $data['size'] الحجم (يتم إضافته إلى options)
+     * @param array $data['options'] خيارات إضافية (اختياري)
+     * @param string $data['material'] المادة (يتم إضافته إلى options)
+     * @param string $data['style'] النمط (يتم إضافته إلى options)
+     * @param string $data['brand'] العلامة التجارية (يتم إضافته إلى options)
+     *
+     * @return array نتيجة العملية
      */
     public function addToCart($data) {
         if (!isset($data['product_id'])) {
@@ -86,15 +98,34 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         // تجهيز خيارات المنتج
         $options = [];
+
+        // إضافة الخيارات الأساسية
         if (!empty($data['options']) && is_array($data['options'])) {
             $options = $data['options'];
         }
+
+        // إضافة color و size كجزء من options
         if (!empty($data['color'])) {
             $options['color'] = $data['color'];
         }
         if (!empty($data['size'])) {
             $options['size'] = $data['size'];
         }
+
+        // إضافة خيارات إضافية أخرى إذا وجدت
+        if (!empty($data['material'])) {
+            $options['material'] = $data['material'];
+        }
+        if (!empty($data['style'])) {
+            $options['style'] = $data['style'];
+        }
+        if (!empty($data['brand'])) {
+            $options['brand'] = $data['brand'];
+        }
+
+        // مثال: إذا أرسلت {"color": "red", "size": "L", "material": "cotton"}
+        // ستكون النتيجة: {"color": "red", "size": "L", "material": "cotton"}
+        // وليس: {"options": {"color": "red", "size": "L"}, "material": "cotton"}
 
         // تطبيع الخيارات قبل عمل hash
         ksort($options);
