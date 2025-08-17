@@ -264,10 +264,37 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     private function getCartDetails() {
         try {
             $quote = $this->cart->getQuote();
+
+            if (!$quote || !$quote->getId()) {
+                return [
+                    'items' => [],
+                    'cart_qty' => 0,
+                    'has_coupon' => false,
+                    'coupon' => '',
+                    'totals' => [],
+                    'cart_id' => '',
+                    'store_id' => 0
+                ];
+            }
+
+            // Get all items including hidden ones
+            $allItems = $quote->getAllItems();
+            $visibleItems = [];
             $items = [];
 
-            foreach ($quote->getAllVisibleItems() as $item) {
+            // Filter for visible items manually
+            foreach ($allItems as $item) {
+                if (!$item->getParentItemId() && ($item->getIsVisible() || $item->getBuyRequest())) {
+                    $visibleItems[] = $item;
+                }
+            }
+
+            foreach ($visibleItems as $item) {
                 $product = $item->getProduct();
+
+                if (!$product) {
+                    continue;
+                }
 
                 $items[] = [
                     'id' => (string)$item->getItemId(),
@@ -297,6 +324,23 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'store_id' => (int)$this->storeManager->getStore()->getId()
             ];
 
+            // Ensure we never return null
+            if (empty($result['items'])) {
+                $result['items'] = [];
+            }
+            if (empty($result['totals'])) {
+                $result['totals'] = [
+                    [
+                        'label' => 'Subtotal',
+                        'value' => '$0.00'
+                    ],
+                    [
+                        'label' => 'Grand Total',
+                        'value' => '$0.00'
+                    ]
+                ];
+            }
+
             return $result;
 
         } catch (\Exception $e) {
@@ -319,6 +363,19 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $totals = [];
 
         try {
+            if (!$quote) {
+                return [
+                    [
+                        'label' => 'Subtotal',
+                        'value' => '$0.00'
+                    ],
+                    [
+                        'label' => 'Grand Total',
+                        'value' => '$0.00'
+                    ]
+                ];
+            }
+
             // Subtotal
             $totals[] = [
                 'label' => 'Subtotal',
@@ -381,7 +438,14 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Format price
      */
     private function formatPrice($price) {
-        return $this->currencyHelper->currency($price, true, false);
+        try {
+            if ($price === null || $price === '') {
+                return '$0.00';
+            }
+            return $this->currencyHelper->currency($price, true, false);
+        } catch (\Exception $e) {
+            return '$0.00';
+        }
     }
 
     /**
@@ -389,6 +453,9 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function isProductAvailable($product) {
         try {
+            if (!$product) {
+                return false;
+            }
             return $product->isAvailable();
         } catch (\Exception $e) {
             return false;
@@ -400,6 +467,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function getStockStatus($product) {
         try {
+            if (!$product) {
+                return [
+                    'is_in_stock' => false,
+                    'qty' => 0,
+                    'min_qty' => 0,
+                    'max_qty' => 0
+                ];
+            }
+
             $stockItem = $product->getStockItem();
             if ($stockItem) {
                 return [
@@ -430,10 +506,10 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function getProductImageUrl($product) {
         try {
-            if ($product->getImage() && $product->getImage() != 'no_selection') {
-                return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+            if (!$product || !$product->getImage() || $product->getImage() == 'no_selection') {
+                return '';
             }
-            return '';
+            return $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
         } catch (\Exception $e) {
             return '';
         }
