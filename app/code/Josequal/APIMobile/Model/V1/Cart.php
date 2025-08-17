@@ -120,6 +120,19 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             // SIMPLE APPROACH: Use the same method as APIExcample
             $this->logDebug('Using simple approach like APIExcample (no quantity merging)');
 
+            // FORCE NEW ITEM: Modify product to appear as different product
+            $uniqueId = 'unique_' . time() . '_' . rand(1000, 9999);
+            $this->logDebug("Creating unique identifier: $uniqueId");
+
+            // Create a modified product that Magento will treat as completely different
+            $modifiedProduct = clone $product;
+            $modifiedProduct->setData('sku', $product->getSku() . '_' . $uniqueId);
+            $modifiedProduct->setData('entity_id', $productId . '_' . $uniqueId);
+            $modifiedProduct->setData('unique_cart_id', $uniqueId);
+
+            $this->logDebug("Modified product SKU: " . $modifiedProduct->getSku());
+            $this->logDebug("Modified product entity_id: " . $modifiedProduct->getData('entity_id'));
+
             // Create buy request with options
             $buyRequest = new \Magento\Framework\DataObject();
             $buyRequest->setQty($quantity);
@@ -132,11 +145,60 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 }
             }
 
-            // Add product to cart using simple approach
-            $this->cart->addProduct($product, $buyRequest);
+            // Add unique data to prevent merging
+            $buyRequest->setData('unique_cart_id', $uniqueId);
+            $buyRequest->setData('force_new_item', true);
+            $buyRequest->setData('timestamp', time());
+            $buyRequest->setData('random_id', uniqid());
+
+            $this->logDebug("Added unique data to buyRequest to prevent merging");
+
+            // Add modified product to cart using simple approach
+            $this->cart->addProduct($modifiedProduct, $buyRequest);
             $this->cart->save();
 
-            $this->logDebug('Product added successfully using simple approach');
+            $this->logDebug('Product added successfully using modified product approach');
+
+            // ADDITIONAL PROTECTION: Force the item to remain separate
+            try {
+                $this->logDebug('Adding additional protection to prevent merging...');
+
+                // Get the quote and find the newly added item
+                $quote = $this->cart->getQuote();
+                $allItems = $quote->getAllItems();
+
+                // Find the item we just added by looking for our unique identifier
+                $newItem = null;
+                foreach ($allItems as $item) {
+                    if ($item->getData('unique_cart_id') == $uniqueId) {
+                        $newItem = $item;
+                        break;
+                    }
+                }
+
+                if ($newItem) {
+                    $this->logDebug('Found newly added item, applying additional protection...');
+
+                    // Force this item to be completely unique
+                    $newItem->setData('force_new_item', true);
+                    $newItem->setData('bypass_merging', true);
+                    $newItem->setData('custom_options', [
+                        'unique_id' => $uniqueId,
+                        'timestamp' => time(),
+                        'random_hash' => md5($uniqueId . time() . rand()),
+                        'force_separate' => true
+                    ]);
+
+                    // Force save
+                    $newItem->save();
+                    $this->logDebug('Additional protection applied successfully');
+                } else {
+                    $this->logDebug('Could not find newly added item for additional protection');
+                }
+
+            } catch (\Exception $e) {
+                $this->logDebug('Additional protection failed: ' . $e->getMessage());
+            }
 
             // Dispatch event for cart modification
             $this->eventManager->dispatch('josequal_cart_item_added', [
