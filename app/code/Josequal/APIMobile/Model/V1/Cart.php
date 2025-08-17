@@ -73,134 +73,84 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     //Add To Cart
-    public function addToCart($data) {
-        if(!isset($data['product_id'])){
-            return $this->errorStatus(["Product is required"]);
-        }
-
-        $params['qty'] = isset($data['quantity']) ? (int) $data['quantity'] : 1;
-
-        // Handle custom options (color, size, etc.)
-        if (isset($data['options']) && is_array($data['options'])) {
-            $params['options'] = $data['options'];
-        }
-
-        // Handle specific color and size options
-        if (isset($data['color']) && !empty($data['color'])) {
-            $params['options']['color'] = $data['color'];
-        }
-
-        if (isset($data['size']) && !empty($data['size'])) {
-            $params['options']['size'] = $data['size'];
-        }
-
-        // Create a unique identifier for this product with options
-        $optionsHash = '';
-        $uniqueIdentifier = $data['product_id'];
-        if (isset($params['options']) && !empty($params['options'])) {
-            $optionsHash = md5(json_encode($params['options']));
-            $uniqueIdentifier .= '_' . $optionsHash;
-        }
-
-        // Debug logging
-        error_log("Adding product to cart with params: " . json_encode($params));
-
-        try {
-            $product = $this->productModel->setStoreId($this->storeManager->getStore()->getId())->load($data['product_id']);
-            if (!$product) {
-                return $this->errorStatus(["Product not exist"],404);
-            }
-
-            // Create a unique identifier for this product with options
-            $optionsHash = '';
-            $uniqueIdentifier = $data['product_id'];
-            if (isset($params['options']) && !empty($params['options'])) {
-                $optionsHash = md5(json_encode($params['options']));
-                $uniqueIdentifier .= '_' . $optionsHash;
-            }
-
-            // Force Magento to create a new item by adding a unique identifier
-            if (isset($params['options']) && !empty($params['options'])) {
-                $params['super_attribute'] = []; // Clear any existing super attributes
-                $params['options_hash'] = $optionsHash; // Add our custom hash
-                $params['unique_id'] = uniqid(); // Add unique ID to force new item
-            }
-
-            // Always add as new item to ensure options are preserved
-            $this->cart->addProduct($product, $params);
-            $this->cart->save();
-
-            // Get the newly added item and ensure options are saved
-            $quote = $this->checkoutSession->getQuote();
-            $items = $quote->getAllVisibleItems();
-            $lastItem = end($items);
-
-            if ($lastItem && $lastItem->getProduct()->getId() == $data['product_id']) {
-                // Store options in buy request
-                $buyRequest = $lastItem->getBuyRequest();
-                if ($buyRequest) {
-                    $buyRequest->setData('options', $params['options'] ?? []);
-                    $lastItem->setBuyRequest($buyRequest);
-                }
-
-                // Store options in item custom data
-                $customData = $lastItem->getCustomData();
-                if (!$customData) {
-                    $customData = [];
-                }
-                $customData['options'] = $params['options'] ?? [];
-                $lastItem->setCustomData($customData);
-
-                // Save the quote again
-                $quote->save();
-            }
-
-            // Debug logging after adding
-            $items = $quote->getAllVisibleItems();
-            error_log("Cart now contains " . count($items) . " items");
-
-            foreach ($items as $item) {
-                if ($item->getProduct()->getId() == $data['product_id']) {
-                    $itemOptions = $item->getOptions();
-                    error_log("Item " . $item->getItemId() . " has options: " . json_encode($itemOptions));
-                }
-            }
-
-            $info = $this->successStatus('Product added successfully');
-            $info['data'] = $this->getCartDetails();
-
-            // Add debug info to response
-            $info['debug'] = [
-                'params_sent' => $params,
-                'cart_items_count' => count($this->checkoutSession->getQuote()->getAllVisibleItems()),
-                'last_item_options' => (isset($lastItem) && $lastItem && $lastItem->getProduct()->getId() == $data['product_id']) ? $lastItem->getOptions() : 'No matching item found',
-                'options_hash' => $optionsHash,
-                'unique_identifier' => $uniqueIdentifier,
-                'found_existing' => false, // This will be false as we force new item
-                'action_taken' => 'Created new item',
-                'cart_items_details' => []
-            ];
-
-            // Add details about all cart items for debugging
-            $allItems = $this->checkoutSession->getQuote()->getAllVisibleItems();
-            foreach ($allItems as $item) {
-                $info['debug']['cart_items_details'][] = [
-                    'item_id' => $item->getItemId(),
-                    'product_id' => $item->getProduct()->getId(),
-                    'qty' => $item->getQty(),
-                    'options' => $item->getOptions(),
-                    'buy_request' => $item->getBuyRequest() ? $item->getBuyRequest()->getData() : null
-                ];
-            }
-
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            return $this->errorStatus($e->getMessage());
-        } catch (\Exception $e) {
-            return $this->errorStatus($e->getMessage());
-        }
-
-        return $info;
+public function addToCart($data) {
+    if (!isset($data['product_id'])) {
+        return $this->errorStatus(["Product is required"]);
     }
+
+    $params['qty'] = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+
+    // تجهيز خيارات المنتج
+    $options = [];
+    if (!empty($data['options']) && is_array($data['options'])) {
+        $options = $data['options'];
+    }
+    if (!empty($data['color'])) {
+        $options['color'] = $data['color'];
+    }
+    if (!empty($data['size'])) {
+        $options['size'] = $data['size'];
+    }
+
+    // توليد hash من الخيارات
+    $optionsHash = md5(json_encode($options));
+
+    try {
+        $product = $this->productModel
+            ->setStoreId($this->storeManager->getStore()->getId())
+            ->load($data['product_id']);
+
+        if (!$product || !$product->getId()) {
+            return $this->errorStatus(["Product not found"], 404);
+        }
+
+        $quote = $this->checkoutSession->getQuote();
+
+        // البحث عن نفس المنتج ونفس الخيارات
+        foreach ($quote->getAllVisibleItems() as $item) {
+            if ($item->getProduct()->getId() == $data['product_id']) {
+                $buyRequest = $item->getBuyRequest();
+                $existingOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
+                $existingHash = md5(json_encode($existingOptions));
+
+                if ($existingHash === $optionsHash) {
+                    // نفس المنتج ونفس الخيارات → دمج الكمية
+                    $item->setQty($item->getQty() + $params['qty']);
+                    $quote->save();
+                    return $this->successStatus('Quantity updated for existing item', [
+                        'data' => $this->getCartDetails(),
+                        'debug' => [
+                            'action_taken' => 'Merged quantity',
+                            'options_hash' => $optionsHash
+                        ]
+                    ]);
+                }
+            }
+        }
+
+        // إضافة كـ item جديد مع تخزين الخيارات في buyRequest
+        $params['info_buyRequest'] = [
+            'product' => $data['product_id'],
+            'qty' => $params['qty'],
+            'options' => $options
+        ];
+
+        $this->cart->addProduct($product, $params);
+        $this->cart->save();
+
+        return $this->successStatus('Product added successfully', [
+            'data' => $this->getCartDetails(),
+            'debug' => [
+                'action_taken' => 'Created new item',
+                'options_hash' => $optionsHash,
+                'saved_options' => $options
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return $this->errorStatus($e->getMessage());
+    }
+}
 
     public function getCartInfo($data = []) {
         $info = $this->successStatus('Cart Details');
