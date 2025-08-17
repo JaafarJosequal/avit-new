@@ -128,16 +128,22 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                             $existingOptions = $buyRequest->getData('options');
                         } elseif ($buyRequest->getData('super_attribute')) {
                             $existingOptions = $buyRequest->getData('super_attribute');
+                        } elseif ($buyRequest->getData('info_buyRequest')) {
+                            $infoBuyRequest = $buyRequest->getData('info_buyRequest');
+                            if (isset($infoBuyRequest['options'])) {
+                                $existingOptions = $infoBuyRequest['options'];
+                            }
                         }
                     }
 
-                    // تطبيع الخيارات قبل المقارنة
+                                        // تطبيع الخيارات قبل المقارنة
                     ksort($existingOptions);
                     $existingHash = md5(json_encode($existingOptions));
 
                     // Debug: طباعة الخيارات للمقارنة
                     error_log("Comparing options - New: " . json_encode($options) . " vs Existing: " . json_encode($existingOptions));
                     error_log("Hash comparison - New: " . $optionsHash . " vs Existing: " . $existingHash);
+                    error_log("Options source: " . ($buyRequest ? "buyRequest" : "none"));
 
                     if ($existingHash === $optionsHash) {
                         // نفس المنتج ونفس الخيارات → دمج الكمية
@@ -317,21 +323,17 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             // Continue without buy request
         }
 
-        // If we have buy request options, use them to create formatted options
-        if (!empty($buyRequestOptions)) {
-            // تبسيط JSON الناتج - خلي الخيارات تطلع بشكل واضح
-            $finalOptions = [
-                'options' => $buyRequestOptions
-            ];
+                // توحيد الإخراج - خلي الخيارات تطلع بصيغة موحدة دائمًا
+        $finalOptions = [];
 
-            // إضافة الخيارات المحددة مباشرة
-            if (isset($buyRequestOptions['color'])) {
-                $finalOptions['color'] = $buyRequestOptions['color'];
-            }
-            if (isset($buyRequestOptions['size'])) {
-                $finalOptions['size'] = $buyRequestOptions['size'];
-            }
-        } else {
+        if ($buyRequest && $buyRequest->getData('options')) {
+            $finalOptions = $buyRequest->getData('options');
+        } elseif ($buyRequest && $buyRequest->getData('super_attribute')) {
+            $finalOptions = $buyRequest->getData('super_attribute');
+        }
+
+        // إذا لم نجد خيارات، استخدم itemOptions
+        if (empty($finalOptions)) {
             $finalOptions = $itemOptions;
         }
 
