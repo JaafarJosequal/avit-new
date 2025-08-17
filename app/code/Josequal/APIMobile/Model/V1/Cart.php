@@ -74,6 +74,31 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     /**
+     * تطبيع الخيارات من BuyRequest
+     * توحيد استخراج الخيارات من جميع المصادر المحتملة
+     */
+    private function normalizeOptions($buyRequest) {
+        $options = [];
+
+        if ($buyRequest) {
+            if ($buyRequest->getData('options')) {
+                $options = $buyRequest->getData('options');
+            } elseif ($buyRequest->getData('super_attribute')) {
+                $options = $buyRequest->getData('super_attribute');
+            } elseif ($buyRequest->getData('info_buyRequest')) {
+                $info = $buyRequest->getData('info_buyRequest');
+                if (!empty($info['options'])) {
+                    $options = $info['options'];
+                }
+            }
+        }
+
+        // تطبيع الخيارات قبل إرجاعها
+        ksort($options);
+        return $options;
+    }
+
+    /**
      * إضافة منتج إلى السلة
      * الحل الجديد: كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
      *
@@ -127,9 +152,14 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         // ستكون النتيجة: {"color": "red", "size": "L", "material": "cotton"}
         // وليس: {"options": {"color": "red", "size": "L"}, "material": "cotton"}
 
-        // تطبيع الخيارات قبل عمل hash
+        // تطبيع الخيارات الجديدة قبل عمل hash
         ksort($options);
-        $optionsHash = md5(json_encode($options));
+        $newOptionsHash = md5(json_encode($options));
+
+        error_log("=== NEW OPTIONS DEBUG ===");
+        error_log("New options (normalized): " . json_encode($options));
+        error_log("New options hash: " . $newOptionsHash);
+        error_log("=========================");
 
         try {
             $product = $this->productModel
@@ -143,6 +173,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $quote = $this->checkoutSession->getQuote();
 
             // البحث عن نفس المنتج ونفس الخيارات
+            // نستخدم شرط صريح للمقارنة: color و size يجب أن يكونا متطابقين
             $foundExactMatch = false;
             foreach ($quote->getAllItems() as $item) {
                 // تجاهل العناصر المخفية أو المحذوفة
@@ -152,36 +183,17 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
                 if ($item->getProduct()->getId() == $data['product_id']) {
                     $buyRequest = $item->getBuyRequest();
-                    $existingOptions = [];
 
-                    if ($buyRequest) {
-                        error_log("=== READING EXISTING ITEM DEBUG ===");
-                        error_log("Item ID: " . $item->getItemId());
-                        error_log("BuyRequest full data: " . json_encode($buyRequest->getData()));
-
-                        if ($buyRequest->getData('options')) {
-                            $existingOptions = $buyRequest->getData('options');
-                            error_log("Found options in 'options': " . json_encode($existingOptions));
-                        } elseif ($buyRequest->getData('super_attribute')) {
-                            $existingOptions = $buyRequest->getData('super_attribute');
-                            error_log("Found options in 'super_attribute': " . json_encode($existingOptions));
-                        } elseif ($buyRequest->getData('info_buyRequest')) {
-                            $infoBuyRequest = $buyRequest->getData('info_buyRequest');
-                            error_log("Found info_buyRequest: " . json_encode($infoBuyRequest));
-                            if (isset($infoBuyRequest['options'])) {
-                                $existingOptions = $infoBuyRequest['options'];
-                                error_log("Found options in info_buyRequest['options']: " . json_encode($existingOptions));
-                            }
-                        } else {
-                            error_log("No options found in any location!");
-                        }
-                        error_log("Final existing options: " . json_encode($existingOptions));
-                        error_log("=====================================");
-                    }
-
-                                        // تطبيع الخيارات قبل المقارنة
-                    ksort($existingOptions);
+                    // استخدام الدالة الجديدة لتطبيع الخيارات
+                    $existingOptions = $this->normalizeOptions($buyRequest);
                     $existingHash = md5(json_encode($existingOptions));
+
+                    // Debug: طباعة الخيارات للمقارنة
+                    error_log("=== COMPARISON DEBUG ===");
+                    error_log("Item ID: " . $item->getItemId());
+                    error_log("Existing options (normalized): " . json_encode($existingOptions));
+                    error_log("Existing hash: " . $existingHash);
+                    error_log("========================");
 
                     // Debug: طباعة الخيارات للمقارنة
                     error_log("=== COMPARISON DEBUG ===");
@@ -198,12 +210,50 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     }
                     error_log("========================");
 
-                    if ($existingHash === $optionsHash) {
+                    // شرط صريح: مقارنة color و size بشكل مباشر
+                    $colorDifferent = false;
+                    $sizeDifferent = false;
+
+                    // مقارنة اللون
+                    if (isset($options['color']) && isset($existingOptions['color'])) {
+                        if ($options['color'] !== $existingOptions['color']) {
+                            $colorDifferent = true;
+                            error_log("Color different: New=" . $options['color'] . " vs Existing=" . $existingOptions['color']);
+                        }
+                    } elseif (isset($options['color']) || isset($existingOptions['color'])) {
+                        // أحدهما موجود والآخر لا
+                        $colorDifferent = true;
+                        error_log("Color different: One exists, other doesn't");
+                    }
+
+                    // مقارنة الحجم
+                    if (isset($options['size']) && isset($existingOptions['size'])) {
+                        if ($options['size'] !== $existingOptions['size']) {
+                            $sizeDifferent = true;
+                            error_log("Size different: New=" . $options['size'] . " vs Existing=" . $existingOptions['size']);
+                        }
+                    } elseif (isset($options['size']) || isset($existingOptions['size'])) {
+                        // أحدهما موجود والآخر لا
+                        $sizeDifferent = true;
+                        error_log("Size different: One exists, other doesn't");
+                    }
+
+                    // إذا كان color أو size مختلفين، لا ندمج
+                    if ($colorDifferent || $sizeDifferent) {
+                        error_log("Options are different - will create new item");
+                        continue; // انتقل للعنصر التالي
+                    }
+
+                    // إذا كان color و size متطابقين، تحقق من باقي الخيارات بالـ hash
+                    if ($existingHash === $newOptionsHash) {
                         // نفس المنتج ونفس الخيارات → دمج الكمية
+                        error_log("All options match - merging quantities");
                         $item->setQty($item->getQty() + $params['qty']);
                         $quote->save();
                         $foundExactMatch = true;
                         break;
+                    } else {
+                        error_log("Hash mismatch - will create new item");
                     }
                 }
             }
@@ -214,7 +264,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     'data' => $this->getCartDetails(),
                     'debug' => [
                         'action_taken' => 'Merged quantity',
-                        'options_hash' => $optionsHash
+                        'options_hash' => $newOptionsHash
                     ]
                 ]);
             }
@@ -255,7 +305,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     $newItemOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
                     $newItemHash = md5(json_encode($newItemOptions));
 
-                    if ($newItemHash === $optionsHash) {
+                    if ($newItemHash === $newOptionsHash) {
                         error_log("New item added with ID: " . $newItem->getItemId() . " and options: " . json_encode($newItemOptions));
                         break;
                     }
@@ -269,7 +319,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'data' => $this->getCartDetails(),
                 'debug' => [
                     'action_taken' => 'Created new item',
-                    'options_hash' => $optionsHash,
+                    'options_hash' => $newOptionsHash,
                     'saved_options' => $options,
                     'items_count' => count($newItems)
                 ]
