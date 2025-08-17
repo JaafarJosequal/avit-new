@@ -142,6 +142,16 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $buyRequest->setData('random_id', uniqid());
             $this->logDebug("Added additional unique data to prevent merging");
 
+            // Force Magento to treat this as a completely new item by adding unique product data
+            $buyRequest->setData('force_new_item', true);
+            $buyRequest->setData('item_unique_hash', md5($uniqueId . time() . rand()));
+            $this->logDebug("Added force_new_item flag to prevent merging");
+
+            // Modify the product to appear as a different product to Magento
+            $buyRequest->setData('custom_product_id', $productId . '_' . $uniqueId);
+            $buyRequest->setData('custom_sku', $product->getSku() . '_' . $uniqueId);
+            $this->logDebug("Modified product data to appear as different product");
+
             // Don't add custom unique identifier as it may cause visibility issues
             $this->logDebug("No custom unique ID needed for new item");
 
@@ -163,6 +173,24 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     $this->logDebug("Fallback addProduct also failed: " . $e2->getMessage());
                     throw $e2; // Re-throw the exception
                 }
+            }
+
+            // Alternative approach: Add item directly to quote to bypass merging logic
+            try {
+                $this->logDebug("Trying alternative approach: direct quote item addition...");
+                $quote = $this->cart->getQuote();
+
+                // Create a new quote item directly
+                $item = $quote->addProduct($product, $buyRequest);
+
+                // Force the item to be treated as new by setting unique data
+                $item->setData('unique_cart_id', $uniqueId);
+                $item->setData('force_new_item', true);
+
+                $this->logDebug("Alternative approach successful - item ID: " . $item->getItemId());
+            } catch (\Exception $e) {
+                $this->logDebug("Alternative approach failed: " . $e->getMessage());
+                // Continue with normal flow
             }
 
             $this->logDebug('New item added to cart');
