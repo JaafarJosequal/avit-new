@@ -12,13 +12,43 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
      * @var \Magento\Framework\App\Request\Http
      */
     protected $request;
+
+    /**
+     * @var \Magento\Framework\Json\Helper\Data
+     */
     protected $jsonHelper;
+
+    /**
+     * @var array
+     */
     protected $_data;
+
+    /**
+     * @var \Magento\Framework\Encryption\EncryptorInterface
+     */
     protected $encrypt;
+
+    /**
+     * @var \Magento\Customer\Model\Session
+     */
     protected $customerSession;
+
+    /**
+     * @var \Magento\Customer\Model\Customer
+     */
     protected $customerModel;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
     protected $storeManager;
 
+    /**
+     * Constructor
+     *
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param \Magento\Framework\App\Request\Http $request
+     */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\App\Request\Http $request
@@ -67,6 +97,12 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         return true;
     }
 
+    /**
+     * Convert data to JSON format
+     *
+     * @param mixed $data
+     * @return string
+     */
     public function dataToJson($data) {
         $this->setData($data);
         $this->dispatchEventChangeData($this->getActionName('_after'), ['controller' => $this, 'response_data' => &$data]);
@@ -83,6 +119,12 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         }
     }
 
+    /**
+     * Convert mixed data to UTF-8 encoding
+     *
+     * @param mixed $mixed
+     * @return mixed
+     */
     public function utf8ize($mixed) {
         if (is_array($mixed)) {
             foreach ($mixed as $key => $value) {
@@ -94,18 +136,43 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         return $mixed;
     }
 
+    /**
+     * Dispatch event for data change
+     *
+     * @param string $event_name
+     * @param array $data
+     * @return void
+     */
     public function dispatchEventChangeData($event_name, $data) {
         $this->_eventManager->dispatch($event_name, $data);
     }
 
+    /**
+     * Dispatch request
+     *
+     * @param RequestInterface $request
+     * @return \Magento\Framework\App\ResponseInterface
+     */
     public function dispatch(RequestInterface $request) {
         return parent::dispatch($request);
     }
 
+    /**
+     * Get action name
+     *
+     * @param string $last
+     * @return string
+     */
     public function getActionName($last = '') {
         return $this->getRequest()->getActionName() . $last;
     }
 
+    /**
+     * Print result as JSON
+     *
+     * @param mixed $data
+     * @return void
+     */
     public function printResult($data) {
         $json_data = $this->dataToJson($data);
         if (isset($_GET['callback']) && $_GET['callback'] != '') {
@@ -117,6 +184,12 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         exit;
     }
 
+    /**
+     * Print report result as JSON
+     *
+     * @param mixed $data
+     * @return void
+     */
     public function printReportResult($data) {
         $json_data = $this->dataToJson($data);
         header('content-type:application/json');
@@ -124,14 +197,29 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         exit;
     }
 
+    /**
+     * Set request data
+     *
+     * @return void
+     */
     public function setRequestData() {
         $this->_data = $this->getRequestData();
     }
 
+    /**
+     * Get data
+     *
+     * @return array
+     */
     public function getData() {
         return $this->_data;
     }
 
+    /**
+     * Get request data from parameters and body
+     *
+     * @return array
+     */
     public function getRequestData() {
         $data = $this->getRequest()->getParams();
 
@@ -147,7 +235,11 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         return $data;
     }
 
-    //Customer Auth
+    /**
+     * Authenticate customer
+     *
+     * @return int|void
+     */
     public function auth(){
         try{
             if ($this->customerSession->isLoggedIn()) {
@@ -199,6 +291,11 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         }
     }
 
+    /**
+     * Check if customer is authenticated
+     *
+     * @return bool
+     */
     public function isAuth(){
         $token = $this->getAuthorizationHeader();
         if (!$token) {
@@ -234,7 +331,11 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         return false;
     }
 
-    //get Auth from header
+    /**
+     * Get authorization header from request
+     *
+     * @return string|null
+     */
     private function getAuthorizationHeader(){
         $headers = null;
         if (isset($_SERVER['Authorization'])) {
@@ -258,6 +359,13 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         return null;
     }
 
+    /**
+     * Return error status response
+     *
+     * @param string|array $error
+     * @param int $code
+     * @return array
+     */
     public function errorStatus($error = ['0', 'opps! unknown Error '],$code = 400) {
         http_response_code($code);
         return [
@@ -267,10 +375,21 @@ abstract class Action extends \Magento\Framework\App\Action\Action implements Cs
         ];
     }
 
+    /**
+     * Set data
+     *
+     * @param array $data
+     * @return void
+     */
     public function setData($data) {
         $this->_data = $data;
     }
 
+    /**
+     * Execute action - abstract method
+     *
+     * @return void
+     */
     public function execute() {
         // Abstract method - should be implemented by child classes
     }
