@@ -73,134 +73,142 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $this->scopeConfig = $this->objectManager->get('\Magento\Framework\App\Config\ScopeConfigInterface');
     }
 
-    //Add To Cart
-public function addToCart($data) {
-    if (!isset($data['product_id'])) {
-        return $this->errorStatus(["Product is required"]);
-    }
-
-    $params['qty'] = isset($data['quantity']) ? (int)$data['quantity'] : 1;
-
-    // تجهيز خيارات المنتج
-    $options = [];
-    if (!empty($data['options']) && is_array($data['options'])) {
-        $options = $data['options'];
-    }
-    if (!empty($data['color'])) {
-        $options['color'] = $data['color'];
-    }
-    if (!empty($data['size'])) {
-        $options['size'] = $data['size'];
-    }
-
-    // توليد hash من الخيارات
-    $optionsHash = md5(json_encode($options));
-
-    try {
-        $product = $this->productModel
-            ->setStoreId($this->storeManager->getStore()->getId())
-            ->load($data['product_id']);
-
-        if (!$product || !$product->getId()) {
-            return $this->errorStatus(["Product not found"], 404);
+    /**
+     * إضافة منتج إلى السلة
+     * الحل الجديد: كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
+     */
+    public function addToCart($data) {
+        if (!isset($data['product_id'])) {
+            return $this->errorStatus(["Product is required"]);
         }
 
-        $quote = $this->checkoutSession->getQuote();
+        $params['qty'] = isset($data['quantity']) ? (int)$data['quantity'] : 1;
 
-                // البحث عن نفس المنتج ونفس الخيارات
-        $foundExactMatch = false;
-        foreach ($quote->getAllItems() as $item) {
-            // تجاهل العناصر المخفية أو المحذوفة
-            if ($item->getParentItemId()) {
-                continue;
+        // تجهيز خيارات المنتج
+        $options = [];
+        if (!empty($data['options']) && is_array($data['options'])) {
+            $options = $data['options'];
+        }
+        if (!empty($data['color'])) {
+            $options['color'] = $data['color'];
+        }
+        if (!empty($data['size'])) {
+            $options['size'] = $data['size'];
+        }
+
+        // توليد hash من الخيارات
+        $optionsHash = md5(json_encode($options));
+
+        try {
+            $product = $this->productModel
+                ->setStoreId($this->storeManager->getStore()->getId())
+                ->load($data['product_id']);
+
+            if (!$product || !$product->getId()) {
+                return $this->errorStatus(["Product not found"], 404);
             }
 
-            if ($item->getProduct()->getId() == $data['product_id']) {
-                $buyRequest = $item->getBuyRequest();
-                $existingOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
-                $existingHash = md5(json_encode($existingOptions));
+            $quote = $this->checkoutSession->getQuote();
 
-                if ($existingHash === $optionsHash) {
-                    // نفس المنتج ونفس الخيارات → دمج الكمية
-                    $item->setQty($item->getQty() + $params['qty']);
-                    $quote->save();
-                    $foundExactMatch = true;
-                    break;
+            // البحث عن نفس المنتج ونفس الخيارات
+            $foundExactMatch = false;
+            foreach ($quote->getAllItems() as $item) {
+                // تجاهل العناصر المخفية أو المحذوفة
+                if ($item->getParentItemId()) {
+                    continue;
+                }
+
+                if ($item->getProduct()->getId() == $data['product_id']) {
+                    $buyRequest = $item->getBuyRequest();
+                    $existingOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
+                    $existingHash = md5(json_encode($existingOptions));
+
+                    if ($existingHash === $optionsHash) {
+                        // نفس المنتج ونفس الخيارات → دمج الكمية
+                        $item->setQty($item->getQty() + $params['qty']);
+                        $quote->save();
+                        $foundExactMatch = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        // إذا وجدنا تطابق تام، نرجع النتيجة
-        if ($foundExactMatch) {
-            return $this->successStatus('Quantity updated for existing item', [
+            // إذا وجدنا تطابق تام، نرجع النتيجة
+            if ($foundExactMatch) {
+                return $this->successStatus('Quantity updated for existing item', [
+                    'data' => $this->getCartDetails(),
+                    'debug' => [
+                        'action_taken' => 'Merged quantity',
+                        'options_hash' => $optionsHash
+                    ]
+                ]);
+            }
+
+            // إذا لم نجد تطابق تام، نضيف كعنصر جديد
+            // هذا يضمن أن كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
+
+            // إنشاء BuyRequest object يحتوي على الخيارات
+            $buyRequest = new DataObject([
+                'product' => $data['product_id'],
+                'qty' => $params['qty'],
+                'options' => $options
+            ]);
+
+            // إضافة المنتج كعنصر جديد مع BuyRequest
+            $this->cart->addProduct($product, $buyRequest);
+            $this->cart->save();
+
+            // تأكد من حفظ الخيارات بشكل صحيح
+            $quote = $this->checkoutSession->getQuote();
+            $quote->collectTotals();
+            $quote->save();
+
+            // تأكد من أن العنصر الجديد له معرف فريد
+            $newItems = $quote->getAllItems();
+            foreach ($newItems as $newItem) {
+                if ($newItem->getProduct()->getId() == $data['product_id']) {
+                    $buyRequest = $newItem->getBuyRequest();
+                    $newItemOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
+                    $newItemHash = md5(json_encode($newItemOptions));
+
+                    if ($newItemHash === $optionsHash) {
+                        error_log("New item added with ID: " . $newItem->getItemId() . " and options: " . json_encode($newItemOptions));
+                        break;
+                    }
+                }
+            }
+
+            // Debug: تأكد من عدد العناصر بعد الإضافة
+            error_log("Items count after adding new item: " . count($newItems));
+
+            return $this->successStatus('Product added successfully', [
                 'data' => $this->getCartDetails(),
                 'debug' => [
-                    'action_taken' => 'Merged quantity',
-                    'options_hash' => $optionsHash
+                    'action_taken' => 'Created new item',
+                    'options_hash' => $optionsHash,
+                    'saved_options' => $options,
+                    'items_count' => count($newItems)
                 ]
             ]);
+
+        } catch (\Exception $e) {
+            return $this->errorStatus($e->getMessage());
         }
-
-        // إذا لم نجد تطابق تام، نضيف كعنصر جديد
-        // هذا يضمن أن كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
-
-                // إضافة كـ item جديد مع تخزين الخيارات في buyRequest
-        // إنشاء BuyRequest object يحتوي على الخيارات
-        $buyRequest = new \Magento\Framework\DataObject([
-            'product' => $data['product_id'],
-            'qty' => $params['qty'],
-            'options' => $options
-        ]);
-
-        // إضافة المنتج كعنصر جديد مع BuyRequest
-        $this->cart->addProduct($product, $buyRequest);
-        $this->cart->save();
-
-        // تأكد من حفظ الخيارات بشكل صحيح
-        $quote = $this->checkoutSession->getQuote();
-        $quote->collectTotals();
-        $quote->save();
-
-        // تأكد من أن العنصر الجديد له معرف فريد
-        $newItems = $quote->getAllItems();
-        foreach ($newItems as $newItem) {
-            if ($newItem->getProduct()->getId() == $data['product_id']) {
-                $buyRequest = $newItem->getBuyRequest();
-                $newItemOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
-                $newItemHash = md5(json_encode($newItemOptions));
-
-                if ($newItemHash === $optionsHash) {
-                    error_log("New item added with ID: " . $newItem->getItemId() . " and options: " . json_encode($newItemOptions));
-                    break;
-                }
-            }
-        }
-
-        // Debug: تأكد من عدد العناصر بعد الإضافة
-        error_log("Items count after adding new item: " . count($newItems));
-
-        return $this->successStatus('Product added successfully', [
-            'data' => $this->getCartDetails(),
-            'debug' => [
-                'action_taken' => 'Created new item',
-                'options_hash' => $optionsHash,
-                'saved_options' => $options,
-                'items_count' => count($newItems)
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        return $this->errorStatus($e->getMessage());
     }
-}
 
+    /**
+     * الحصول على معلومات السلة
+     */
     public function getCartInfo($data = []) {
         $info = $this->successStatus('Cart Details');
         $info['data'] = $this->getCartDetails();
         return $info;
     }
 
-    //Get cart Details
+    /**
+     * الحصول على تفاصيل السلة
+     * الحل الجديد: عرض كل عنصر بشكل منفصل
+     */
     public function getCartDetails() {
         $quote = $this->checkoutSession->getQuote();
         $quote->collectTotals();
@@ -213,7 +221,7 @@ public function addToCart($data) {
         // Debug logging
         error_log("getCartDetails: Found " . count($items) . " items in cart");
 
-                // Display each item separately without grouping
+        // Display each item separately without grouping
         foreach ($items as $item) {
             // تجاهل العناصر المخفية أو المحذوفة
             if ($item->getParentItemId()) {
@@ -271,6 +279,10 @@ public function addToCart($data) {
         return $data;
     }
 
+    /**
+     * معالجة بيانات المنتج في السلة
+     * الحل الجديد: عرض الخيارات بشكل واضح
+     */
     public function processProduct($item) {
         $product = $item->getProduct();
 
@@ -344,10 +356,17 @@ public function addToCart($data) {
         return $productData;
     }
 
+    /**
+     * الحصول على صورة المنتج
+     */
     public function getImage($product, $imageId, $attributes = []) {
         return $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
     }
 
+    /**
+     * تنسيق خيارات السلة
+     * الحل الجديد: معالجة أفضل للخيارات
+     */
     private function formatCartOptions($options) {
         $formattedOptions = [];
 
@@ -428,6 +447,9 @@ public function addToCart($data) {
         return $formattedOptions;
     }
 
+    /**
+     * تحديث كمية عنصر في السلة
+     */
     public function updateCart($data) {
         if(!isset($data['item_id'])){
             return $this->errorStatus(["Item ID is required"]);
@@ -449,6 +471,9 @@ public function addToCart($data) {
         return $info;
     }
 
+    /**
+     * حذف عنصر من السلة
+     */
     public function deleteItem($data) {
         if(!isset($data['item_id']) && !isset($data['product_id'])){
             return $this->errorStatus(["Item ID or Product ID is required"]);
