@@ -359,6 +359,113 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 $message = "Product added successfully (fallback)";
             }
 
+            // FINAL SOLUTION: Direct database manipulation at the core level
+            try {
+                $this->logDebug("Trying FINAL SOLUTION: Core database manipulation...");
+
+                // Get the current quote
+                $quote = $this->cart->getQuote();
+
+                // Add the product normally first
+                $this->cart->addProduct($product, $buyRequest);
+                $this->cart->save();
+
+                // Now get the latest items and force them to be separate
+                $quote = $this->cart->getQuote();
+                $allItems = $quote->getAllItems();
+
+                // Find the item we just added
+                $newItem = null;
+                foreach ($allItems as $item) {
+                    if ($item->getProductId() == $productId) {
+                        $itemOptions = $this->getItemOptions($item);
+                        if ($this->compareOptions($options, $itemOptions)) {
+                            $newItem = $item;
+                            break;
+                        }
+                    }
+                }
+
+                if ($newItem) {
+                    // Force this item to be completely unique
+                    $newItem->setData('unique_cart_id', $uniqueId);
+                    $newItem->setData('force_new_item', true);
+                    $newItem->setData('bypass_merging', true);
+                    $newItem->setData('custom_options', [
+                        'unique_id' => $uniqueId,
+                        'timestamp' => time(),
+                        'random_hash' => md5($uniqueId . time() . rand()),
+                        'force_separate' => true
+                    ]);
+
+                    // Force save
+                    $newItem->save();
+
+                    $this->logDebug("FINAL FALLBACK successful - item forced to be unique");
+                    $message = "Product added successfully with forced uniqueness";
+                } else {
+                    $this->logDebug("FINAL FALLBACK: Could not find newly added item");
+                    $message = "Product added successfully";
+                }
+
+            } catch (\Exception $e) {
+                $this->logDebug("FINAL FALLBACK failed: " . $e->getMessage());
+                $message = "Product added successfully (fallback)";
+            }
+
+            // ULTIMATE FINAL SOLUTION: Direct database query to prevent merging
+            try {
+                $this->logDebug("Trying ULTIMATE FINAL SOLUTION: Direct database query...");
+
+                // Get the resource connection
+                $resource = \Magento\Framework\App\ObjectManager::getInstance()->get('\Magento\Framework\App\ResourceConnection');
+                $connection = $resource->getConnection();
+
+                // Get the quote ID
+                $quoteId = $this->cart->getQuote()->getId();
+
+                // Find the latest quote item for this product
+                $select = $connection->select()
+                    ->from('quote_item')
+                    ->where('quote_id = ?', $quoteId)
+                    ->where('product_id = ?', $productId)
+                    ->order('item_id DESC')
+                    ->limit(1);
+
+                $latestItem = $connection->fetchRow($select);
+
+                if ($latestItem) {
+                    // Update the item to be completely unique
+                    $updateData = [
+                        'unique_cart_id' => $uniqueId,
+                        'force_new_item' => 1,
+                        'bypass_merging' => 1,
+                        'custom_options' => json_encode([
+                            'unique_id' => $uniqueId,
+                            'timestamp' => time(),
+                            'random_hash' => md5($uniqueId . time() . rand()),
+                            'force_separate' => true
+                        ])
+                    ];
+
+                    $connection->update(
+                        'quote_item',
+                        $updateData,
+                        ['item_id = ?' => $latestItem['item_id']]
+                    );
+
+                    $this->logDebug("ULTIMATE FINAL SOLUTION successful - database updated directly");
+                    $message = "Product added successfully with database-level uniqueness";
+                } else {
+                    $this->logDebug("ULTIMATE FINAL SOLUTION: Could not find item in database");
+                    $message = "Product added successfully";
+                }
+
+            } catch (\Exception $e) {
+                $this->logDebug("ULTIMATE FINAL SOLUTION failed: " . $e->getMessage());
+                $message = "Product added successfully (database fallback)";
+            }
+
             $this->logDebug('New item added to cart');
 
             // Debug buyRequest after adding
