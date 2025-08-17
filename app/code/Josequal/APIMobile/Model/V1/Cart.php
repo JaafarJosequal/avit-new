@@ -200,7 +200,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     error_log("Item ID: " . $item->getItemId());
                     error_log("New options: " . json_encode($options));
                     error_log("Existing options: " . json_encode($existingOptions));
-                    error_log("New hash: " . $optionsHash);
+                    error_log("New hash: " . $newOptionsHash);
                     error_log("Existing hash: " . $existingHash);
                     error_log("Options source: " . ($buyRequest ? "buyRequest" : "none"));
 
@@ -284,7 +284,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             error_log("Product ID: " . $data['product_id']);
             error_log("Quantity: " . $params['qty']);
             error_log("Options: " . json_encode($options));
-            error_log("Options hash: " . $optionsHash);
+            error_log("Options hash: " . $newOptionsHash);
             error_log("BuyRequest data: " . json_encode($buyRequest->getData()));
             error_log("================================");
 
