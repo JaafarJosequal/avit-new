@@ -96,7 +96,8 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $options['size'] = $data['size'];
         }
 
-        // توليد hash من الخيارات
+        // تطبيع الخيارات قبل عمل hash
+        ksort($options);
         $optionsHash = md5(json_encode($options));
 
         try {
@@ -120,8 +121,23 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
                 if ($item->getProduct()->getId() == $data['product_id']) {
                     $buyRequest = $item->getBuyRequest();
-                    $existingOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
+                    $existingOptions = [];
+
+                    if ($buyRequest) {
+                        if ($buyRequest->getData('options')) {
+                            $existingOptions = $buyRequest->getData('options');
+                        } elseif ($buyRequest->getData('super_attribute')) {
+                            $existingOptions = $buyRequest->getData('super_attribute');
+                        }
+                    }
+
+                    // تطبيع الخيارات قبل المقارنة
+                    ksort($existingOptions);
                     $existingHash = md5(json_encode($existingOptions));
+
+                    // Debug: طباعة الخيارات للمقارنة
+                    error_log("Comparing options - New: " . json_encode($options) . " vs Existing: " . json_encode($existingOptions));
+                    error_log("Hash comparison - New: " . $optionsHash . " vs Existing: " . $existingHash);
 
                     if ($existingHash === $optionsHash) {
                         // نفس المنتج ونفس الخيارات → دمج الكمية
@@ -303,37 +319,18 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         // If we have buy request options, use them to create formatted options
         if (!empty($buyRequestOptions)) {
-            $formattedBuyRequestOptions = [];
-            foreach ($buyRequestOptions as $key => $value) {
-                $formattedBuyRequestOptions[] = [
-                    'label' => $key,
-                    'value' => [
-                        'qty' => $item->getQty(),
-                        'info_buyRequest' => [
-                            'product' => $item->getProduct()->getId(),
-                            'qty' => $item->getQty(),
-                            'options' => $buyRequestOptions
-                        ]
-                    ],
-                    'extracted_options' => [
-                        [
-                            'type' => $key,
-                            'value' => $value
-                        ]
-                    ]
-                ];
+            // تبسيط JSON الناتج - خلي الخيارات تطلع بشكل واضح
+            $finalOptions = [
+                'options' => $buyRequestOptions
+            ];
 
-                // Add specific color and size if available
-                if ($key === 'color') {
-                    $formattedBuyRequestOptions[count($formattedBuyRequestOptions) - 1]['color'] = $value;
-                }
-                if ($key === 'size') {
-                    $formattedBuyRequestOptions[count($formattedBuyRequestOptions) - 1]['size'] = $value;
-                }
+            // إضافة الخيارات المحددة مباشرة
+            if (isset($buyRequestOptions['color'])) {
+                $finalOptions['color'] = $buyRequestOptions['color'];
             }
-
-            // Use buy request options if they exist, otherwise use item options
-            $finalOptions = !empty($formattedBuyRequestOptions) ? $formattedBuyRequestOptions : $itemOptions;
+            if (isset($buyRequestOptions['size'])) {
+                $finalOptions['size'] = $buyRequestOptions['size'];
+            }
         } else {
             $finalOptions = $itemOptions;
         }
