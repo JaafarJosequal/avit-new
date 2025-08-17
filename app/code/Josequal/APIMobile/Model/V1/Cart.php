@@ -79,16 +79,35 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(['Product not found']);
             }
 
-            // Check if product with same options already exists in cart
+            // Check if product with exactly same options already exists in cart
             $existingItem = $this->findExistingCartItem($productId, $options);
 
             if ($existingItem && !empty($options)) {
-                // Update quantity for existing item
-                $newQty = $existingItem->getQty() + $quantity;
-                $existingItem->setQty($newQty);
-                $this->cartItemRepository->save($existingItem);
+                // Only merge if options are exactly identical
+                $existingItemOptions = $this->getItemOptions($existingItem);
+                if ($this->compareOptions($options, $existingItemOptions)) {
+                    // Update quantity for existing item with identical options
+                    $newQty = $existingItem->getQty() + $quantity;
+                    $existingItem->setQty($newQty);
+                    $this->cartItemRepository->save($existingItem);
 
-                $message = "Quantity updated for existing item";
+                    $message = "Quantity updated for existing item with identical options";
+                } else {
+                    // Options are different, add as new item
+                    $buyRequest = new \Magento\Framework\DataObject();
+                    $buyRequest->setQty($quantity);
+
+                    // Add custom options
+                    if (!empty($options)) {
+                        foreach ($options as $key => $value) {
+                            $buyRequest->setData($key, $value);
+                        }
+                    }
+
+                    $this->cart->addProduct($product, $buyRequest);
+                    $this->cart->save();
+                    $message = "Product added successfully with different options";
+                }
             } else {
                 // Add new item to cart with options
                 $buyRequest = new \Magento\Framework\DataObject();
@@ -466,7 +485,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             if ($item->getProductId() == $productId) {
                 $itemOptions = $this->getItemOptions($item);
 
-                // Compare options
+                // Compare options - must be exactly the same
                 if ($this->compareOptions($options, $itemOptions)) {
                     return $item;
                 }
@@ -477,7 +496,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     /**
-     * Compare two option arrays
+     * Compare two option arrays - must be exactly identical
      */
     private function compareOptions($options1, $options2) {
         // If both are empty, they are the same
@@ -490,14 +509,19 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             return false;
         }
 
-        // Check if all options in options1 exist in options2 with same values
+        // Check if arrays have the same number of keys
+        if (count($options1) !== count($options2)) {
+            return false;
+        }
+
+        // Check if all keys exist and have exactly the same values
         foreach ($options1 as $key => $value) {
             if (!isset($options2[$key]) || $options2[$key] !== $value) {
                 return false;
             }
         }
 
-        // Check if all options in options2 exist in options1 with same values
+        // Double check - ensure all keys in options2 exist in options1
         foreach ($options2 as $key => $value) {
             if (!isset($options1[$key]) || $options1[$key] !== $value) {
                 return false;
@@ -536,6 +560,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                         }
                     }
                 }
+
+                // Check for any other option fields that might be set
+                $optionFields = ['material', 'style', 'pattern', 'brand', 'model', 'weight', 'dimensions'];
+                foreach ($optionFields as $field) {
+                    $value = $buyRequest->getData($field);
+                    if ($value && !empty($value)) {
+                        $options[$field] = $value;
+                    }
+                }
             }
 
             // Also check for product options if buy request doesn't have them
@@ -548,6 +581,13 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     }
                     if (isset($infoBuyRequest['size'])) {
                         $options['size'] = $infoBuyRequest['size'];
+                    }
+
+                    // Check for other options
+                    foreach ($optionFields as $field) {
+                        if (isset($infoBuyRequest[$field]) && !empty($infoBuyRequest[$field])) {
+                            $options[$field] = $infoBuyRequest[$field];
+                        }
                     }
                 }
             }
@@ -683,5 +723,48 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         }
 
         return $totals;
+    }
+
+    /**
+     * Test options comparison for debugging
+     *
+     * @param array $options1
+     * @param array $options2
+     * @return array
+     */
+    public function testOptionsComparison($options1, $options2) {
+        $result = [
+            'options1' => $options1,
+            'options2' => $options2,
+            'are_identical' => $this->compareOptions($options1, $options2),
+            'comparison_details' => []
+        ];
+
+        // Detailed comparison
+        if (empty($options1) && empty($options2)) {
+            $result['comparison_details'][] = 'Both options are empty';
+        } elseif (empty($options1) || empty($options2)) {
+            $result['comparison_details'][] = 'One set of options is empty';
+        } else {
+            if (count($options1) !== count($options2)) {
+                $result['comparison_details'][] = 'Different number of options: ' . count($options1) . ' vs ' . count($options2);
+            }
+
+            foreach ($options1 as $key => $value) {
+                if (!isset($options2[$key])) {
+                    $result['comparison_details'][] = "Key '$key' missing in options2";
+                } elseif ($options2[$key] !== $value) {
+                    $result['comparison_details'][] = "Value mismatch for '$key': '$value' vs '{$options2[$key]}'";
+                }
+            }
+
+            foreach ($options2 as $key => $value) {
+                if (!isset($options1[$key])) {
+                    $result['comparison_details'][] = "Key '$key' missing in options1";
+                }
+            }
+        }
+
+        return $result;
     }
 }
