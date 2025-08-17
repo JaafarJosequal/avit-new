@@ -212,10 +212,34 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     public function getCartInfo() {
         try {
+            $this->logDebug("=== GET CART INFO START ===");
+
             $quote = $this->cart->getQuote();
+            $this->logDebug("Cart quote ID: " . $quote->getId());
+
+            // Debug all items (including hidden ones)
+            $allItems = $quote->getAllItems();
+            $this->logDebug("Total all items (including hidden): " . count($allItems));
+
+            $visibleItems = $quote->getAllVisibleItems();
+            $this->logDebug("Total visible items: " . count($visibleItems));
+
+            // Debug each item
+            foreach ($allItems as $item) {
+                $this->logDebug("Item ID: " . $item->getItemId() .
+                               ", Product ID: " . $item->getProductId() .
+                               ", Qty: " . $item->getQty() .
+                               ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO') .
+                               ", Parent: " . ($item->getParentItemId() ?: 'NONE'));
+            }
+
             $items = [];
 
-            foreach ($quote->getAllVisibleItems() as $item) {
+            foreach ($visibleItems as $item) {
+                $this->logDebug("Processing visible item ID: " . $item->getItemId());
+                $this->logDebug("Item product ID: " . $item->getProductId());
+                $this->logDebug("Item quantity: " . $item->getQty());
+
                 $product = $item->getProduct();
                 $options = $this->getItemOptions($item);
 
@@ -237,11 +261,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     'is_available' => $this->isProductAvailable($product),
                     'stock_status' => $this->getStockStatus($product)
                 ];
+
+                $this->logDebug("Item added to response with options: " . json_encode($formattedOptions));
             }
+
+            $this->logDebug("Final items count: " . count($items));
 
             $totals = $this->getCartTotals($quote);
 
-            return [
+            $result = [
                 'items' => $items,
                 'cart_qty' => (int)$quote->getItemsQty(),
                 'has_coupon' => $quote->getCouponCode() ? true : false,
@@ -251,7 +279,15 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'store_id' => (int)$this->storeManager->getStore()->getId()
             ];
 
+            $this->logDebug("Cart info result: " . json_encode($result));
+            $this->logDebug("=== GET CART INFO END ===");
+
+            return $result;
+
         } catch (\Exception $e) {
+            $this->logDebug('EXCEPTION in getCartInfo: ' . $e->getMessage());
+            $this->logDebug('Stack trace: ' . $e->getTraceAsString());
+
             return [
                 'items' => [],
                 'cart_qty' => 0,
