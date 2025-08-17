@@ -117,165 +117,104 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(['Product not found']);
             }
 
-            // Check if product with exactly same options already exists in cart
-            $this->logDebug('Searching for existing cart item...');
-            $existingItem = $this->findExistingCartItem($productId, $options);
+            // Always add as new item - no merging of quantities
+            $this->logDebug('Adding product as new item (no quantity merging)');
 
-            if ($existingItem) {
-                $this->logDebug('Existing item found with ID: ' . $existingItem->getItemId());
-                $existingItemOptions = $this->getItemOptions($existingItem);
-                $this->logDebug('Existing item options: ' . json_encode($existingItemOptions));
+            // Add new item to cart with options
+            $buyRequest = new \Magento\Framework\DataObject();
+            $buyRequest->setQty($quantity);
 
-                $this->logDebug('Comparing options...');
-                $optionsMatch = $this->compareOptions($options, $existingItemOptions);
-                $this->logDebug('Options match: ' . ($optionsMatch ? 'YES' : 'NO'));
-
-                if ($optionsMatch && !empty($options)) {
-                    // Update quantity for existing item with identical options
-                    $oldQty = $existingItem->getQty();
-                    $newQty = $oldQty + $quantity;
-                    $existingItem->setQty($newQty);
-                    $this->cartItemRepository->save($existingItem);
-
-                    $this->logDebug("Quantity updated: $oldQty -> $newQty");
-                    $message = "Quantity updated for existing item with identical options";
-                } else {
-                    // Options are different, add as new item
-                    $this->logDebug('Options are different, adding as new item');
-
-                    $buyRequest = new \Magento\Framework\DataObject();
-                    $buyRequest->setQty($quantity);
-
-                    // Add custom options
-                    if (!empty($options)) {
-                        foreach ($options as $key => $value) {
-                            $buyRequest->setData($key, $value);
-                            $this->logDebug("Setting option: $key = $value");
-                        }
-                    }
-
-                    // Add unique identifier to force new item
-                    $uniqueId = 'custom_' . time() . '_' . rand(1000, 9999);
-                    $buyRequest->setData('custom_unique_id', $uniqueId);
-                    $this->logDebug("Added unique ID (different options): $uniqueId");
-
-                    // Debug buyRequest before adding
-                    $this->logDebug("BuyRequest before addProduct (different options): " . json_encode($buyRequest->getData()));
-
-                    // Try different approach - use addProductBySku
-                    try {
-                        $this->logDebug("Trying addProductBySku approach (different options)...");
-                        $this->cart->addProductBySku($product->getSku(), $buyRequest);
-                        $this->logDebug("addProductBySku successful (different options)");
-                    } catch (\Exception $e) {
-                        $this->logDebug("addProductBySku failed (different options): " . $e->getMessage());
-                        // Fallback to original method
-                        $this->cart->addProduct($product, $buyRequest);
-                        $this->logDebug("Fallback addProduct successful (different options)");
-                    }
-
-                    $this->logDebug('New item added to cart');
-
-                    // Debug buyRequest after adding
-                    $this->logDebug("BuyRequest after addProduct (different options): " . json_encode($buyRequest->getData()));
-
-                    // Debug cart state immediately after addProduct
-                    $this->logDebug("Cart state immediately after addProduct (different options):");
-                    $tempQuote = $this->cart->getQuote();
-                    $tempItems = $tempQuote->getAllItems();
-                    $this->logDebug("Temp items count: " . count($tempItems));
-                    foreach ($tempItems as $tempItem) {
-                        $this->logDebug("Temp item - ID: " . $tempItem->getItemId() .
-                                       ", Product ID: " . $tempItem->getProductId() .
-                                       ", Qty: " . $tempItem->getQty());
-                    }
-
-                    $this->cart->save();
-                    $message = "Product added successfully with different options";
-
-                    // Reload quote to get updated items
-                    $quote = $this->cart->getQuote();
-                    $this->logDebug("Quote reloaded after adding, new quote ID: " . $quote->getId());
-
-                    // Get all items after adding
-                    $allItemsAfter = $quote->getAllItems();
-                    $this->logDebug("Total items after adding: " . count($allItemsAfter));
-
-                    foreach ($allItemsAfter as $item) {
-                        $this->logDebug("Item after adding - ID: " . $item->getItemId() .
-                                       ", Product ID: " . $item->getProductId() .
-                                       ", Qty: " . $item->getQty() .
-                                       ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO'));
-                    }
+            // Add custom options
+            if (!empty($options)) {
+                foreach ($options as $key => $value) {
+                    $buyRequest->setData($key, $value);
+                    $this->logDebug("Setting option: $key = $value");
                 }
-            } else {
-                $this->logDebug('No existing item found, adding new item');
+            }
 
-                // Add new item to cart with options
-                $buyRequest = new \Magento\Framework\DataObject();
-                $buyRequest->setQty($quantity);
+            // Don't add custom unique identifier as it may cause visibility issues
+            $this->logDebug("No custom unique ID needed for new item");
 
-                // Add custom options
-                if (!empty($options)) {
-                    foreach ($options as $key => $value) {
-                        $buyRequest->setData($key, $value);
-                        $this->logDebug("Setting option: $key = $value");
-                    }
-                }
+            // Debug buyRequest before adding
+            $this->logDebug("BuyRequest before addProduct: " . json_encode($buyRequest->getData()));
 
-                // Add unique identifier to force new item
-                $uniqueId = 'custom_' . time() . '_' . rand(1000, 9999);
-                $buyRequest->setData('custom_unique_id', $uniqueId);
-                $this->logDebug("Added unique ID: $uniqueId");
-
-                // Debug buyRequest before adding
-                $this->logDebug("BuyRequest before addProduct: " . json_encode($buyRequest->getData()));
-
-                // Try different approach - use addProductBySku
+            // Try different approach - use addProductBySku
+            try {
+                $this->logDebug("Trying addProductBySku approach...");
+                $this->cart->addProductBySku($product->getSku(), $buyRequest);
+                $this->logDebug("addProductBySku successful");
+            } catch (\Exception $e) {
+                $this->logDebug("addProductBySku failed: " . $e->getMessage());
+                // Fallback to original method
                 try {
-                    $this->logDebug("Trying addProductBySku approach...");
-                    $this->cart->addProductBySku($product->getSku(), $buyRequest);
-                    $this->logDebug("addProductBySku successful");
-                } catch (\Exception $e) {
-                    $this->logDebug("addProductBySku failed: " . $e->getMessage());
-                    // Fallback to original method
                     $this->cart->addProduct($product, $buyRequest);
                     $this->logDebug("Fallback addProduct successful");
+                } catch (\Exception $e2) {
+                    $this->logDebug("Fallback addProduct also failed: " . $e2->getMessage());
+                    throw $e2; // Re-throw the exception
                 }
+            }
 
-                $this->logDebug('New item added to cart');
+            $this->logDebug('New item added to cart');
 
-                // Debug buyRequest after adding
-                $this->logDebug("BuyRequest after addProduct: " . json_encode($buyRequest->getData()));
+            // Debug buyRequest after adding
+            $this->logDebug("BuyRequest after addProduct: " . json_encode($buyRequest->getData()));
 
-                // Debug cart state immediately after addProduct
-                $this->logDebug("Cart state immediately after addProduct:");
-                $tempQuote = $this->cart->getQuote();
-                $tempItems = $tempQuote->getAllItems();
-                $this->logDebug("Temp items count: " . count($tempItems));
-                foreach ($tempItems as $tempItem) {
-                    $this->logDebug("Temp item - ID: " . $tempItem->getItemId() .
-                                   ", Product ID: " . $tempItem->getProductId() .
-                                   ", Qty: " . $tempItem->getQty());
+            // Debug cart state immediately after addProduct
+            $this->logDebug("Cart state immediately after addProduct:");
+            $tempQuote = $this->cart->getQuote();
+            $tempItems = $tempQuote->getAllItems();
+            $this->logDebug("Temp items count: " . count($tempItems));
+            foreach ($tempItems as $tempItem) {
+                $this->logDebug("Temp item - ID: " . $tempItem->getItemId() .
+                               ", Product ID: " . $tempItem->getProductId() .
+                               ", Qty: " . $tempItem->getQty());
+            }
+
+            $this->cart->save();
+
+            // Force quote to reload and ensure items are properly saved
+            $this->cart->getQuote()->setIsActive(true);
+            $this->cart->save();
+
+            // Force a complete quote reload to ensure consistency
+            $this->cart->getQuote()->load($this->cart->getQuote()->getId());
+
+            // Validate that the item was actually added
+            $quote = $this->cart->getQuote();
+            $allItemsAfter = $quote->getAllItems();
+            $itemAdded = false;
+
+            foreach ($allItemsAfter as $item) {
+                if ($item->getProductId() == $productId) {
+                    $itemOptions = $this->getItemOptions($item);
+                    if ($this->compareOptions($options, $itemOptions)) {
+                        $itemAdded = true;
+                        $this->logDebug("Item successfully added and validated - ID: " . $item->getItemId());
+                        break;
+                    }
                 }
+            }
 
-                $this->cart->save();
-                $message = "Product added successfully";
+            if (!$itemAdded) {
+                $this->logDebug("WARNING: Item may not have been added properly");
+            }
 
-                // Reload quote to get updated items
-                $quote = $this->cart->getQuote();
-                $this->logDebug("Quote reloaded after adding, new quote ID: " . $quote->getId());
+            $message = "Product added successfully as new item (no quantity merging)";
 
-                // Get all items after adding
-                $allItemsAfter = $quote->getAllItems();
-                $this->logDebug("Total items after adding: " . count($allItemsAfter));
+            // Reload quote to get updated items
+            $quote = $this->cart->getQuote();
+            $this->logDebug("Quote reloaded after adding, new quote ID: " . $quote->getId());
 
-                foreach ($allItemsAfter as $item) {
-                    $this->logDebug("Item after adding - ID: " . $item->getItemId() .
-                                   ", Product ID: " . $item->getProductId() .
-                                   ", Qty: " . $item->getQty() .
-                                   ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO'));
-                }
+            // Get all items after adding
+            $allItemsAfter = $quote->getAllItems();
+            $this->logDebug("Total items after adding: " . count($allItemsAfter));
+
+            foreach ($allItemsAfter as $item) {
+                $this->logDebug("Item after adding - ID: " . $item->getItemId() .
+                               ", Product ID: " . $item->getProductId() .
+                               ", Qty: " . $item->getQty() .
+                               ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO'));
             }
 
             // Dispatch event for cart modification
@@ -285,7 +224,11 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 'options' => $options
             ]);
 
+            // Final cart save to ensure all changes are persisted
+            $this->cart->save();
 
+            // Force quote reload one more time to ensure consistency
+            $this->cart->getQuote()->load($this->cart->getQuote()->getId());
 
             // Get updated cart info
             $this->logDebug('Getting updated cart info...');
@@ -321,7 +264,27 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $allItems = $quote->getAllItems();
             $this->logDebug("Total all items (including hidden): " . count($allItems));
 
-            $visibleItems = $quote->getAllVisibleItems();
+            // Filter for visible items manually to ensure we get all items
+            $visibleItems = [];
+
+            // Filter for visible items manually - include items that might be invisible due to custom options
+            foreach ($allItems as $item) {
+                $this->logDebug("Processing item for visibility - ID: " . $item->getItemId() .
+                               ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO') .
+                               ", Parent: " . ($item->getParentItemId() ?: 'NONE') .
+                               ", Product Type: " . $item->getProductType());
+
+                // Include items that are not parent items and either visible or have custom options
+                if (!$item->getParentItemId() && ($item->getIsVisible() || $item->getBuyRequest())) {
+                    $visibleItems[] = $item;
+                    $this->logDebug("Item added to visible items");
+                } else {
+                    $this->logDebug("Item skipped - Parent: " . ($item->getParentItemId() ? 'YES' : 'NO') .
+                                   ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO') .
+                                   ", Has BuyRequest: " . ($item->getBuyRequest() ? 'YES' : 'NO'));
+                }
+            }
+
             $this->logDebug("Total visible items: " . count($visibleItems));
 
             // Debug each item
@@ -678,45 +641,10 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
     /**
      * Find existing cart item with same product and options
+     * NOTE: This method is no longer used since we always add new items
      */
     private function findExistingCartItem($productId, $options) {
-        $this->logDebug("=== FIND EXISTING CART ITEM ===");
-        $this->logDebug("Product ID: $productId");
-        $this->logDebug("Options to find: " . json_encode($options));
-
-        $quote = $this->cart->getQuote();
-        $this->logDebug("Cart quote ID: " . $quote->getId());
-
-        // If no options, don't merge quantities
-        if (empty($options)) {
-            $this->logDebug("No options provided, returning null");
-            return null;
-        }
-
-        $allItems = $quote->getAllVisibleItems();
-        $this->logDebug("Total cart items: " . count($allItems));
-
-        foreach ($allItems as $item) {
-            $this->logDebug("Checking item ID: " . $item->getItemId());
-            $this->logDebug("Item product ID: " . $item->getProductId());
-
-            if ($item->getProductId() == $productId) {
-                $this->logDebug("Product ID matches, checking options...");
-                $itemOptions = $this->getItemOptions($item);
-                $this->logDebug("Item options: " . json_encode($itemOptions));
-
-                // Compare options - must be exactly the same
-                $optionsMatch = $this->compareOptions($options, $itemOptions);
-                $this->logDebug("Options match: " . ($optionsMatch ? 'YES' : 'NO'));
-
-                if ($optionsMatch) {
-                    $this->logDebug("Found matching item with ID: " . $item->getItemId());
-                    return $item;
-                }
-            }
-        }
-
-        $this->logDebug("No matching item found");
+        // This method is deprecated - we always add new items now
         return null;
     }
 
