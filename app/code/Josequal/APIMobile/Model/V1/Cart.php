@@ -154,25 +154,32 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                         }
                     }
 
-                                    $this->cart->addProduct($product, $buyRequest);
-                $this->cart->save();
-                $message = "Product added successfully with different options";
-                $this->logDebug('New item added to cart');
+                    // Debug buyRequest before adding
+                    $this->logDebug("BuyRequest before addProduct (different options): " . json_encode($buyRequest->getData()));
 
-                // Reload quote to get updated items
-                $quote = $this->cart->getQuote();
-                $this->logDebug("Quote reloaded after adding, new quote ID: " . $quote->getId());
+                    $this->cart->addProduct($product, $buyRequest);
+                    $this->logDebug('New item added to cart');
 
-                // Get all items after adding
-                $allItemsAfter = $quote->getAllItems();
-                $this->logDebug("Total items after adding: " . count($allItemsAfter));
+                    // Debug buyRequest after adding
+                    $this->logDebug("BuyRequest after addProduct (different options): " . json_encode($buyRequest->getData()));
 
-                foreach ($allItemsAfter as $item) {
-                    $this->logDebug("Item after adding - ID: " . $item->getItemId() .
-                                   ", Product ID: " . $item->getProductId() .
-                                   ", Qty: " . $item->getQty() .
-                                   ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO'));
-                }
+                    $this->cart->save();
+                    $message = "Product added successfully with different options";
+
+                    // Reload quote to get updated items
+                    $quote = $this->cart->getQuote();
+                    $this->logDebug("Quote reloaded after adding, new quote ID: " . $quote->getId());
+
+                    // Get all items after adding
+                    $allItemsAfter = $quote->getAllItems();
+                    $this->logDebug("Total items after adding: " . count($allItemsAfter));
+
+                    foreach ($allItemsAfter as $item) {
+                        $this->logDebug("Item after adding - ID: " . $item->getItemId() .
+                                       ", Product ID: " . $item->getProductId() .
+                                       ", Qty: " . $item->getQty() .
+                                       ", Visible: " . ($item->getIsVisible() ? 'YES' : 'NO'));
+                    }
                 }
             } else {
                 $this->logDebug('No existing item found, adding new item');
@@ -189,10 +196,17 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     }
                 }
 
+                // Debug buyRequest before adding
+                $this->logDebug("BuyRequest before addProduct: " . json_encode($buyRequest->getData()));
+
                 $this->cart->addProduct($product, $buyRequest);
+                $this->logDebug('New item added to cart');
+
+                // Debug buyRequest after adding
+                $this->logDebug("BuyRequest after addProduct: " . json_encode($buyRequest->getData()));
+
                 $this->cart->save();
                 $message = "Product added successfully";
-                $this->logDebug('New item added to cart');
 
                 // Reload quote to get updated items
                 $quote = $this->cart->getQuote();
