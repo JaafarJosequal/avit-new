@@ -157,7 +157,18 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                     // Debug buyRequest before adding
                     $this->logDebug("BuyRequest before addProduct (different options): " . json_encode($buyRequest->getData()));
 
-                    $this->cart->addProduct($product, $buyRequest);
+                    // Try different approach - use addProductById
+                    try {
+                        $this->logDebug("Trying addProductById approach (different options)...");
+                        $this->cart->addProductById($productId, $buyRequest);
+                        $this->logDebug("addProductById successful (different options)");
+                    } catch (\Exception $e) {
+                        $this->logDebug("addProductById failed (different options): " . $e->getMessage());
+                        // Fallback to original method
+                        $this->cart->addProduct($product, $buyRequest);
+                        $this->logDebug("Fallback addProduct successful (different options)");
+                    }
+
                     $this->logDebug('New item added to cart');
 
                     // Debug buyRequest after adding
@@ -210,7 +221,18 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 // Debug buyRequest before adding
                 $this->logDebug("BuyRequest before addProduct: " . json_encode($buyRequest->getData()));
 
-                $this->cart->addProduct($product, $buyRequest);
+                // Try different approach - use addProductById
+                try {
+                    $this->logDebug("Trying addProductById approach...");
+                    $this->cart->addProductById($productId, $buyRequest);
+                    $this->logDebug("addProductById successful");
+                } catch (\Exception $e) {
+                    $this->logDebug("addProductById failed: " . $e->getMessage());
+                    // Fallback to original method
+                    $this->cart->addProduct($product, $buyRequest);
+                    $this->logDebug("Fallback addProduct successful");
+                }
+
                 $this->logDebug('New item added to cart');
 
                 // Debug buyRequest after adding
