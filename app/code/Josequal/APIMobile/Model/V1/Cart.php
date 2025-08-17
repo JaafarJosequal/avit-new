@@ -106,7 +106,7 @@ public function addToCart($data) {
 
         $quote = $this->checkoutSession->getQuote();
 
-        // البحث عن نفس المنتج ونفس الخيارات
+                // البحث عن نفس المنتج ونفس الخيارات
         $foundExactMatch = false;
         foreach ($quote->getAllItems() as $item) {
             // تجاهل العناصر المخفية أو المحذوفة
@@ -140,7 +140,10 @@ public function addToCart($data) {
             ]);
         }
 
-        // إضافة كـ item جديد مع تخزين الخيارات في buyRequest
+        // إذا لم نجد تطابق تام، نضيف كعنصر جديد
+        // هذا يضمن أن كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
+
+                // إضافة كـ item جديد مع تخزين الخيارات في buyRequest
         $params['info_buyRequest'] = [
             'product' => $data['product_id'],
             'qty' => $params['qty'],
@@ -171,12 +174,16 @@ public function addToCart($data) {
             }
         }
 
+        // Debug: تأكد من عدد العناصر بعد الإضافة
+        error_log("Items count after adding new item: " . count($newItems));
+
         return $this->successStatus('Product added successfully', [
             'data' => $this->getCartDetails(),
             'debug' => [
                 'action_taken' => 'Created new item',
                 'options_hash' => $optionsHash,
-                'saved_options' => $options
+                'saved_options' => $options,
+                'items_count' => count($newItems)
             ]
         ]);
 
@@ -204,7 +211,7 @@ public function addToCart($data) {
         // Debug logging
         error_log("getCartDetails: Found " . count($items) . " items in cart");
 
-        // Display each item separately without grouping
+                // Display each item separately without grouping
         foreach ($items as $item) {
             // تجاهل العناصر المخفية أو المحذوفة
             if ($item->getParentItemId()) {
@@ -219,6 +226,9 @@ public function addToCart($data) {
             $productData = $this->processProduct($item);
             $list[] = $productData;
         }
+
+        // Debug: تأكد من عدد العناصر
+        error_log("Total items in cart: " . count($list));
 
         $coupon = $quote->getCouponCode();
 
@@ -313,6 +323,9 @@ public function addToCart($data) {
         } else {
             $finalOptions = $itemOptions;
         }
+
+        // Debug: تأكد من الخيارات
+        error_log("Final options for item " . $item->getItemId() . ": " . json_encode($finalOptions));
 
         $productData = [
             'id' => $item->getItemId(),
