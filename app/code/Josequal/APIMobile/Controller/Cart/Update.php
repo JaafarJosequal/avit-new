@@ -1,25 +1,26 @@
 <?php
 namespace Josequal\APIMobile\Controller\Cart;
 
-use Josequal\APIMobile\Controller\Action\Action;
-
-class Update extends Action {
-
+class Update extends \Josequal\APIMobile\Controller\Action\Action
+{
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\App\Request\Http $request
+        \Magento\Framework\App\Action\Context $context
     ) {
-        parent::__construct($context, $request);
+        parent::__construct($context, $context->getRequest());
     }
 
-    public function execute() {
-        $this->auth();
+    public function execute()
+    {
+        // Check authentication
+        $customerId = $this->auth();
+
         $data = $this->getData();
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $model = $objectManager->create('Josequal\APIMobile\Model\V1\Cart');
-        $info = $model->updateCart($data);
 
-        $this->printResult($info);
+        $result = $model->updateCartItem($data);
+
+        $this->printResult($result);
     }
 }

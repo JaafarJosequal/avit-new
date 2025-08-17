@@ -46,7 +46,6 @@
         </data>
     </route>
 
-
     <!-- Password APIs -->
     <route url="/V1/user/update-password" method="POST">
         <service class="Josequal\APIMobile\Api\V1\PasswordInterface" method="updatePassword"/>
@@ -83,6 +82,35 @@
             <parameter name="confirmPassword" force="false">%confirmPassword%</parameter>
             <parameter name="emailOrPhone" force="false">%emailOrPhone%</parameter>
         </data>
+    </route>
+
+    <!-- Cart APIs -->
+    <route url="/apimobile/cart/add" method="POST">
+        <service class="Josequal\APIMobile\Controller\Cart\Add" method="execute"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+
+    <route url="/apimobile/cart/info" method="GET">
+        <service class="Josequal\APIMobile\Controller\Cart\Info" method="execute"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+
+    <route url="/apimobile/cart/update" method="POST">
+        <service class="Josequal\APIMobile\Controller\Cart\Update" method="execute"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+    </route>
+
+    <route url="/apimobile/cart/delete" method="POST">
+        <service class="Josequal\APIMobile\Controller\Cart\Delete" method="execute"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
     </route>
 
 </routes>

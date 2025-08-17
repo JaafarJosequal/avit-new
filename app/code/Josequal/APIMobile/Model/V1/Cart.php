@@ -1,54 +1,40 @@
 <?php
 namespace Josequal\APIMobile\Model\V1;
 
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Reflection\DataObjectProcessor;
-use Magento\Quote\Api\Data\AddressInterface;
-use Magento\Quote\Api\Data\CartExtensionFactory;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\ShippingAssignmentFactory;
-use Magento\Quote\Model\ShippingFactory;
-use Magento\Quote\Model\Quote;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\DataObject;
 
 class Cart extends \Josequal\APIMobile\Model\AbstractModel {
-
-    /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /**
-     * @var \Magento\Framework\Event\ManagerInterface
-     */
-    protected $eventManager;
-
-    /**
-     * @var \Magento\Framework\Registry
-     */
-    protected $registry;
 
     /**
      * @var \Magento\Checkout\Model\Cart
      */
     protected $cart;
 
-    protected $checkoutSession;
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    protected $quoteRepository;
 
-    protected $productModel;
+    /**
+     * @var \Magento\Quote\Api\CartItemRepositoryInterface
+     */
+    protected $cartItemRepository;
 
-    protected $stockState;
+    /**
+     * @var \Magento\Catalog\Model\ProductRepository
+     */
+    protected $productRepository;
 
-    protected $currencyHelper;
+    /**
+     * @var \Magento\Framework\Pricing\Helper\Data
+     */
+    protected $priceHelper;
 
-    protected $scopeConfig;
-
-    protected $imageBuilder;
-
-    protected $objectManager;
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -58,595 +44,327 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     ) {
         parent::__construct($context, $registry, $storeManager, $eventManager);
 
-        $this->objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $this->cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+        $this->quoteRepository = $objectManager->get('\Magento\Quote\Api\CartRepositoryInterface');
+        $this->cartItemRepository = $objectManager->get('\Magento\Quote\Api\CartItemRepositoryInterface');
+        $this->productRepository = $objectManager->get('\Magento\Catalog\Model\ProductRepository');
+        $this->priceHelper = $objectManager->get('\Magento\Framework\Pricing\Helper\Data');
         $this->storeManager = $storeManager;
-        $this->eventManager = $eventManager;
-        $this->registry = $registry;
-
-        $this->productModel = $this->objectManager->get('\Magento\Catalog\Model\Product');
-        $this->cart = $this->objectManager->get('\Magento\Checkout\Model\Cart');
-        $this->checkoutSession = $this->objectManager->get('\Magento\Checkout\Model\Session');
-        $this->stockState = $this->objectManager->get('\Magento\CatalogInventory\Api\StockRegistryInterface');
-        $this->currencyHelper = $this->objectManager->get('\Magento\Framework\Pricing\Helper\Data');
-        $this->imageBuilder = $this->objectManager->get('\Magento\Catalog\Block\Product\ImageBuilder');
-        $this->scopeConfig = $this->objectManager->get('\Magento\Framework\App\Config\ScopeConfigInterface');
     }
 
     /**
-     * تطبيع الخيارات من BuyRequest
-     * توحيد استخراج الخيارات من جميع المصادر المحتملة
+     * Add product to cart
      */
-    private function normalizeOptions($buyRequest) {
+    public function addToCart($data) {
+        try {
+            if (!isset($data['product_id'])) {
+                return $this->errorStatus(['Product ID is required']);
+            }
+
+            $productId = (int)$data['product_id'];
+            $quantity = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+            $options = $this->prepareProductOptions($data);
+
+            // Check if product exists
+            try {
+                $product = $this->productRepository->getById($productId);
+            } catch (NoSuchEntityException $e) {
+                return $this->errorStatus(['Product not found']);
+            }
+
+            // Check if product with same options already exists in cart
+            $existingItem = $this->findExistingCartItem($productId, $options);
+
+            if ($existingItem) {
+                // Update quantity for existing item
+                $newQty = $existingItem->getQty() + $quantity;
+                $existingItem->setQty($newQty);
+                $this->cartItemRepository->save($existingItem);
+
+                $message = "Quantity updated for existing item";
+            } else {
+                // Add new item to cart
+                $this->cart->addProduct($product, array_merge(['qty' => $quantity], $options));
+                $this->cart->save();
+                $message = "Product added successfully";
+            }
+
+            // Get updated cart info
+            $cartInfo = $this->getCartInfo();
+
+            return [
+                'status' => true,
+                'message' => $message,
+                'data' => $cartInfo
+            ];
+
+        } catch (\Exception $e) {
+            return $this->errorStatus([$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Get cart information
+     */
+    public function getCartInfo() {
+        try {
+            $quote = $this->cart->getQuote();
+            $items = [];
+
+            foreach ($quote->getAllVisibleItems() as $item) {
+                $product = $item->getProduct();
+                $options = $this->getItemOptions($item);
+
+                $items[] = [
+                    'id' => (string)$item->getItemId(),
+                    'product_id' => (string)$item->getProductId(),
+                    'name' => $item->getName(),
+                    'sku' => $item->getSku(),
+                    'qty' => (int)$item->getQty(),
+                    'price' => $this->formatPrice($item->getPrice()),
+                    'row_total' => $this->formatPrice($item->getRowTotal()),
+                    'image' => $this->getProductImageUrl($product),
+                    'options' => $options
+                ];
+            }
+
+            $totals = $this->getCartTotals($quote);
+
+            return [
+                'items' => $items,
+                'cart_qty' => (int)$quote->getItemsQty(),
+                'has_coupon' => $quote->getCouponCode() ? true : false,
+                'coupon' => $quote->getCouponCode() ?: '',
+                'totals' => $totals
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'items' => [],
+                'cart_qty' => 0,
+                'has_coupon' => false,
+                'coupon' => '',
+                'totals' => []
+            ];
+        }
+    }
+
+    /**
+     * Update cart item quantity
+     */
+    public function updateCartItem($data) {
+        try {
+            if (!isset($data['item_id']) || !isset($data['qty'])) {
+                return $this->errorStatus(['Item ID and quantity are required']);
+            }
+
+            $itemId = (int)$data['item_id'];
+            $newQty = (int)$data['qty'];
+
+            if ($newQty <= 0) {
+                return $this->errorStatus(['Quantity must be greater than 0']);
+            }
+
+            $item = $this->cartItemRepository->get($itemId);
+            $item->setQty($newQty);
+            $this->cartItemRepository->save($item);
+
+            $this->cart->save();
+
+            $cartInfo = $this->getCartInfo();
+
+            return [
+                'status' => true,
+                'message' => 'Cart updated successfully',
+                'data' => $cartInfo
+            ];
+
+        } catch (\Exception $e) {
+            return $this->errorStatus([$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete cart item
+     */
+    public function deleteCartItem($data) {
+        try {
+            if (isset($data['item_id'])) {
+                // Delete specific item
+                $itemId = (int)$data['item_id'];
+                $this->cartItemRepository->deleteById($itemId);
+                $message = "Item removed successfully";
+            } elseif (isset($data['product_id'])) {
+                // Delete all items for specific product
+                $productId = (int)$data['product_id'];
+                $quote = $this->cart->getQuote();
+
+                foreach ($quote->getAllVisibleItems() as $item) {
+                    if ($item->getProductId() == $productId) {
+                        $this->cartItemRepository->deleteById($item->getItemId());
+                    }
+                }
+                $message = "All items for product removed successfully";
+            } else {
+                return $this->errorStatus(['Item ID or Product ID is required']);
+            }
+
+            $this->cart->save();
+            $cartInfo = $this->getCartInfo();
+
+            return [
+                'status' => true,
+                'message' => $message,
+                'data' => $cartInfo
+            ];
+
+        } catch (\Exception $e) {
+            return $this->errorStatus([$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Prepare product options from request data
+     */
+    private function prepareProductOptions($data) {
         $options = [];
 
-        if ($buyRequest) {
-            if ($buyRequest->getData('options')) {
-                $options = $buyRequest->getData('options');
-            } elseif ($buyRequest->getData('super_attribute')) {
-                $options = $buyRequest->getData('super_attribute');
-            } elseif ($buyRequest->getData('info_buyRequest')) {
-                $info = $buyRequest->getData('info_buyRequest');
-                if (!empty($info['options'])) {
-                    $options = $info['options'];
-                }
-            }
+        if (isset($data['color'])) {
+            $options['color'] = $data['color'];
         }
 
-        // تطبيع الخيارات قبل إرجاعها
-        ksort($options);
+        if (isset($data['size'])) {
+            $options['size'] = $data['size'];
+        }
+
+        // Add more options as needed
+        if (isset($data['custom_options'])) {
+            $options = array_merge($options, $data['custom_options']);
+        }
+
         return $options;
     }
 
     /**
-     * إضافة منتج إلى السلة
-     * الحل الجديد: كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
-     *
-     * @param array $data البيانات المطلوبة
-     * @param string $data['product_id'] معرف المنتج (مطلوب)
-     * @param int $data['quantity'] الكمية (اختياري، افتراضي: 1)
-     * @param string $data['color'] اللون (يتم إضافته إلى options)
-     * @param string $data['size'] الحجم (يتم إضافته إلى options)
-     * @param array $data['options'] خيارات إضافية (اختياري)
-     * @param string $data['material'] المادة (يتم إضافته إلى options)
-     * @param string $data['style'] النمط (يتم إضافته إلى options)
-     * @param string $data['brand'] العلامة التجارية (يتم إضافته إلى options)
-     *
-     * @return array نتيجة العملية
+     * Find existing cart item with same product and options
      */
-    public function addToCart($data) {
-        // Debug: تأكد من استدعاء الدالة
-        error_log("=== ADD TO CART FUNCTION CALLED ===");
-        error_log("Input data: " . json_encode($data));
-        error_log("==================================");
+    private function findExistingCartItem($productId, $options) {
+        $quote = $this->cart->getQuote();
 
-        if (!isset($data['product_id'])) {
-            return $this->errorStatus(["Product is required"]);
+        foreach ($quote->getAllVisibleItems() as $item) {
+            if ($item->getProductId() == $productId) {
+                $itemOptions = $this->getItemOptions($item);
+                if ($this->compareOptions($options, $itemOptions)) {
+                    return $item;
+                }
+            }
         }
 
-        $params['qty'] = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+        return null;
+    }
 
-        // تجهيز خيارات المنتج
+    /**
+     * Compare two option arrays
+     */
+    private function compareOptions($options1, $options2) {
+        if (count($options1) !== count($options2)) {
+            return false;
+        }
+
+        foreach ($options1 as $key => $value) {
+            if (!isset($options2[$key]) || $options2[$key] !== $value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get item options
+     */
+    private function getItemOptions($item) {
         $options = [];
 
-        // إضافة الخيارات الأساسية
-        if (!empty($data['options']) && is_array($data['options'])) {
-            $options = $data['options'];
-        }
-
-        // إضافة color و size كجزء من options
-        if (!empty($data['color'])) {
-            $options['color'] = $data['color'];
-        }
-        if (!empty($data['size'])) {
-            $options['size'] = $data['size'];
-        }
-
-        // إضافة خيارات إضافية أخرى إذا وجدت
-        if (!empty($data['material'])) {
-            $options['material'] = $data['material'];
-        }
-        if (!empty($data['style'])) {
-            $options['style'] = $data['style'];
-        }
-        if (!empty($data['brand'])) {
-            $options['brand'] = $data['brand'];
-        }
-
-        // مثال: إذا أرسلت {"color": "red", "size": "L", "material": "cotton"}
-        // ستكون النتيجة: {"color": "red", "size": "L", "material": "cotton"}
-        // وليس: {"options": {"color": "red", "size": "L"}, "material": "cotton"}
-
-        // تطبيع الخيارات الجديدة قبل عمل hash
-        ksort($options);
-        $newOptionsHash = md5(json_encode($options));
-
-        error_log("=== NEW OPTIONS DEBUG ===");
-        error_log("New options (normalized): " . json_encode($options));
-        error_log("New options hash: " . $newOptionsHash);
-        error_log("=========================");
-
-        try {
-            $product = $this->productModel
-                ->setStoreId($this->storeManager->getStore()->getId())
-                ->load($data['product_id']);
-
-            if (!$product || !$product->getId()) {
-                return $this->errorStatus(["Product not found"], 404);
-            }
-
-            $quote = $this->checkoutSession->getQuote();
-
-            // البحث عن نفس المنتج ونفس الخيارات
-            // نستخدم شرط صريح للمقارنة: color و size يجب أن يكونا متطابقين
-            $foundExactMatch = false;
-
-            // Debug: طباعة عدد العناصر الموجودة
-            error_log("=== SEARCHING EXISTING ITEMS ===");
-            error_log("Total items in quote: " . count($quote->getAllItems()));
-            error_log("Product ID to find: " . $data['product_id']);
-            error_log("================================");
-
-            foreach ($quote->getAllItems() as $item) {
-                // Debug: طباعة معلومات كل عنصر
-                error_log("--- Processing item ---");
-                error_log("Item ID: " . $item->getItemId());
-                error_log("Product ID: " . $item->getProduct()->getId());
-                error_log("Parent Item ID: " . $item->getParentItemId());
-                error_log("---------------------");
-
-                // تجاهل العناصر المخفية أو المحذوفة
-                if ($item->getParentItemId()) {
-                    error_log("Skipping child item: " . $item->getItemId());
-                    continue;
-                }
-
-                if ($item->getProduct()->getId() == $data['product_id']) {
-                    $buyRequest = $item->getBuyRequest();
-
-                    // استخدام الدالة الجديدة لتطبيع الخيارات
-                    $existingOptions = $this->normalizeOptions($buyRequest);
-                    $existingHash = md5(json_encode($existingOptions));
-
-                    // Debug: طباعة الخيارات للمقارنة
-                    error_log("=== COMPARISON DEBUG ===");
-                    error_log("Item ID: " . $item->getItemId());
-                    error_log("Existing options (normalized): " . json_encode($existingOptions));
-                    error_log("Existing hash: " . $existingHash);
-                    error_log("========================");
-
-                    // Debug: طباعة الخيارات للمقارنة
-                    error_log("=== COMPARISON DEBUG ===");
-                    error_log("Item ID: " . $item->getItemId());
-                    error_log("New options: " . json_encode($options));
-                    error_log("Existing options: " . json_encode($existingOptions));
-                    error_log("New hash: " . $newOptionsHash);
-                    error_log("Existing hash: " . $existingHash);
-                    error_log("Options source: " . ($buyRequest ? "buyRequest" : "none"));
-
-                    // Debug: طباعة جميع بيانات buyRequest
-                    if ($buyRequest) {
-                        error_log("BuyRequest data: " . json_encode($buyRequest->getData()));
-                    }
-                    error_log("========================");
-
-                    // شرط صريح: مقارنة color و size بشكل مباشر
-                    $colorDifferent = false;
-                    $sizeDifferent = false;
-
-                    // مقارنة اللون
-                    if (isset($options['color']) && isset($existingOptions['color'])) {
-                        if ($options['color'] !== $existingOptions['color']) {
-                            $colorDifferent = true;
-                            error_log("Color different: New=" . $options['color'] . " vs Existing=" . $existingOptions['color']);
-                        }
-                    } elseif (isset($options['color']) || isset($existingOptions['color'])) {
-                        // أحدهما موجود والآخر لا
-                        $colorDifferent = true;
-                        error_log("Color different: One exists, other doesn't");
-                    }
-
-                    // مقارنة الحجم
-                    if (isset($options['size']) && isset($existingOptions['size'])) {
-                        if ($options['size'] !== $existingOptions['size']) {
-                            $sizeDifferent = true;
-                            error_log("Size different: New=" . $options['size'] . " vs Existing=" . $existingOptions['size']);
-                        }
-                    } elseif (isset($options['size']) || isset($existingOptions['size'])) {
-                        // أحدهما موجود والآخر لا
-                        $sizeDifferent = true;
-                        error_log("Size different: One exists, other doesn't");
-                    }
-
-                    // إذا كان color أو size مختلفين، لا ندمج
-                    if ($colorDifferent || $sizeDifferent) {
-                        error_log("Options are different - will create new item");
-                        continue; // انتقل للعنصر التالي
-                    }
-
-                    // إذا كان color و size متطابقين، تحقق من باقي الخيارات بالـ hash
-                    if ($existingHash === $newOptionsHash) {
-                        // نفس المنتج ونفس الخيارات → دمج الكمية
-                        error_log("All options match - merging quantities");
-                        $item->setQty($item->getQty() + $params['qty']);
-                        $quote->save();
-                        $foundExactMatch = true;
-                        break;
-                    } else {
-                        error_log("Hash mismatch - will create new item");
-                    }
-                }
-            }
-
-            // إذا وجدنا تطابق تام، نرجع النتيجة
-            if ($foundExactMatch) {
-                return $this->successStatus('Quantity updated for existing item', [
-                    'data' => $this->getCartDetails(),
-                    'debug' => [
-                        'action_taken' => 'Merged quantity',
-                        'options_hash' => $newOptionsHash
-                    ]
-                ]);
-            }
-
-            // إذا لم نجد تطابق تام، نضيف كعنصر جديد
-            // هذا يضمن أن كل مجموعة خيارات مختلفة تنشئ عنصراً منفصلاً
-
-            // إنشاء BuyRequest object يحتوي على الخيارات
-            $buyRequest = new DataObject([
-                'product' => $data['product_id'],
-                'qty' => $params['qty'],
-                'options' => $options
-            ]);
-
-            // Debug: طباعة البيانات التي سيتم إرسالها
-            error_log("=== ADDING NEW PRODUCT DEBUG ===");
-            error_log("Product ID: " . $data['product_id']);
-            error_log("Quantity: " . $params['qty']);
-            error_log("Options: " . json_encode($options));
-            error_log("Options hash: " . $newOptionsHash);
-            error_log("BuyRequest data: " . json_encode($buyRequest->getData()));
-            error_log("================================");
-
-            // إضافة المنتج كعنصر جديد مع BuyRequest
-            $this->cart->addProduct($product, $buyRequest);
-            $this->cart->save();
-
-            // تأكد من حفظ الخيارات بشكل صحيح
-            $quote = $this->checkoutSession->getQuote();
-            $quote->collectTotals();
-            $quote->save();
-
-            // تأكد من أن العنصر الجديد له معرف فريد
-            $newItems = $quote->getAllItems();
-            foreach ($newItems as $newItem) {
-                if ($newItem->getProduct()->getId() == $data['product_id']) {
-                    $buyRequest = $newItem->getBuyRequest();
-                    $newItemOptions = $buyRequest ? ($buyRequest->getData('options') ?? []) : [];
-                    $newItemHash = md5(json_encode($newItemOptions));
-
-                    if ($newItemHash === $newOptionsHash) {
-                        error_log("New item added with ID: " . $newItem->getItemId() . " and options: " . json_encode($newItemOptions));
-                        break;
-                    }
-                }
-            }
-
-            // Debug: تأكد من عدد العناصر بعد الإضافة
-            error_log("Items count after adding new item: " . count($newItems));
-
-            return $this->successStatus('Product added successfully', [
-                'data' => $this->getCartDetails(),
-                'debug' => [
-                    'action_taken' => 'Created new item',
-                    'options_hash' => $newOptionsHash,
-                    'saved_options' => $options,
-                    'items_count' => count($newItems)
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            return $this->errorStatus($e->getMessage());
-        }
-    }
-
-    /**
-     * الحصول على معلومات السلة
-     */
-    public function getCartInfo($data = []) {
-        $info = $this->successStatus('Cart Details');
-        $info['data'] = $this->getCartDetails();
-        return $info;
-    }
-
-    /**
-     * الحصول على تفاصيل السلة
-     * الحل الجديد: عرض كل عنصر بشكل منفصل
-     */
-    public function getCartDetails() {
-        $quote = $this->checkoutSession->getQuote();
-        $quote->collectTotals();
-        $quote->save();
-
-        $list = [];
-        // استخدم getAllItems بدلاً من getAllVisibleItems لرؤية جميع العناصر
-        $items = $quote->getAllItems();
-
-        // Debug logging
-        error_log("getCartDetails: Found " . count($items) . " items in cart");
-
-        // Display each item separately without grouping
-        foreach ($items as $item) {
-            // تجاهل العناصر المخفية أو المحذوفة
-            if ($item->getParentItemId()) {
-                continue;
-            }
-
-            error_log("Processing item " . $item->getItemId() . " with product_id " . $item->getProduct()->getId());
-            $itemOptions = $item->getOptions();
-            error_log("Item options: " . json_encode($itemOptions));
-
-            // تأكد من أن كل عنصر منفصل
-            $productData = $this->processProduct($item);
-            $list[] = $productData;
-        }
-
-        // Debug: تأكد من عدد العناصر
-        error_log("Total items in cart: " . count($list));
-
-        $coupon = $quote->getCouponCode();
-
-        $data['items'] = $list;
-        $data['cart'] = !empty($list);
-        $data['has_coupon'] = $coupon != null;
-        $data['coupon'] = $coupon ? $coupon : '';
-        $data['cart_qty'] = $quote->getItemsSummaryQty();
-        $data['minimum_order'] = $this->scopeConfig->getValue('sales/minimum_order/amount', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $data['minimum_description'] = $this->scopeConfig->getValue('sales/minimum_order/description', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-
-        $totals = $quote->getTotals();
-
-        $data['totals'][] = [
-            'label' => __('Subtotal'),
-            'value' => $this->currencyHelper->currency($quote->getSubtotal(), true, false)
-        ];
-
-        if (isset($totals['shipping'])) {
-            $data['totals'][] = [
-                'label' => __('Shipping'),
-                'value' => $this->currencyHelper->currency($totals['shipping']->getValue(), true, false)
-            ];
-        }
-
-        if (isset($totals['discount'])) {
-            $data['totals'][] = [
-                'label' => __('Discount'),
-                'value' => $this->currencyHelper->currency($totals['discount']->getValue(), true, false)
-            ];
-        }
-
-        $data['totals'][] = [
-            'label' => __('Grand Total'),
-            'value' => $this->currencyHelper->currency($quote->getGrandTotal(), true, false)
-        ];
-
-        return $data;
-    }
-
-    /**
-     * معالجة بيانات المنتج في السلة
-     * الحل الجديد: عرض الخيارات بشكل واضح
-     */
-    public function processProduct($item) {
-        $product = $item->getProduct();
-
-        // Get options from item options
-        $itemOptions = $this->formatCartOptions($item->getOptions());
-
-        // Also get options from buy request if available
-        $buyRequestOptions = [];
-        try {
+        if ($item->getBuyRequest()) {
             $buyRequest = $item->getBuyRequest();
-            if ($buyRequest && $buyRequest->getData('options')) {
-                $buyRequestOptions = $buyRequest->getData('options');
-                error_log("Buy request options for item " . $item->getItemId() . ": " . json_encode($buyRequestOptions));
+            if ($buyRequest->getColor()) {
+                $options['color'] = $buyRequest->getColor();
             }
-        } catch (\Exception $e) {
-            // Continue without buy request
-        }
-
-                // توحيد الإخراج - خلي الخيارات تطلع بصيغة موحدة دائمًا
-        $finalOptions = [];
-
-        if ($buyRequest && $buyRequest->getData('options')) {
-            $finalOptions = $buyRequest->getData('options');
-        } elseif ($buyRequest && $buyRequest->getData('super_attribute')) {
-            $finalOptions = $buyRequest->getData('super_attribute');
-        }
-
-        // إذا لم نجد خيارات، استخدم itemOptions
-        if (empty($finalOptions)) {
-            $finalOptions = $itemOptions;
-        }
-
-        // Debug: تأكد من الخيارات
-        error_log("Final options for item " . $item->getItemId() . ": " . json_encode($finalOptions));
-
-        $productData = [
-            'id' => $item->getItemId(),
-            'product_id' => $product->getId(),
-            'name' => $item->getName(),
-            'sku' => $item->getSku(),
-            'qty' => $item->getQty(),
-            'price' => $this->currencyHelper->currency($item->getPrice(), true, false),
-            'row_total' => $this->currencyHelper->currency($item->getRowTotal(), true, false),
-            'image' => $this->getImage($product, 'product_thumbnail_image'),
-            'options' => $finalOptions
-        ];
-
-        return $productData;
-    }
-
-    /**
-     * الحصول على صورة المنتج
-     */
-    public function getImage($product, $imageId, $attributes = []) {
-        return $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
-    }
-
-    /**
-     * تنسيق خيارات السلة
-     * الحل الجديد: معالجة أفضل للخيارات
-     */
-    private function formatCartOptions($options) {
-        $formattedOptions = [];
-
-        // Debug logging
-        error_log("formatCartOptions: Input options: " . json_encode($options));
-
-        if ($options) {
-            foreach ($options as $option) {
-                try {
-                    $label = null;
-                    $value = null;
-                    $optionData = [];
-
-                    // Handle different option formats
-                    if (is_array($option)) {
-                        $label = isset($option['label']) ? $option['label'] : null;
-                        $value = isset($option['value']) ? $option['value'] : null;
-                    } elseif (is_object($option)) {
-                        $label = method_exists($option, 'getLabel') ? $option->getLabel() : null;
-                        $value = method_exists($option, 'getValue') ? $option->getValue() : null;
-                    }
-
-                    // If value is JSON string, decode it
-                    if (is_string($value) && !empty($value)) {
-                        $decodedValue = json_decode($value, true);
-                        if (is_array($decodedValue)) {
-                            $optionData = $decodedValue;
-                        } else {
-                            $optionData = ['raw_value' => $value];
-                        }
-                    } else {
-                        $optionData = ['raw_value' => $value];
-                    }
-
-                    // Extract specific options like color and size
-                    $extractedOptions = [];
-                    if (isset($optionData['options']) && is_array($optionData['options'])) {
-                        foreach ($optionData['options'] as $key => $val) {
-                            $extractedOptions[] = [
-                                'type' => $key,
-                                'value' => $val
-                            ];
-                        }
-                    }
-
-                    // Create formatted option
-                    $formattedOption = [
-                        'label' => $label,
-                        'value' => $optionData,
-                        'extracted_options' => $extractedOptions
-                    ];
-
-                    // Add specific color and size if available
-                    if (isset($optionData['options']['color'])) {
-                        $formattedOption['color'] = $optionData['options']['color'];
-                    }
-                    if (isset($optionData['options']['size'])) {
-                        $formattedOption['size'] = $optionData['options']['size'];
-                    }
-
-                    $formattedOptions[] = $formattedOption;
-
-                    // Debug logging
-                    error_log("Formatted option: " . json_encode($formattedOption));
-
-                } catch (\Exception $e) {
-                    // If there's an error processing this option, add it as is
-                    $formattedOptions[] = [
-                        'label' => is_array($option) ? ($option['label'] ?? null) : null,
-                        'value' => is_array($option) ? ($option['value'] ?? null) : null,
-                        'error' => 'Failed to process option'
-                    ];
-                }
+            if ($buyRequest->getSize()) {
+                $options['size'] = $buyRequest->getSize();
             }
         }
 
-        error_log("formatCartOptions: Final formatted options: " . json_encode($formattedOptions));
-        return $formattedOptions;
+        return $options;
     }
 
     /**
-     * تحديث كمية عنصر في السلة
+     * Get product image URL
      */
-    public function updateCart($data) {
-        if(!isset($data['item_id'])){
-            return $this->errorStatus(["Item ID is required"]);
-        }
-
-        $qty = isset($data['qty']) ? (int) $data['qty'] : 1;
-
+    private function getProductImageUrl($product) {
         try {
-            $this->cart->updateItem($data['item_id'], ['qty' => $qty]);
-            $this->cart->save();
-
-            $info = $this->successStatus('Cart updated successfully');
-            $info['data'] = $this->getCartDetails();
-
+            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+            $imageUrl .= 'catalog/product' . $product->getImage();
+            return $imageUrl;
         } catch (\Exception $e) {
-            return $this->errorStatus($e->getMessage());
+            return '';
         }
-
-        return $info;
     }
 
     /**
-     * حذف عنصر من السلة
+     * Format price
      */
-    public function deleteItem($data) {
-        if(!isset($data['item_id']) && !isset($data['product_id'])){
-            return $this->errorStatus(["Item ID or Product ID is required"]);
-        }
+    private function formatPrice($price) {
+        return $this->priceHelper->currency($price, true, false);
+    }
+
+    /**
+     * Get cart totals
+     */
+    private function getCartTotals($quote) {
+        $totals = [];
 
         try {
-            if (isset($data['item_id'])) {
-                // Delete by item ID (direct deletion)
-                $this->cart->removeItem($data['item_id']);
-                $message = 'Item removed successfully';
+            // Subtotal
+            $totals[] = [
+                'label' => 'Subtotal',
+                'value' => $this->formatPrice($quote->getSubtotal())
+            ];
+
+            // Shipping
+            if ($quote->getShippingAddress() && $quote->getShippingAddress()->getShippingAmount()) {
+                $totals[] = [
+                    'label' => 'Shipping',
+                    'value' => $this->formatPrice($quote->getShippingAddress()->getShippingAmount())
+                ];
             } else {
-                // Delete by product ID (all items of this product)
-                $productId = $data['product_id'];
-
-                // Find all items with this product ID
-                $quote = $this->checkoutSession->getQuote();
-                $items = $quote->getAllVisibleItems();
-                $removedCount = 0;
-
-                foreach ($items as $item) {
-                    if ($item->getProduct()->getId() == $productId) {
-                        $this->cart->removeItem($item->getItemId());
-                        $removedCount++;
-                    }
-                }
-
-                if ($removedCount > 0) {
-                    $message = "Removed {$removedCount} item(s) of product ID {$productId}";
-                } else {
-                    return $this->errorStatus(["Product not found in cart"]);
-                }
+                $totals[] = [
+                    'label' => 'Shipping',
+                    'value' => '$0.00'
+                ];
             }
 
-            $this->cart->save();
-
-            $info = $this->successStatus($message);
-            $info['data'] = $this->getCartDetails();
+            // Grand Total
+            $totals[] = [
+                'label' => 'Grand Total',
+                'value' => $this->formatPrice($quote->getGrandTotal())
+            ];
 
         } catch (\Exception $e) {
-            return $this->errorStatus($e->getMessage());
+            $totals = [
+                [
+                    'label' => 'Subtotal',
+                    'value' => '$0.00'
+                ],
+                [
+                    'label' => 'Grand Total',
+                    'value' => '$0.00'
+                ]
+            ];
         }
 
-        return $info;
+        return $totals;
     }
 }
