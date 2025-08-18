@@ -282,6 +282,14 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
 
             $addresses = [];
 
+            // Debug information
+            $debug = [
+                'customer_id' => $customerId,
+                'default_billing' => $customer->getDefaultBilling(),
+                'default_shipping' => $customer->getDefaultShipping(),
+                'total_addresses' => count($customer->getAddresses())
+            ];
+
             // Get billing address
             if ($customer->getDefaultBilling()) {
                 try {
@@ -289,6 +297,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                     $addresses[] = $this->formatAddress($billingAddress, 'billing');
                 } catch (\Exception $e) {
                     // Billing address not found, skip
+                    $debug['billing_error'] = $e->getMessage();
                 }
             }
 
@@ -299,6 +308,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                     $addresses[] = $this->formatAddress($shippingAddress, 'shipping');
                 } catch (\Exception $e) {
                     // Shipping address not found, skip
+                    $debug['shipping_error'] = $e->getMessage();
                 }
             }
 
@@ -314,7 +324,8 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
 
             return $this->successStatus('Addresses retrieved successfully', [
                 'addresses' => $addresses,
-                'total_count' => count($addresses)
+                'total_count' => count($addresses),
+                'debug' => $debug
             ]);
 
         } catch (\Exception $e) {

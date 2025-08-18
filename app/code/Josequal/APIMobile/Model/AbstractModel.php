@@ -33,10 +33,11 @@ class AbstractModel extends \Magento\Framework\Model\AbstractModel {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
-    public function successStatus($success = 'SUCCESS') {
+    public function successStatus($success = 'SUCCESS', $data = []) {
         return [
             'status' => true,
             'message' => __($success),
+            'data' => $data,
         ];
     }
 
