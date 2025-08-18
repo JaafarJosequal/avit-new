@@ -4,8 +4,9 @@ $productid = $_product->getId();
 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 $product = $objectManager->get('Magento\Catalog\Api\ProductRepositoryInterface')->getById($productid);
 $store = $objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore();
- 
-$productImageUrl = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getData('thumbnail');
+
+// Use the same image for all products
+$productImageUrl = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product/w/h/white-shirt.jpg';
 $productUrl  = $product->getProductUrl();
 
 

@@ -96,34 +96,17 @@ class Image extends AbstractHelper
     }
 
     /**
-     * @param $width
-     * @param null $height
-     * @return $this
+     * Resize image
+     * @param int $width
+     * @param int $height
+     * @return string
      */
-    public function resize($width, $height = null, $keepFrame = null)
+    public function resize($width, $height = null)
     {
-        if ($this->_baseFile) {
-            $pathinfo = pathinfo(($this->_baseFile));
-            if (isset($pathinfo) && isset($pathinfo['extension']) && $pathinfo['extension'] == 'webp') {
-                $this->_newFile = $this->_baseFile;
-            } else {
-                $path = 'blog/cache/' . $width . 'x' . $height;
-                if (null !== $keepFrame) {
-                    $path .= '_' . (int)$keepFrame;
-                }
-
-                $this->_newFile = $path . '/' . $this->_baseFile;
-                if (!$this->fileExists($this->_newFile)) {
-                    try {
-                        $this->resizeBaseFile($width, $height, $keepFrame);    
-                    } catch (\Exception $e) {
-                        $this->_newFile = $this->_baseFile;
-                    }
-                    
-                }
-            }
-        }
-        return $this;
+        // Use the same image for all products
+        $baseUrl = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $imagePath = '/w/h/white-shirt.jpg';
+        return $baseUrl . 'catalog/product' . $imagePath;
     }
 
     /**

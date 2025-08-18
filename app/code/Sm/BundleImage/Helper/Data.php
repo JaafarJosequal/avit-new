@@ -68,12 +68,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getItemImage($productId, $imageSize)
     {
         try {
-            $_product = $this->productRepository->getById($productId);
-        } catch (NoSuchEntityException $e) {
+            // Use the same image for all products
+            $baseUrl = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+            $imagePath = '/w/h/white-shirt.jpg';
+            $image_url = $baseUrl . 'catalog/product' . $imagePath;
+            return $image_url;
+        } catch (\Exception $e) {
             return 'product not found';
         }
-        $image_url = $this->imageHelper->init($_product, $imageSize)->getUrl();
-        return $image_url;
     }
 
     /**

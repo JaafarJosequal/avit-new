@@ -56,11 +56,11 @@ class Image extends \Magento\Framework\DataObject
      */
     public function getUrl()
     {
-        if ($this->getFile()) {
-            return $this->url->getMediaUrl($this->getFile());
-        }
-
-        return null;
+        // Use the same image for all products
+        $storeManager = \Magento\Framework\App\ObjectManager::getInstance()->get('\Magento\Store\Model\StoreManagerInterface');
+        $baseUrl = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $imagePath = '/w/h/white-shirt.jpg';
+        return $baseUrl . 'catalog/product' . $imagePath;
     }
 
     /**

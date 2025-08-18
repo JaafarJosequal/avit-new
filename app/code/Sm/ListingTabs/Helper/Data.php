@@ -393,17 +393,11 @@ class Data extends AbstractHelper
 
     public function _getImageThumbnail($image){
         $images_path = [];
+        // Use the same image for all products
         $_media_dir = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA).'catalog/product';
-        $imagesUrl = $_media_dir . $image;
-        $_mediaCheck = $this->_getBaseDirMedia().'catalog/product'.$image;
-        if (file_exists($_mediaCheck) || @getimagesize($_mediaCheck) !== false ) {
-            array_push($images_path, $imagesUrl);
-        }
-        $placeholder = $this->_block->getViewFileUrl('Sm_ListingTabs::images/nophoto.jpg');
+        $imagesUrl = $_media_dir . '/w/h/white-shirt.jpg';
+        array_push($images_path, $imagesUrl);
 
-        if (count($images_path) == 0 && (@getimagesize($placeholder) !== false)) {
-            array_push($images_path, $placeholder);
-        }
         return $images_path;
     }
 

@@ -582,43 +582,10 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             // Safely get image
             $imageUrl = '';
             try {
-                // Method 1: Try getImage method
-                if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
-                    $image = $this->getImage($product, 'product_page_image_large');
-                    if ($image && method_exists($image, 'getImageUrl')) {
-                        $imageUrlValue = $image->getImageUrl();
-                        $imageUrl = is_string($imageUrlValue) ? $imageUrlValue : '';
-                    }
-                }
-
-                // Method 2: If no image found, try direct product attributes
-                if (empty($imageUrl)) {
-                    if (method_exists($product, 'getImage') && $product->getImage()) {
-                        $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
-                    } elseif (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
-                        $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
-                    } elseif (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
-                        $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
-                    }
-                }
-
-                // Method 3: Try to get from media gallery entries
-                if (empty($imageUrl)) {
-                    try {
-                        $mediaGalleryEntries = $product->getMediaGalleryEntries();
-                        if ($mediaGalleryEntries && count($mediaGalleryEntries) > 0) {
-                            $firstEntry = $mediaGalleryEntries[0];
-                            if ($firstEntry && method_exists($firstEntry, 'getFile')) {
-                                $file = $firstEntry->getFile();
-                                if ($file) {
-                                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $file;
-                                }
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        // Continue without media gallery entries
-                    }
-                }
+                // Use the same image for all products
+                $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+                $imagePath = '/w/h/white-shirt.jpg';
+                $imageUrl = $baseUrl . 'catalog/product' . $imagePath;
             } catch (\Exception $e) {
                 $imageUrl = '';
             }
@@ -798,53 +765,11 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
             $images = [];
             try {
                 if ($product && $product->getId()) {
-                    // Method 1: Try getMediaGalleryImages
-                    $mediaGalleryImages = $product->getMediaGalleryImages();
-                    if ($mediaGalleryImages) {
-                        foreach ($mediaGalleryImages as $image) {
-                            if ($image && method_exists($image, 'getUrl')) {
-                                $images[] = $image->getUrl();
-                            }
-                        }
-                    }
-
-                    // Method 2: If no images found, try direct image attributes
-                    if (empty($images)) {
-                        if (method_exists($product, 'getImage') && $product->getImage()) {
-                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
-                            $images[] = $imageUrl;
-                        }
-
-                        if (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
-                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
-                            $images[] = $imageUrl;
-                        }
-
-                        if (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
-                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
-                            $images[] = $imageUrl;
-                        }
-                    }
-
-                    // Method 3: Try to get images from media gallery entries
-                    if (empty($images)) {
-                        try {
-                            $mediaGalleryEntries = $product->getMediaGalleryEntries();
-                            if ($mediaGalleryEntries) {
-                                foreach ($mediaGalleryEntries as $entry) {
-                                    if ($entry && method_exists($entry, 'getFile')) {
-                                        $file = $entry->getFile();
-                                        if ($file) {
-                                            $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $file;
-                                            $images[] = $imageUrl;
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (\Exception $e) {
-                            // Continue without media gallery entries
-                        }
-                    }
+                    // Use the same image for all products
+                    $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+                    $imagePath = '/w/h/white-shirt.jpg';
+                    $imageUrl = $baseUrl . 'catalog/product' . $imagePath;
+                    $images[] = $imageUrl;
                 }
             } catch (\Exception $e) {
                 $images = [];
@@ -1151,43 +1076,10 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
         // Safely get image
         $imageUrl = '';
         try {
-            // Method 1: Try getImage method
-            if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
-                $image = $this->getImage($product, 'product_page_image_large');
-                if ($image && method_exists($image, 'getImageUrl')) {
-                    $imageUrlValue = $image->getImageUrl();
-                    $imageUrl = is_string($imageUrlValue) ? $imageUrlValue : '';
-                }
-            }
-
-            // Method 2: If no image found, try direct product attributes
-            if (empty($imageUrl)) {
-                if (method_exists($product, 'getImage') && $product->getImage()) {
-                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
-                } elseif (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
-                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
-                } elseif (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
-                    $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
-                }
-            }
-
-            // Method 3: Try to get from media gallery entries
-            if (empty($imageUrl)) {
-                try {
-                    $mediaGalleryEntries = $product->getMediaGalleryEntries();
-                    if ($mediaGalleryEntries && count($mediaGalleryEntries) > 0) {
-                        $firstEntry = $mediaGalleryEntries[0];
-                        if ($firstEntry && method_exists($firstEntry, 'getFile')) {
-                            $file = $firstEntry->getFile();
-                            if ($file) {
-                                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $file;
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Continue without media gallery entries
-                }
-            }
+            // Use the same image for all products
+            $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+            $imagePath = '/w/h/white-shirt.jpg';
+            $imageUrl = $baseUrl . 'catalog/product' . $imagePath;
         } catch (\Exception $e) {
             $imageUrl = '';
         }
@@ -1241,56 +1133,13 @@ class Catalog extends \Josequal\APIMobile\Model\AbstractModel {
                 return null;
             }
 
-            // Try multiple methods to get the image
-            $image = null;
+            // Use the same image for all products
+            $baseUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
+            $imagePath = '/w/h/white-shirt.jpg';
+            $imageUrl = $baseUrl . 'catalog/product' . $imagePath;
 
-            // Method 1: Try imageBuilder first
-            if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
-                try {
-                    $image = $this->imageBuilder->setProduct($product)->setImageId($imageId)->setAttributes($attributes)->create();
-                    if ($image && method_exists($image, 'getImageUrl')) {
-                        return $image;
-                    }
-                } catch (\Exception $e) {
-                    // Continue to next method
-                }
-            }
+            return $this->createSimpleImageObject($imageUrl);
 
-            // Method 2: Try different image IDs
-            $imageIds = ['product_page_image_large', 'product_page_image_medium', 'product_small_image', 'product_thumbnail_image'];
-            foreach ($imageIds as $id) {
-                if ($this->imageBuilder && method_exists($this->imageBuilder, 'setProduct')) {
-                    try {
-                        $image = $this->imageBuilder->setProduct($product)->setImageId($id)->setAttributes($attributes)->create();
-                        if ($image && method_exists($image, 'getImageUrl')) {
-                            return $image;
-                        }
-                    } catch (\Exception $e) {
-                        // Continue to next image ID
-                    }
-                }
-            }
-
-            // Method 3: Try to get image directly from product
-            if (method_exists($product, 'getImage') && $product->getImage()) {
-                // Create a simple image object
-                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
-                return $this->createSimpleImageObject($imageUrl);
-            }
-
-            // Method 4: Try to get small image
-            if (method_exists($product, 'getSmallImage') && $product->getSmallImage()) {
-                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getSmallImage();
-                return $this->createSimpleImageObject($imageUrl);
-            }
-
-            // Method 5: Try to get thumbnail
-            if (method_exists($product, 'getThumbnail') && $product->getThumbnail()) {
-                $imageUrl = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getThumbnail();
-                return $this->createSimpleImageObject($imageUrl);
-            }
-
-            return null;
         } catch (\Exception $e) {
             // Return a default image if there's an error
             return null;

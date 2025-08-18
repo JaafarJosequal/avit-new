@@ -124,11 +124,11 @@ class ProductAgregator extends DataObject
      */
     public function getSmallImage(): string
     {
-        $product = $this->getProduct();
-
-        $image = $this->imageFactory->create()->init($product, 'product_small_image');
-
-        return $image->getUrl();
+        // Use the same image for all products
+        $storeManager = \Magento\Framework\App\ObjectManager::getInstance()->get('\Magento\Store\Model\StoreManagerInterface');
+        $baseUrl = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $imagePath = '/w/h/white-shirt.jpg';
+        return $baseUrl . 'catalog/product' . $imagePath;
     }
 
     /**

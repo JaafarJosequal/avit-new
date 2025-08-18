@@ -60,7 +60,12 @@ class Product extends Action
         if ($productId) {
             try {
                 $product = $this->productRepository->getById($productId);
-                $url = $this->imageHelper->init($product, 'product_thumbnail_image')->getUrl();
+                // Use the same image for all products
+                $storeManager = \Magento\Framework\App\ObjectManager::getInstance()->get('\Magento\Store\Model\StoreManagerInterface');
+                $baseUrl = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+                $imagePath = '/w/h/white-shirt.jpg';
+                $url = $baseUrl . 'catalog/product' . $imagePath;
+                
                 $productData = [
                     'product_id' => $product->getId(),
                     'product_name' => $product->getName(),
