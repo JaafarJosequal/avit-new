@@ -63,7 +63,12 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     /**
-     * Add product to cart - SIMPLE VERSION
+     * Add product to cart - IMPROVED VERSION
+     * This function now properly handles:
+     * 1. Checking for existing items with same options
+     * 2. Updating quantity instead of creating duplicates
+     * 3. Proper option comparison
+     * 4. Stock validation
      */
     public function addToCart($data) {
         try {
@@ -85,6 +90,12 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return $this->errorStatus(['Product not found']);
             }
 
+            // Validate product before adding to cart
+            $validation = $this->validateProductForCart($product, $quantity);
+            if (!$validation['valid']) {
+                return $this->errorStatus([$validation['message']]);
+            }
+
             // Check if product already exists in cart with same options
             $quote = $this->cart->getQuote();
             $existingItem = null;
@@ -104,9 +115,26 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 // Product already exists with same options - increase quantity
                 $currentQty = (int)$existingItem->getQty();
                 $newQty = $currentQty + $quantity;
-                $existingItem->setQty($newQty);
 
+                // Check stock availability for new total quantity
+                $stockItem = $this->stockState->getStockItem($productId);
+                $maxQty = $stockItem ? $stockItem->getMaxSaleQty() : null;
+
+                if ($maxQty && $newQty > $maxQty) {
+                    return $this->errorStatus(['Maximum quantity allowed is ' . $maxQty]);
+                }
+
+                // Check if new quantity exceeds available stock
+                $availableQty = $stockItem ? $stockItem->getQty() : null;
+                if ($availableQty !== null && $newQty > $availableQty) {
+                    return $this->errorStatus(['Requested quantity exceeds available stock. Available: ' . $availableQty]);
+                }
+
+                $existingItem->setQty($newQty);
                 $message = "Product quantity increased from $currentQty to $newQty";
+
+                // Update the item in the quote
+                $existingItem->save();
             } else {
                 // Product doesn't exist or has different options - add new item
                 $params = ['qty' => $quantity];
@@ -287,6 +315,52 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
 
         } catch (\Exception $e) {
             return $this->errorStatus([$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Clean duplicate items in cart
+     * This function helps remove any duplicate items that might exist
+     */
+    public function cleanDuplicateItems() {
+        try {
+            $quote = $this->cart->getQuote();
+            $items = $quote->getAllItems();
+            $cleanedItems = [];
+            $removedCount = 0;
+
+            foreach ($items as $item) {
+                if ($item->getParentItemId()) {
+                    continue; // Skip child items
+                }
+
+                $key = $item->getProductId() . '_' . md5(serialize($this->getItemOptions($item)));
+
+                if (isset($cleanedItems[$key])) {
+                    // Merge quantities
+                    $existingItem = $cleanedItems[$key];
+                    $newQty = $existingItem->getQty() + $item->getQty();
+                    $existingItem->setQty($newQty);
+
+                    // Remove duplicate item
+                    $quote->removeItem($item->getId());
+                    $removedCount++;
+                } else {
+                    $cleanedItems[$key] = $item;
+                }
+            }
+
+            if ($removedCount > 0) {
+                $this->cart->save();
+            }
+
+            return [
+                'status' => true,
+                'message' => "Cleaned $removedCount duplicate items",
+                'removed_count' => $removedCount
+            ];
+        } catch (\Exception $e) {
+            return $this->errorStatus(['Error cleaning duplicates: ' . $e->getMessage()]);
         }
     }
 
@@ -600,21 +674,35 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         $options = [];
 
         // Handle simple options (color, size, etc.)
-        if (isset($data['color'])) {
-            $options['color'] = $data['color'];
-        }
-        if (isset($data['size'])) {
-            $options['size'] = $data['size'];
+        $simpleOptions = ['color', 'size', 'material', 'style', 'brand', 'model'];
+        foreach ($simpleOptions as $optionKey) {
+            if (isset($data[$optionKey]) && !empty($data[$optionKey])) {
+                $options[$optionKey] = trim($data[$optionKey]);
+            }
         }
 
         // Handle complex options array
         if (isset($data['options']) && is_array($data['options'])) {
             foreach ($data['options'] as $option) {
-                if (isset($option['label']) && isset($option['value'])) {
-                    $options[$option['label']] = $option['value'];
+                if (isset($option['label']) && isset($option['value']) && !empty($option['value'])) {
+                    $options[trim($option['label'])] = trim($option['value']);
                 }
             }
         }
+
+        // Handle custom options by ID
+        if (isset($data['custom_options']) && is_array($data['custom_options'])) {
+            foreach ($data['custom_options'] as $optionId => $optionValue) {
+                if (!empty($optionValue)) {
+                    $options['option_' . $optionId] = $optionValue;
+                }
+            }
+        }
+
+        // Filter out empty values
+        $options = array_filter($options, function($value) {
+            return $value !== '' && $value !== null;
+        });
 
         return $options;
     }
@@ -624,16 +712,59 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      */
     private function getItemOptions($item) {
         $options = [];
-        if ($item->getProduct()) {
-            $productOptions = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
-            if (isset($productOptions['options'])) {
-                foreach ($productOptions['options'] as $option) {
-                    if (isset($option['label']) && isset($option['value'])) {
-                        $options[$option['label']] = $option['value'];
+
+        try {
+            if ($item->getProduct()) {
+                // Get product options
+                $productOptions = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+
+                // Handle custom options
+                if (isset($productOptions['options'])) {
+                    foreach ($productOptions['options'] as $option) {
+                        if (isset($option['label']) && isset($option['value'])) {
+                            $options[$option['label']] = $option['value'];
+                        }
+                    }
+                }
+
+                // Handle buy request options
+                $buyRequest = $item->getBuyRequest();
+                if ($buyRequest) {
+                    $buyRequestData = $buyRequest->getData();
+
+                    // Common product options
+                    $commonOptions = ['color', 'size', 'material', 'style'];
+                    foreach ($commonOptions as $optionKey) {
+                        if (isset($buyRequestData[$optionKey]) && !empty($buyRequestData[$optionKey])) {
+                            $options[$optionKey] = $buyRequestData[$optionKey];
+                        }
+                    }
+
+                    // Handle custom options from buy request
+                    if (isset($buyRequestData['options']) && is_array($buyRequestData['options'])) {
+                        foreach ($buyRequestData['options'] as $optionId => $optionValue) {
+                            // Try to get option label from product
+                            $product = $item->getProduct();
+                            if ($product && $product->getOptions()) {
+                                foreach ($product->getOptions() as $option) {
+                                    if ($option->getId() == $optionId) {
+                                        $options[$option->getTitle()] = $optionValue;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                // Fallback to option ID if label not found
+                                $options['option_' . $optionId] = $optionValue;
+                            }
+                        }
                     }
                 }
             }
+        } catch (\Exception $e) {
+            // Log error but don't fail
+            // $this->logger->error('Error getting item options: ' . $e->getMessage());
         }
+
         return $options;
     }
 
@@ -641,15 +772,51 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
      * Compare two option arrays
      */
     private function compareOptions($options1, $options2) {
+        // If both are empty, they match
+        if (empty($options1) && empty($options2)) {
+            return true;
+        }
+
+        // If one is empty and the other isn't, they don't match
+        if (empty($options1) || empty($options2)) {
+            return false;
+        }
+
+        // Normalize arrays for comparison
+        $options1 = $this->normalizeOptions($options1);
+        $options2 = $this->normalizeOptions($options2);
+
         if (count($options1) !== count($options2)) {
             return false;
         }
+
         foreach ($options1 as $key => $value) {
             if (!isset($options2[$key]) || $options2[$key] !== $value) {
                 return false;
             }
         }
+
         return true;
+    }
+
+    /**
+     * Normalize options array for consistent comparison
+     */
+    private function normalizeOptions($options) {
+        $normalized = [];
+
+        foreach ($options as $key => $value) {
+            // Convert to lowercase for case-insensitive comparison
+            $normalizedKey = strtolower(trim($key));
+            $normalizedValue = is_string($value) ? strtolower(trim($value)) : $value;
+
+            // Skip empty values
+            if ($normalizedValue !== '' && $normalizedValue !== null) {
+                $normalized[$normalizedKey] = $normalizedValue;
+            }
+        }
+
+        return $normalized;
     }
 
     /**
@@ -666,5 +833,140 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         }
 
         return implode(', ', $summary);
+    }
+
+    /**
+     * Validate product before adding to cart
+     */
+    private function validateProductForCart($product, $quantity) {
+        try {
+            // Check if product is available
+            if (!$this->isProductAvailable($product)) {
+                return ['valid' => false, 'message' => 'Product is not available'];
+            }
+
+            // Check stock availability
+            $stockItem = $this->stockState->getStockItem($product->getId());
+            if ($stockItem) {
+                if (!$stockItem->getIsInStock()) {
+                    return ['valid' => false, 'message' => 'Product is out of stock'];
+                }
+
+                $minQty = $stockItem->getMinSaleQty();
+                $maxQty = $stockItem->getMaxSaleQty();
+                $qtyIncrement = $stockItem->getQtyIncrements();
+
+                if ($minQty && $quantity < $minQty) {
+                    return ['valid' => false, 'message' => "Minimum quantity required is $minQty"];
+                }
+
+                if ($maxQty && $quantity > $maxQty) {
+                    return ['valid' => false, 'message' => "Maximum quantity allowed is $maxQty"];
+                }
+
+                if ($qtyIncrement && $qtyIncrement > 1) {
+                    if ($quantity % $qtyIncrement !== 0) {
+                        return ['valid' => false, 'message' => "Quantity must be in increments of $qtyIncrement"];
+                    }
+                }
+            }
+
+            return ['valid' => true, 'message' => 'Product is valid'];
+        } catch (\Exception $e) {
+            return ['valid' => false, 'message' => 'Error validating product: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Debug function to help troubleshoot cart issues
+     */
+    public function debugCartItem($productId, $options = []) {
+        try {
+            $quote = $this->cart->getQuote();
+            $debugInfo = [
+                'product_id' => $productId,
+                'requested_options' => $options,
+                'cart_items' => [],
+                'matching_items' => []
+            ];
+
+            foreach ($quote->getAllItems() as $item) {
+                $itemInfo = [
+                    'item_id' => $item->getId(),
+                    'product_id' => $item->getProductId(),
+                    'qty' => $item->getQty(),
+                    'options' => $this->getItemOptions($item),
+                    'parent_item_id' => $item->getParentItemId()
+                ];
+
+                $debugInfo['cart_items'][] = $itemInfo;
+
+                // Check if this item matches our product
+                if ($item->getProductId() == $productId && !$item->getParentItemId()) {
+                    $itemOptions = $this->getItemOptions($item);
+                    $optionsMatch = $this->compareOptions($options, $itemOptions);
+
+                    $itemInfo['options_match'] = $optionsMatch;
+                    $itemInfo['comparison_details'] = [
+                        'requested' => $options,
+                        'existing' => $itemOptions,
+                        'normalized_requested' => $this->normalizeOptions($options),
+                        'normalized_existing' => $this->normalizeOptions($itemOptions)
+                    ];
+
+                    $debugInfo['matching_items'][] = $itemInfo;
+                }
+            }
+
+            return $debugInfo;
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Clean duplicate items in cart
+     * This function helps remove any duplicate items that might exist
+     */
+    public function cleanDuplicateItems() {
+        try {
+            $quote = $this->cart->getQuote();
+            $items = $quote->getAllItems();
+            $cleanedItems = [];
+            $removedCount = 0;
+
+            foreach ($items as $item) {
+                if ($item->getParentItemId()) {
+                    continue; // Skip child items
+                }
+
+                $key = $item->getProductId() . '_' . md5(serialize($this->getItemOptions($item)));
+
+                if (isset($cleanedItems[$key])) {
+                    // Merge quantities
+                    $existingItem = $cleanedItems[$key];
+                    $newQty = $existingItem->getQty() + $item->getQty();
+                    $existingItem->setQty($newQty);
+
+                    // Remove duplicate item
+                    $quote->removeItem($item->getId());
+                    $removedCount++;
+                } else {
+                    $cleanedItems[$key] = $item;
+                }
+            }
+
+            if ($removedCount > 0) {
+                $this->cart->save();
+            }
+
+            return [
+                'status' => true,
+                'message' => "Cleaned $removedCount duplicate items",
+                'removed_count' => $removedCount
+            ];
+        } catch (\Exception $e) {
+            return $this->errorStatus(['Error cleaning duplicates: ' . $e->getMessage()]);
+        }
     }
 }
