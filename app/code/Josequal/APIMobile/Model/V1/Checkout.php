@@ -71,6 +71,12 @@ class Checkout extends \Josequal\APIMobile\Model\AbstractModel
                 $billingAddress = $data['billing_address'];
                 // Ensure required fields are present
                 $billingAddress['save_in_address_book'] = 1;
+
+                // Handle region_id if region is provided as string
+                if (isset($billingAddress['region']) && !isset($billingAddress['region_id'])) {
+                    $billingAddress['region_id'] = $this->getRegionId($billingAddress['region'], $billingAddress['country_id']);
+                }
+
                 $quote->getBillingAddress()->addData($billingAddress);
             }
 
@@ -79,6 +85,12 @@ class Checkout extends \Josequal\APIMobile\Model\AbstractModel
                 $shippingAddress = $data['shipping_address'];
                 // Ensure required fields are present
                 $shippingAddress['save_in_address_book'] = 1;
+
+                // Handle region_id if region is provided as string
+                if (isset($shippingAddress['region']) && !isset($shippingAddress['region_id'])) {
+                    $shippingAddress['region_id'] = $this->getRegionId($shippingAddress['region'], $shippingAddress['country_id']);
+                }
+
                 $quote->getShippingAddress()->addData($shippingAddress);
             }
 
@@ -123,6 +135,9 @@ class Checkout extends \Josequal\APIMobile\Model\AbstractModel
                 if (in_array($data['payment_method'], $availablePaymentCodes)) {
                     $quote->setPaymentMethod($data['payment_method']);
                     $quote->setInventoryProcessed(false);
+
+                    // Import payment data to quote payment object (this is the correct way)
+                    $quote->getPayment()->importData(['method' => $data['payment_method']]);
                 } else {
                     $availablePaymentList = implode(', ', $availablePaymentCodes);
                     return $this->errorStatus(["Payment method '{$data['payment_method']}' is not available. Available methods: {$availablePaymentList}"]);
@@ -320,6 +335,21 @@ class Checkout extends \Josequal\APIMobile\Model\AbstractModel
         }
 
         return true;
+    }
+
+    /**
+     * Get region ID from region name and country ID
+     */
+    protected function getRegionId($regionName, $countryId)
+    {
+        try {
+            $regionModel = $this->objectManager->get('\Magento\Directory\Model\Region');
+            $region = $regionModel->loadByName($regionName, $countryId);
+            return $region->getId();
+        } catch (\Exception $e) {
+            // If region not found, return null (Magento will handle this)
+            return null;
+        }
     }
 
     public function getShippingMethods($data = []) {
