@@ -63,114 +63,179 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     /**
-     * Add product to cart - IMPROVED VERSION
+     * Add product to cart - IMPROVED VERSION with better error handling
      * This function now properly handles:
      * 1. Checking for existing items with same options
      * 2. Updating quantity instead of creating duplicates
      * 3. Proper option comparison
      * 4. Stock validation
+     * 5. Better error handling and logging
      */
     public function addToCart($data) {
         try {
+            // Validate input data
             if (!isset($data['product_id'])) {
                 return $this->errorStatus(['Product ID is required']);
             }
 
             $productId = (int)$data['product_id'];
             $quantity = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+
+            // Validate quantity
+            if ($quantity <= 0) {
+                return $this->errorStatus(['Quantity must be greater than 0']);
+            }
+
             $options = $this->prepareProductOptions($data);
 
             // Check if product exists
             try {
                 $product = $this->productModel->setStoreId($this->storeManager->getStore()->getId())->load($productId);
-                if (!$product) {
-                    return $this->errorStatus(['Product not exist'], 404);
+                if (!$product || !$product->getId()) {
+                    return $this->errorStatus(['Product not found or invalid'], 404);
                 }
             } catch (\Exception $e) {
-                return $this->errorStatus(['Product not found']);
+                // Log the error for debugging
+                error_log("Cart Error - Product loading failed: " . $e->getMessage());
+                return $this->errorStatus(['Product loading failed: ' . $e->getMessage()]);
             }
 
             // Validate product before adding to cart
-            $validation = $this->validateProductForCart($product, $quantity);
-            if (!$validation['valid']) {
-                return $this->errorStatus([$validation['message']]);
+            try {
+                $validation = $this->validateProductForCart($product, $quantity);
+                if (!$validation['valid']) {
+                    return $this->errorStatus([$validation['message']]);
+                }
+            } catch (\Exception $e) {
+                error_log("Cart Error - Product validation failed: " . $e->getMessage());
+                return $this->errorStatus(['Product validation failed: ' . $e->getMessage()]);
             }
 
             // Check if product already exists in cart with same options
-            $quote = $this->cart->getQuote();
-            $existingItem = null;
-
-            foreach ($quote->getAllItems() as $item) {
-                if ($item->getProductId() == $productId && !$item->getParentItemId()) {
-                    // Check if options match
-                    $itemOptions = $this->getItemOptions($item);
-                    if ($this->compareOptions($options, $itemOptions)) {
-                        $existingItem = $item;
-                        break;
-                    }
-                }
-            }
-
-            if ($existingItem) {
-                // Product already exists with same options - increase quantity
-                $currentQty = (int)$existingItem->getQty();
-                $newQty = $currentQty + $quantity;
-
-                // Check stock availability for new total quantity
-                $stockItem = $this->stockState->getStockItem($productId);
-                $maxQty = $stockItem ? $stockItem->getMaxSaleQty() : null;
-
-                if ($maxQty && $newQty > $maxQty) {
-                    return $this->errorStatus(['Maximum quantity allowed is ' . $maxQty]);
+            try {
+                $quote = $this->cart->getQuote();
+                if (!$quote) {
+                    error_log("Cart Error - Unable to get quote");
+                    return $this->errorStatus(['Unable to access cart']);
                 }
 
-                // Check if new quantity exceeds available stock
-                $availableQty = $stockItem ? $stockItem->getQty() : null;
-                if ($availableQty !== null && $newQty > $availableQty) {
-                    return $this->errorStatus(['Requested quantity exceeds available stock. Available: ' . $availableQty]);
-                }
+                $existingItem = null;
+                $allItems = $quote->getAllItems();
 
-                $existingItem->setQty($newQty);
-                $message = "Product quantity increased from $currentQty to $newQty";
-
-                // Update the item in the quote
-                $existingItem->save();
-            } else {
-                // Product doesn't exist or has different options - add new item
-                $params = ['qty' => $quantity];
-
-                // Add options to buy request
-                if (!empty($options)) {
-                    foreach ($options as $key => $value) {
-                        $params[$key] = $value;
+                foreach ($allItems as $item) {
+                    if ($item->getProductId() == $productId && !$item->getParentItemId()) {
+                        // Check if options match
+                        try {
+                            $itemOptions = $this->getItemOptions($item);
+                            if ($this->compareOptions($options, $itemOptions)) {
+                                $existingItem = $item;
+                                break;
+                            }
+                        } catch (\Exception $e) {
+                            error_log("Cart Error - Options comparison failed: " . $e->getMessage());
+                            continue; // Skip this item and continue with others
+                        }
                     }
                 }
 
-                $this->cart->addProduct($product, $params);
-                $message = "Product added successfully";
+                if ($existingItem) {
+                    // Product already exists with same options - increase quantity
+                    try {
+                        $currentQty = (int)$existingItem->getQty();
+                        $newQty = $currentQty + $quantity;
+
+                        // Check stock availability for new total quantity
+                        $stockItem = $this->stockState->getStockItem($productId);
+                        $maxQty = $stockItem ? $stockItem->getMaxSaleQty() : null;
+
+                        if ($maxQty && $newQty > $maxQty) {
+                            return $this->errorStatus(['Maximum quantity allowed is ' . $maxQty]);
+                        }
+
+                        // Check if new quantity exceeds available stock
+                        $availableQty = $stockItem ? $stockItem->getQty() : null;
+                        if ($availableQty !== null && $newQty > $availableQty) {
+                            return $this->errorStatus(['Requested quantity exceeds available stock. Available: ' . $availableQty]);
+                        }
+
+                        $existingItem->setQty($newQty);
+                        $message = "Product quantity increased from $currentQty to $newQty";
+
+                        // Update the item in the quote
+                        $existingItem->save();
+                    } catch (\Exception $e) {
+                        error_log("Cart Error - Failed to update existing item: " . $e->getMessage());
+                        return $this->errorStatus(['Failed to update existing item: ' . $e->getMessage()]);
+                    }
+                } else {
+                    // Product doesn't exist or has different options - add new item
+                    try {
+                        $params = ['qty' => $quantity];
+
+                        // Add options to buy request
+                        if (!empty($options)) {
+                            foreach ($options as $key => $value) {
+                                $params[$key] = $value;
+                            }
+                        }
+
+                        $this->cart->addProduct($product, $params);
+                        $message = "Product added successfully";
+                    } catch (\Exception $e) {
+                        error_log("Cart Error - Failed to add new product: " . $e->getMessage());
+                        return $this->errorStatus(['Failed to add product: ' . $e->getMessage()]);
+                    }
+                }
+
+                // Save cart
+                try {
+                    $this->cart->save();
+                } catch (\Exception $e) {
+                    error_log("Cart Error - Failed to save cart: " . $e->getMessage());
+                    return $this->errorStatus(['Failed to save cart: ' . $e->getMessage()]);
+                }
+
+                // Dispatch event for cart modification
+                try {
+                    $this->eventManager->dispatch('josequal_cart_item_added', [
+                        'product' => $product,
+                        'quantity' => $quantity,
+                        'existing_item' => $existingItem ? true : false,
+                        'options' => $options
+                    ]);
+                } catch (\Exception $e) {
+                    // Don't fail the entire operation for event dispatch errors
+                    error_log("Cart Warning - Event dispatch failed: " . $e->getMessage());
+                }
+
+                // Get updated cart info
+                try {
+                    $cartInfo = $this->getCartDetails();
+                } catch (\Exception $e) {
+                    error_log("Cart Warning - Failed to get cart details: " . $e->getMessage());
+                    $cartInfo = [
+                        'items' => [],
+                        'cart_qty' => 0,
+                        'totals' => [],
+                        'cart_id' => '',
+                        'store_id' => 0
+                    ];
+                }
+
+                return [
+                    'status' => true,
+                    'message' => $message,
+                    'data' => $cartInfo
+                ];
+
+            } catch (\Exception $e) {
+                error_log("Cart Error - Cart operations failed: " . $e->getMessage());
+                return $this->errorStatus(['Cart operations failed: ' . $e->getMessage()]);
             }
-
-            $this->cart->save();
-
-            // Dispatch event for cart modification
-            $this->eventManager->dispatch('josequal_cart_item_added', [
-                'product' => $product,
-                'quantity' => $quantity,
-                'existing_item' => $existingItem ? true : false,
-                'options' => $options
-            ]);
-
-            // Get updated cart info
-            $cartInfo = $this->getCartDetails();
-
-            return [
-                'status' => true,
-                'message' => $message,
-                'data' => $cartInfo
-            ];
 
         } catch (\Exception $e) {
-            return $this->errorStatus([$e->getMessage()]);
+            error_log("Cart Error - Unexpected error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return $this->errorStatus(['Unexpected error occurred. Please try again.']);
         }
     }
 
@@ -365,7 +430,7 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
     }
 
     /**
-     * Get cart details - SIMPLE VERSION
+     * Get cart information with better error handling
      */
     private function getCartDetails() {
         try {
@@ -387,47 +452,99 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             $allItems = $quote->getAllItems();
 
             foreach ($allItems as $item) {
-                if ($item->getParentItemId()) {
-                    continue; // Skip child items
-                }
-
-                $product = $item->getProduct();
-                if (!$product) {
-                    continue;
-                }
-
-                // Get item options
-                $itemOptions = $this->getItemOptions($item);
-                $formattedOptions = [];
-
-                if (!empty($itemOptions)) {
-                    foreach ($itemOptions as $key => $value) {
-                        $formattedOptions[] = [
-                            'key' => $key,
-                            'label' => $key,
-                            'value' => $value
-                        ];
+                try {
+                    if ($item->getParentItemId()) {
+                        continue; // Skip child items
                     }
-                }
 
-                $items[] = [
-                    'id' => (string)$item->getItemId(),
-                    'product_id' => (string)$item->getProductId(),
-                    'name' => $item->getName() ?: 'Unknown Product',
-                    'sku' => $item->getSku() ?: 'Unknown SKU',
-                    'qty' => (int)$item->getQty(),
-                    'price' => $this->formatPrice($item->getPrice()),
-                    'row_total' => $this->formatPrice($item->getRowTotal()),
-                    'image' => $this->getProductImageUrl($product),
-                    'options' => $formattedOptions,
-                    'has_options' => !empty($formattedOptions),
-                    'options_summary' => $this->getOptionsSummary($formattedOptions),
-                    'is_available' => $this->isProductAvailable($product),
-                    'stock_status' => $this->getStockStatus($product)
-                ];
+                    $product = $item->getProduct();
+                    if (!$product) {
+                        continue;
+                    }
+
+                    // Get item options safely
+                    $itemOptions = [];
+                    $formattedOptions = [];
+
+                    try {
+                        $itemOptions = $this->getItemOptions($item);
+
+                        if (!empty($itemOptions)) {
+                            foreach ($itemOptions as $key => $value) {
+                                $formattedOptions[] = [
+                                    'key' => $key,
+                                    'label' => $key,
+                                    'value' => $value
+                                ];
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        error_log("Cart Warning - Failed to get item options: " . $e->getMessage());
+                        $itemOptions = [];
+                        $formattedOptions = [];
+                    }
+
+                    // Get product image safely
+                    $imageUrl = '';
+                    try {
+                        $imageUrl = $this->getProductImageUrl($product);
+                    } catch (\Exception $e) {
+                        error_log("Cart Warning - Failed to get product image: " . $e->getMessage());
+                        $imageUrl = '';
+                    }
+
+                    // Get stock status safely
+                    $stockStatus = [
+                        'is_in_stock' => false,
+                        'qty' => 0,
+                        'min_qty' => 0,
+                        'max_qty' => 0
+                    ];
+
+                    try {
+                        $stockStatus = $this->getStockStatus($product);
+                    } catch (\Exception $e) {
+                        error_log("Cart Warning - Failed to get stock status: " . $e->getMessage());
+                    }
+
+                    $items[] = [
+                        'id' => (string)$item->getItemId(),
+                        'product_id' => (string)$item->getProductId(),
+                        'name' => $item->getName() ?: 'Unknown Product',
+                        'sku' => $item->getSku() ?: 'Unknown SKU',
+                        'qty' => (int)$item->getQty(),
+                        'price' => $this->formatPrice($item->getPrice()),
+                        'row_total' => $this->formatPrice($item->getRowTotal()),
+                        'image' => $imageUrl,
+                        'options' => $formattedOptions,
+                        'has_options' => !empty($formattedOptions),
+                        'options_summary' => $this->getOptionsSummary($formattedOptions),
+                        'is_available' => $this->isProductAvailable($product),
+                        'stock_status' => $stockStatus
+                    ];
+                } catch (\Exception $e) {
+                    error_log("Cart Warning - Failed to process cart item: " . $e->getMessage());
+                    continue; // Skip this item and continue with others
+                }
             }
 
-            $totals = $this->getCartTotals($quote);
+            // Get totals safely
+            $totals = [];
+            try {
+                $totals = $this->getCartTotals($quote);
+            } catch (\Exception $e) {
+                error_log("Cart Warning - Failed to get cart totals: " . $e->getMessage());
+                $totals = [
+                    [
+                        'label' => 'Subtotal',
+                        'value' => '$0.00'
+                    ],
+                    [
+                        'label' => 'Grand Total',
+                        'value' => '$0.00'
+                    ]
+                ];
+            }
 
             $result = [
                 'items' => $items,
@@ -442,12 +559,22 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
             return $result;
 
         } catch (\Exception $e) {
+            error_log("Cart Error - getCartDetails failed: " . $e->getMessage());
             return [
                 'items' => [],
                 'cart_qty' => 0,
                 'has_coupon' => false,
                 'coupon' => '',
-                'totals' => [],
+                'totals' => [
+                    [
+                        'label' => 'Subtotal',
+                        'value' => '$0.00'
+                    ],
+                    [
+                        'label' => 'Grand Total',
+                        'value' => '$0.00'
+                    ]
+                ],
                 'cart_id' => '',
                 'store_id' => 0
             ];
@@ -924,49 +1051,4 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
         }
     }
 
-    /**
-     * Clean duplicate items in cart
-     * This function helps remove any duplicate items that might exist
-     */
-    public function cleanDuplicateItems() {
-        try {
-            $quote = $this->cart->getQuote();
-            $items = $quote->getAllItems();
-            $cleanedItems = [];
-            $removedCount = 0;
-
-            foreach ($items as $item) {
-                if ($item->getParentItemId()) {
-                    continue; // Skip child items
-                }
-
-                $key = $item->getProductId() . '_' . md5(serialize($this->getItemOptions($item)));
-
-                if (isset($cleanedItems[$key])) {
-                    // Merge quantities
-                    $existingItem = $cleanedItems[$key];
-                    $newQty = $existingItem->getQty() + $item->getQty();
-                    $existingItem->setQty($newQty);
-
-                    // Remove duplicate item
-                    $quote->removeItem($item->getId());
-                    $removedCount++;
-                } else {
-                    $cleanedItems[$key] = $item;
-                }
-            }
-
-            if ($removedCount > 0) {
-                $this->cart->save();
-            }
-
-            return [
-                'status' => true,
-                'message' => "Cleaned $removedCount duplicate items",
-                'removed_count' => $removedCount
-            ];
-        } catch (\Exception $e) {
-            return $this->errorStatus(['Error cleaning duplicates: ' . $e->getMessage()]);
-        }
-    }
 }
