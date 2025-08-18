@@ -95,7 +95,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
             $address->setLastname($addressData['lastname']);
             $address->setStreet($addressData['street']);
             $address->setCity($addressData['city']);
-            
+
             // Set region_id if available, otherwise set region name
             if ($addressData['region_id']) {
                 $address->setRegionId($addressData['region_id']);
@@ -103,11 +103,12 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 // Fallback: set region name as string
                 $address->setRegion($addressData['region']);
             }
-            
+
             $address->setPostcode($addressData['postcode']);
             $address->setCountryId($addressData['country_id']);
             $address->setTelephone($addressData['telephone']);
-            $address->setSaveInAddressBook(true);
+            // Note: setSaveInAddressBook() method doesn't exist in Magento's Address object
+            // The address will be saved in address book by default when using addressRepository->save()
 
             if (isset($addressData['company'])) {
                 $address->setCompany($addressData['company']);
@@ -179,7 +180,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 if (!isset($data['region_id']) || !$data['region_id']) {
                     $data['region_id'] = $this->getRegionId($data['region'], $data['country_id'] ?? $address->getCountryId());
                 }
-                
+
                 // Set region_id if available, otherwise set region name
                 if ($data['region_id']) {
                     $address->setRegionId($data['region_id']);
@@ -354,17 +355,17 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
         try {
             $region = $this->regionFactory->create();
             $region->loadByName($regionName, $countryId);
-            
+
             if ($region->getId()) {
                 return $region->getId();
             }
-            
+
             // If not found by name, try to find by code
             $region->loadByCode($regionName, $countryId);
             if ($region->getId()) {
                 return $region->getId();
             }
-            
+
             return null;
         } catch (\Exception $e) {
             return null;
