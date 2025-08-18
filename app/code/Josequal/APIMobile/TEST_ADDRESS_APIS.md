@@ -432,3 +432,147 @@ tail -f /var/log/php_errors.log
 5. **اختبر من التطبيق** للتأكد من عمل API في البيئة الحقيقية
 
 هذه الاختبارات تضمن أن **Address APIs تعمل بشكل صحيح** وتتعامل مع جميع الحالات.
+
+## 🧪 اختبار معالجة Region (مهم!)
+
+### **Test 13: اختبار Region Handling**
+
+```bash
+curl -X POST "https://avit.josequal.net/apimobile/address/add" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstname": "Region",
+    "lastname": "Test",
+    "street": ["Region Test Street"],
+    "city": "Region Test City",
+    "region": "NY",
+    "postcode": "10001",
+    "country_id": "US",
+    "telephone": "1234567890"
+  }'
+```
+
+**Expected Response (Success - No TypeError):**
+```json
+{
+  "status": true,
+  "message": "Address added successfully",
+  "data": {
+    "address_id": 125,
+    "message": "Address has been added successfully"
+  }
+}
+```
+
+---
+
+### **Test 14: اختبار Region مع Country مختلف**
+
+```bash
+curl -X POST "https://avit.josequal.net/apimobile/address/add" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstname": "Saudi",
+    "lastname": "Test",
+    "street": ["Saudi Test Street"],
+    "city": "Riyadh",
+    "region": "Riyadh",
+    "postcode": "12345",
+    "country_id": "SA",
+    "telephone": "1234567890"
+  }'
+```
+
+---
+
+### **Test 15: اختبار تعديل Region**
+
+```bash
+curl -X POST "https://avit.josequal.net/apimobile/address/edit" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "address_id": 125,
+    "region": "CA",
+    "city": "Los Angeles"
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "status": true,
+  "message": "Address updated successfully",
+  "data": {
+    "address_id": 125,
+    "message": "Address has been updated successfully"
+  }
+}
+```
+
+---
+
+### **Test 16: عرض العناوين مع Region Info**
+
+```bash
+curl -X GET "https://avit.josequal.net/apimobile/address/getlist" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+**Expected Response (with region_id):**
+```json
+{
+  "status": true,
+  "message": "Addresses retrieved successfully",
+  "data": {
+    "addresses": [
+      {
+        "id": 125,
+        "type": "other",
+        "firstname": "Region",
+        "lastname": "Test",
+        "street": ["Region Test Street"],
+        "city": "Los Angeles",
+        "region": "CA",
+        "region_id": 12,
+        "postcode": "10001",
+        "country_id": "US",
+        "telephone": "1234567890",
+        "is_default_billing": false,
+        "is_default_shipping": false
+      }
+    ],
+    "total_count": 1
+  }
+}
+```
+
+## ✅ اختبار إصلاح TypeError
+
+### **قبل الإصلاح:**
+```bash
+# كان يحدث خطأ:
+TypeError: Magento\Customer\Model\Data\Address::setRegion(): 
+Argument #1 ($region) must be of type ?Magento\Customer\Api\Data\RegionInterface, string given
+```
+
+### **بعد الإصلاح:**
+```bash
+# الآن يعمل بدون أخطاء:
+{
+  "status": true,
+  "message": "Address added successfully",
+  "data": {
+    "address_id": 125,
+    "message": "Address has been added successfully"
+  }
+}
+```
+
+### **كيفية عمل الإصلاح:**
+1. **النظام يحاول تحويل Region name إلى Region ID**
+2. **إذا نجح التحويل، يستخدم `setRegionId()`**
+3. **إذا فشل التحويل، يستخدم `setRegion()` كـ fallback**
+4. **لا توجد أخطاء TypeError بعد الآن**

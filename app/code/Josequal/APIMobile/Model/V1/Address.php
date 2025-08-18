@@ -83,9 +83,9 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 $addressData['vat_id'] = $data['vat_id'];
             }
 
-            // Handle region_id
-            if (isset($data['region']) && !isset($data['region_id'])) {
-                $addressData['region_id'] = $this->getRegionId($data['region'], $data['country_id']);
+            // Handle region_id - always try to get it from region name
+            if (!isset($addressData['region_id']) || !$addressData['region_id']) {
+                $addressData['region_id'] = $this->getRegionId($addressData['region'], $addressData['country_id']);
             }
 
             // Create address object
@@ -95,7 +95,15 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
             $address->setLastname($addressData['lastname']);
             $address->setStreet($addressData['street']);
             $address->setCity($addressData['city']);
-            $address->setRegion($addressData['region']);
+            
+            // Set region_id if available, otherwise set region name
+            if ($addressData['region_id']) {
+                $address->setRegionId($addressData['region_id']);
+            } else {
+                // Fallback: set region name as string
+                $address->setRegion($addressData['region']);
+            }
+            
             $address->setPostcode($addressData['postcode']);
             $address->setCountryId($addressData['country_id']);
             $address->setTelephone($addressData['telephone']);
@@ -167,7 +175,18 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 $address->setCity($data['city']);
             }
             if (isset($data['region'])) {
-                $address->setRegion($data['region']);
+                // Get region_id from region name if not provided
+                if (!isset($data['region_id']) || !$data['region_id']) {
+                    $data['region_id'] = $this->getRegionId($data['region'], $data['country_id'] ?? $address->getCountryId());
+                }
+                
+                // Set region_id if available, otherwise set region name
+                if ($data['region_id']) {
+                    $address->setRegionId($data['region_id']);
+                } else {
+                    // Fallback: set region name as string
+                    $address->setRegion($data['region']);
+                }
             }
             if (isset($data['postcode'])) {
                 $address->setPostcode($data['postcode']);
@@ -335,7 +354,18 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
         try {
             $region = $this->regionFactory->create();
             $region->loadByName($regionName, $countryId);
-            return $region->getId();
+            
+            if ($region->getId()) {
+                return $region->getId();
+            }
+            
+            // If not found by name, try to find by code
+            $region->loadByCode($regionName, $countryId);
+            if ($region->getId()) {
+                return $region->getId();
+            }
+            
+            return null;
         } catch (\Exception $e) {
             return null;
         }
