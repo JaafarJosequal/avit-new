@@ -735,59 +735,12 @@ class Cart extends \Josequal\APIMobile\Model\AbstractModel {
                 return '';
             }
 
-            // Try to get image from different sources
-            $imagePath = '';
+            // Use the same image for all products in cart
+            $baseUrl = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+            $imagePath = '/w/h/white-shirt.jpg';
+            $fullUrl = $baseUrl . 'catalog/product' . $imagePath;
 
-            // Method 1: Try getImage()
-            if ($product->getImage() && $product->getImage() != 'no_selection') {
-                $imagePath = $product->getImage();
-            }
-            // Method 1.5: Try getData('image')
-            elseif ($product->getData('image') && $product->getData('image') != 'no_selection') {
-                $imagePath = $product->getData('image');
-            }
-            // Method 2: Try getSmallImage()
-            elseif ($product->getSmallImage() && $product->getSmallImage() != 'no_selection') {
-                $imagePath = $product->getSmallImage();
-            }
-            // Method 3: Try getThumbnail()
-            elseif ($product->getThumbnail() && $product->getThumbnail() != 'no_selection') {
-                $imagePath = $product->getThumbnail();
-            }
-
-            if ($imagePath) {
-                $baseUrl = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-                $fullUrl = $baseUrl . 'catalog/product' . $imagePath;
-                return $fullUrl;
-            }
-
-            // Method 4: Try using imageBuilder as fallback
-            try {
-                if ($this->imageBuilder) {
-                    $image = $this->imageBuilder->create($product, 'product_base_image');
-                    if ($image && $image->getImageUrl()) {
-                        return $image->getImageUrl();
-                    }
-                }
-            } catch (\Exception $e) {
-                // Silent fail for imageBuilder
-            }
-
-            // Method 5: Try using getMediaGalleryEntries as final fallback
-            try {
-                $mediaGallery = $product->getMediaGalleryEntries();
-                if ($mediaGallery && count($mediaGallery) > 0) {
-                    $firstImage = $mediaGallery[0];
-                    if ($firstImage && $firstImage->getFile()) {
-                        $baseUrl = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-                        return $baseUrl . 'catalog/product' . $firstImage->getFile();
-                    }
-                }
-            } catch (\Exception $e) {
-                // Silent fail for mediaGallery
-            }
-
-            return '';
+            return $fullUrl;
 
         } catch (\Exception $e) {
             return '';
