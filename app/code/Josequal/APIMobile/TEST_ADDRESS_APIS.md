@@ -758,3 +758,169 @@ SELECT * FROM directory_country_region WHERE country_id = 'US';
 5. **راقب الـ logs** للتأكد من عدم وجود أخطاء
 
 **جميع الأخطاء تم إصلاحها!** 🎉
+
+## 🚨 اختبار إصلاح Edit API
+
+### **المشكلة الحالية:**
+Edit API يعطي خطأ: "An error has happened during application run. See exception log for details."
+
+### **البيانات المُرسلة:**
+```json
+{
+  "address_id": 23,
+  "firstname": "Jwane",
+  "lastname": "Smwith",
+  "street": ["456 Owak Ave"],
+  "city": "Los Awngeles",
+  "region": "CwA",
+  "postcode": "90w210",
+  "country_id": "US",
+  "telephone": "0984447654321",
+  "company": "New Ceompany",
+  "fax": "0987654322",
+  "vat_id": "VAT654321"
+}
+```
+
+### **Test 20: اختبار Edit API مع بيانات صحيحة**
+
+```bash
+curl -X POST "https://avit.josequal.net/apimobile/address/edit" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "address_id": 23,
+    "firstname": "Jane",
+    "lastname": "Smith",
+    "street": ["456 Oak Ave"],
+    "city": "Los Angeles",
+    "region": "CA",
+    "postcode": "90210",
+    "country_id": "US",
+    "telephone": "0987654321",
+    "company": "New Company",
+    "fax": "0987654322",
+    "vat_id": "VAT654321"
+  }'
+```
+
+**Expected Response (Success):**
+```json
+{
+  "status": true,
+  "message": "Address updated successfully",
+  "data": {
+    "address_id": 23,
+    "message": "Address has been updated successfully"
+  }
+}
+```
+
+### **Test 21: اختبار Edit API مع بيانات مبسطة**
+
+```bash
+curl -X POST "https://avit.josequal.net/apimobile/address/edit" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "address_id": 23,
+    "firstname": "Jane",
+    "lastname": "Smith",
+    "city": "Los Angeles",
+    "region": "CA"
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "status": true,
+  "message": "Address updated successfully",
+  "data": {
+    "address_id": 23,
+    "message": "Address has been updated successfully"
+  }
+}
+```
+
+### **Test 22: اختبار Edit API مع Address ID غير موجود**
+
+```bash
+curl -X POST "https://avit.josequal.net/apimobile/address/edit" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "address_id": 999,
+    "firstname": "Jane",
+    "lastname": "Smith"
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "status": false,
+  "message": "Address not found",
+  "data": []
+}
+```
+
+## 🔧 الإصلاحات المطبقة على Edit API
+
+### **1. إزالة التكرار في معالجة Region:**
+```php
+// قبل الإصلاح (مشكلة):
+if (isset($data['region'])) {
+    // ... معالجة region ...
+}
+// ... ثم مرة أخرى ...
+if (isset($data['region']) && !isset($data['region_id'])) {
+    $address->setRegionId($this->getRegionId($data['region'], $data['country_id'] ?? $address->getCountryId()));
+}
+
+// بعد الإصلاح (يعمل):
+if (isset($data['region'])) {
+    // معالجة region مرة واحدة فقط
+    if (!isset($data['region_id']) || !$data['region_id']) {
+        $data['region_id'] = $this->getRegionId($data['region'], $data['country_id'] ?? $address->getCountryId());
+    }
+    
+    if ($data['region_id']) {
+        $address->setRegionId($data['region_id']);
+    } else {
+        $address->setRegion($data['region']);
+    }
+}
+```
+
+### **2. تحسين معالجة الأخطاء:**
+```php
+try {
+    // ... كود التحديث ...
+    $updatedAddress = $this->addressRepository->save($address);
+    
+    return $this->successStatus('Address updated successfully', [
+        'address_id' => $updatedAddress->getId(),
+        'message' => 'Address has been updated successfully'
+    ]);
+} catch (\Exception $e) {
+    return $this->errorStatus('Failed to update address: ' . $e->getMessage());
+}
+```
+
+## 📋 خطوات اختبار Edit API
+
+1. **اختبر مع بيانات صحيحة** - يجب أن يعمل
+2. **اختبر مع بيانات مبسطة** - يجب أن يعمل
+3. **اختبر مع Address ID غير موجود** - يجب أن يعطي خطأ واضح
+4. **تحقق من قاعدة البيانات** - تأكد من تحديث البيانات
+5. **اختبر GetList مرة أخرى** - تأكد من ظهور التحديثات
+
+## 🎯 النتيجة المتوقعة بعد الإصلاح
+
+- **لا توجد أخطاء** "An error has happened during application run"
+- **استجابة واضحة** مع status و message و data
+- **تحديث ناجح** للعنوان
+- **معالجة صحيحة** للأخطاء
+
+**اختبر Edit API الآن!** 🚀

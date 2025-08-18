@@ -208,11 +208,6 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 $address->setVatId($data['vat_id']);
             }
 
-            // Handle region_id
-            if (isset($data['region']) && !isset($data['region_id'])) {
-                $address->setRegionId($this->getRegionId($data['region'], $data['country_id'] ?? $address->getCountryId()));
-            }
-
             // Save updated address
             $updatedAddress = $this->addressRepository->save($address);
 
