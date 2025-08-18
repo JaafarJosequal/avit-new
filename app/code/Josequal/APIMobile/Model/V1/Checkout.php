@@ -246,22 +246,23 @@ class Checkout extends \Josequal\APIMobile\Model\AbstractModel
 
             $paymentMethods = [];
 
-            // Get payment methods from quote
+            // Get payment methods from quote using proper validation
             $quote->setTotalsCollectedFlag(false);
             $quote->collectTotals();
 
-            // Get available payment methods for the quote
-            $paymentMethodList = $this->objectManager->get('\Magento\Payment\Model\Config')->getActiveMethods();
+            // Use the proper method to get available payment methods for the quote
+            $store = $quote->getStoreId();
+            $paymentHelper = $this->objectManager->get('\Magento\Payment\Helper\Data');
+            $availableMethods = $paymentHelper->getStoreMethods($store, $quote);
 
-            foreach ($paymentMethodList as $paymentCode => $paymentModel) {
-                if ($paymentModel && $paymentModel->isActive()) {
-                    // Check if payment method is available for this quote
+            foreach ($availableMethods as $method) {
+                if ($method && $this->_canUsePaymentMethod($method, $quote)) {
                     try {
-                        $paymentTitle = $this->scopeConfig->getValue('payment/' . $paymentCode . '/title');
+                        $paymentTitle = $this->scopeConfig->getValue('payment/' . $method->getCode() . '/title');
                         $paymentMethods[] = [
-                            'code' => $paymentCode,
-                            'title' => $paymentTitle ?: $paymentModel->getTitle(),
-                            'description' => $paymentModel->getDescription() ?: $paymentModel->getTitle()
+                            'code' => $method->getCode(),
+                            'title' => $paymentTitle ?: $method->getTitle(),
+                            'description' => $method->getDescription() ?: $method->getTitle()
                         ];
                     } catch (\Exception $e) {
                         // Skip this payment method if there's an error
@@ -291,6 +292,34 @@ class Checkout extends \Josequal\APIMobile\Model\AbstractModel
                 ]
             ];
         }
+    }
+
+    /**
+     * Check if payment method can be used for the quote
+     */
+    protected function _canUsePaymentMethod($method, $quote)
+    {
+        if (!($method->isGateway() || $method->canUseCheckout())) {
+            return false;
+        }
+
+        // Check if method can be used for the quote's currency
+        if (!$method->canUseForCurrency($this->storeManager->getStore($quote->getStoreId())->getBaseCurrencyCode())) {
+            return false;
+        }
+
+        /**
+         * Checking for min/max order total for assigned payment method
+         */
+        $total = $quote->getBaseGrandTotal();
+        $minTotal = $method->getConfigData('min_order_total');
+        $maxTotal = $method->getConfigData('max_order_total');
+
+        if ((!empty($minTotal) && ($total < $minTotal)) || (!empty($maxTotal) && ($total > $maxTotal))) {
+            return false;
+        }
+
+        return true;
     }
 
     public function getShippingMethods($data = []) {
