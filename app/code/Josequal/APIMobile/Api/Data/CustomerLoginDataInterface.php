@@ -154,6 +154,21 @@ interface CustomerLoginDataInterface
     public function setAddress(?string $address): CustomerLoginDataInterface;
 
     /**
+     * Get cart quantity
+     *
+     * @return int
+     */
+    public function getCartQuantity(): int;
+
+    /**
+     * Set cart quantity
+     *
+     * @param int $quantity
+     * @return $this
+     */
+    public function setCartQuantity(int $quantity): CustomerLoginDataInterface;
+
+    /**
      * Serialize to array for JSON
      *
      * @return array

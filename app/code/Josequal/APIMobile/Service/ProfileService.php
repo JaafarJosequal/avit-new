@@ -11,6 +11,7 @@ use Josequal\APIMobile\Api\Data\CustomerLoginDataInterface;
 use Josequal\APIMobile\Api\Data\CustomerLoginDataInterfaceFactory;
 use Magento\Customer\Model\CustomerFactory;
 use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Checkout\Model\Cart;
 
 class ProfileService
 {
@@ -22,6 +23,7 @@ class ProfileService
     protected CustomerLoginDataInterfaceFactory $customerDataFactory;
     protected CustomerFactory $customerFactory;
     protected AddressRepositoryInterface $addressRepository;
+    protected Cart $cart;
 
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -31,7 +33,8 @@ class ProfileService
         ProfileResponseInterfaceFactory $responseFactory,
         CustomerLoginDataInterfaceFactory $customerDataFactory,
         CustomerFactory $customerFactory,
-        AddressRepositoryInterface $addressRepository
+        AddressRepositoryInterface $addressRepository,
+        Cart $cart
     ) {
         $this->customerRepository = $customerRepository;
         $this->customerSession = $customerSession;
@@ -41,6 +44,7 @@ class ProfileService
         $this->customerDataFactory = $customerDataFactory;
         $this->customerFactory = $customerFactory;
         $this->addressRepository = $addressRepository;
+        $this->cart = $cart;
     }
 
     public function getProfile(): ProfileResponseInterface
@@ -246,6 +250,15 @@ class ProfileService
         $customerData->setImage('https://yourdomain.com/media/default_profile.png')
             ->setAddress($addressString ?: 'No address available')
             ->setPassword(null);
+
+        // Get cart quantity
+        try {
+            $cartQuantity = (int) $this->cart->getQuote()->getItemsSummaryQty();
+            $customerData->setCartQuantity($cartQuantity);
+        } catch (\Exception $e) {
+            // If cart is not available, set quantity to 0
+            $customerData->setCartQuantity(0);
+        }
 
         return $this->buildResponse(true, $message, $customerData, 200);
     }

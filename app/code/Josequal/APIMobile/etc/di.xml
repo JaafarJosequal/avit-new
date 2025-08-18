@@ -62,6 +62,7 @@
             <argument name="customerDataFactory" xsi:type="object">Josequal\APIMobile\Api\Data\CustomerLoginDataInterfaceFactory</argument>
             <argument name="customerFactory" xsi:type="object">Magento\Customer\Model\CustomerFactory</argument>
             <argument name="addressRepository" xsi:type="object">Magento\Customer\Api\AddressRepositoryInterface</argument>
+            <argument name="cart" xsi:type="object">Magento\Checkout\Model\Cart</argument>
         </arguments>
     </type>
 

@@ -13,6 +13,9 @@ class CustomerLoginData implements CustomerLoginDataInterface, \JsonSerializable
     private ?string $countryCode = null;
     private string $token = '';
     private ?string $password = null;
+    private ?string $image = null;
+    private ?string $address = null;
+    private int $cartQuantity = 0;
 
     public function getFirstname(): string { return $this->firstname; }
     public function setFirstname(string $value): CustomerLoginDataInterface { $this->firstname = $value; return $this; }
@@ -37,38 +40,38 @@ class CustomerLoginData implements CustomerLoginDataInterface, \JsonSerializable
 
     public function getPassword(): ?string { return $this->password; }
     public function setPassword(?string $value): CustomerLoginDataInterface { $this->password = $value; return $this; }
-	
-	private ?string $image = null;
-	private ?string $address = null;
 
-public function getImage(): ?string
-{
-    return $this->image;
-}
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
 
-public function setImage(?string $image): CustomerLoginDataInterface
-{
-    $this->image = $image;
-    return $this;
-}
+    public function setImage(?string $image): CustomerLoginDataInterface
+    {
+        $this->image = $image;
+        return $this;
+    }
 
-public function getAddress(): ?string { return $this->address; }
-public function setAddress(?string $value): CustomerLoginDataInterface { $this->address = $value; return $this; }
+    public function getAddress(): ?string { return $this->address; }
+    public function setAddress(?string $value): CustomerLoginDataInterface { $this->address = $value; return $this; }
 
+    public function getCartQuantity(): int { return $this->cartQuantity; }
+    public function setCartQuantity(int $value): CustomerLoginDataInterface { $this->cartQuantity = $value; return $this; }
 
-public function jsonSerialize(): array
-{
-    return [
-        'firstname' => $this->getFirstname(),
-        'lastname' => $this->getLastname(),
-        'email' => $this->getEmail(),
-        'mobile_number' => $this->getMobileNumber(),
-        'dial_code' => $this->getDialCode(),
-        'country_code' => $this->getCountryCode(),
-        'token' => $this->getToken(),
-        'password' => $this->getPassword(),
-        'image' => $this->getImage(),
-        'address' => $this->getAddress(),
-    ];
-}
+    public function jsonSerialize(): array
+    {
+        return [
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname(),
+            'email' => $this->getEmail(),
+            'mobile_number' => $this->getMobileNumber(),
+            'dial_code' => $this->getDialCode(),
+            'country_code' => $this->getCountryCode(),
+            'token' => $this->getToken(),
+            'password' => $this->getPassword(),
+            'image' => $this->getImage(),
+            'address' => $this->address,
+            'cart_quantity' => $this->getCartQuantity(),
+        ];
+    }
 }
