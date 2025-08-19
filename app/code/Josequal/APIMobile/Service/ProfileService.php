@@ -247,7 +247,7 @@ class ProfileService
 
         $customerData->setCountryCode($countryCode ?: '');
 
-        $customerData->setImage('https://yourdomain.com/media/default_profile.png')
+        $customerData->setImage('https://avit.josequal.net/media/default_profile.png')
             ->setAddress($addressString ?: 'No address available')
             ->setPassword(null);
 
