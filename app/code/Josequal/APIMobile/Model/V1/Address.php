@@ -100,8 +100,18 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
             if ($addressData['region_id']) {
                 $address->setRegionId($addressData['region_id']);
             } else {
-                // Fallback: set region name as string
-                $address->setRegion($addressData['region']);
+                // Fallback: create region object or skip region setting
+                try {
+                    // Try to create a region object
+                    $region = $this->regionFactory->create();
+                    $region->setRegion($addressData['region']);
+                    $region->setRegionCode($addressData['region']);
+                    $region->setCountryId($addressData['country_id']);
+                    $address->setRegion($region);
+                } catch (\Exception $e) {
+                    // If region creation fails, just skip region setting
+                    // The address will be saved without region information
+                }
             }
 
             $address->setPostcode($addressData['postcode']);
@@ -185,8 +195,18 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 if ($data['region_id']) {
                     $address->setRegionId($data['region_id']);
                 } else {
-                    // Fallback: set region name as string
-                    $address->setRegion($data['region']);
+                    // Fallback: create region object or skip region setting
+                    try {
+                        // Try to create a region object
+                        $region = $this->regionFactory->create();
+                        $region->setRegion($data['region']);
+                        $region->setRegionCode($data['region']);
+                        $region->setCountryId($data['country_id'] ?? $address->getCountryId());
+                        $address->setRegion($region);
+                    } catch (\Exception $e) {
+                        // If region creation fails, just skip region setting
+                        // The address will be saved without region information
+                    }
                 }
             }
             if (isset($data['postcode'])) {
@@ -359,21 +379,51 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
     protected function getRegionId($regionName, $countryId)
     {
         try {
-            $region = $this->regionFactory->create();
-            $region->loadByName($regionName, $countryId);
+            // Skip region ID lookup for countries that don't have regions or have issues
+            $skipRegionLookup = ['SA', 'AE', 'KW', 'BH', 'OM', 'QA', 'JO', 'LB', 'EG', 'MA', 'TN', 'DZ', 'LY'];
 
-            if ($region->getId()) {
-                return $region->getId();
+            if (in_array($countryId, $skipRegionLookup)) {
+                return null; // Return null to use region name instead
+            }
+
+            $region = $this->regionFactory->create();
+
+            // Try to load by name first
+            try {
+                $region->loadByName($regionName, $countryId);
+                if ($region->getId()) {
+                    return $region->getId();
+                }
+            } catch (\Exception $e) {
+                // Continue to next method
             }
 
             // If not found by name, try to find by code
-            $region->loadByCode($regionName, $countryId);
-            if ($region->getId()) {
-                return $region->getId();
+            try {
+                $region->loadByCode($regionName, $countryId);
+                if ($region->getId()) {
+                    return $region->getId();
+                }
+            } catch (\Exception $e) {
+                // Continue to next method
+            }
+
+            // If still not found, try to find by ID if regionName is numeric
+            if (is_numeric($regionName)) {
+                try {
+                    $region->load($regionName);
+                    if ($region->getId() && $region->getCountryId() == $countryId) {
+                        return $region->getId();
+                    }
+                } catch (\Exception $e) {
+                    // Continue
+                }
             }
 
             return null;
         } catch (\Exception $e) {
+            // Log the error for debugging
+            error_log("Region lookup error for country {$countryId}, region {$regionName}: " . $e->getMessage());
             return null;
         }
     }
