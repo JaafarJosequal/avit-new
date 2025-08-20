@@ -102,11 +102,11 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
             } else {
                 // Fallback: create region object or skip region setting
                 try {
-                    // Try to create a region object
+                    // Try to create a region object using Customer RegionInterface
                     $region = $this->regionFactory->create();
                     $region->setRegion($addressData['region']);
                     $region->setRegionCode($addressData['region']);
-                    $region->setCountryId($addressData['country_id']);
+                    // Note: Customer RegionInterface doesn't have setCountryId()
                     $address->setRegion($region);
                 } catch (\Exception $e) {
                     // If region creation fails, just skip region setting
@@ -201,7 +201,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                         $region = $this->regionFactory->create();
                         $region->setRegion($data['region']);
                         $region->setRegionCode($data['region']);
-                        $region->setCountryId($data['country_id'] ?? $address->getCountryId());
+                        // Note: Customer RegionInterface doesn't have setCountryId()
                         $address->setRegion($region);
                     } catch (\Exception $e) {
                         // If region creation fails, just skip region setting
