@@ -1,65 +1,36 @@
 <?php
 namespace Josequal\APIMobile\Setup;
 
-use Magento\Customer\Model\Customer;
-use Magento\Eav\Model\Config as EavConfig;
-use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 
 class InstallData implements InstallDataInterface
 {
-    private EavSetupFactory $eavSetupFactory;
-    private EavConfig $eavConfig;
-
-    public function __construct(
-        EavSetupFactory $eavSetupFactory,
-        EavConfig $eavConfig
-    ) {
-        $this->eavSetupFactory = $eavSetupFactory;
-        $this->eavConfig = $eavConfig;
-    }
-
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
-        $attributes = [
-            'mobile_number' => 'Mobile Number',
-            'dial_code'     => 'Dial Code',
-            'country_code'  => 'Country Code'
-        ];
+        $tableName = $setup->getTable('customer_account_deletion');
 
-        foreach ($attributes as $code => $label) {
-            if (!$eavSetup->getAttributeId(Customer::ENTITY, $code)) {
-                $eavSetup->addAttribute(
-                    Customer::ENTITY,
-                    $code,
-                    [
-                        'type'         => 'varchar',
-                        'label'        => $label,
-                        'input'        => 'text',
-                        'required'     => false,
-                        'visible'      => true,
-                        'user_defined' => true,
-                        'position'     => 1000,
-                        'system'       => 0,
-                        'global'       => ScopedAttributeInterface::SCOPE_GLOBAL
-                    ]
-                );
+        $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (
+            `entity_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Entity ID',
+            `customer_id` int(11) unsigned NOT NULL COMMENT 'Customer ID',
+            `deletion_requested_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Deletion Requested At',
+            `scheduled_deletion_at` timestamp NOT NULL COMMENT 'Scheduled Deletion At',
+            `status` smallint(5) unsigned NOT NULL DEFAULT '1' COMMENT 'Status: 1=Pending, 2=Cancelled, 3=Completed',
+            `reason` text COMMENT 'Deletion Reason',
+            `cancelled_at` timestamp NULL DEFAULT NULL COMMENT 'Cancelled At',
+            `deleted_at` timestamp NULL DEFAULT NULL COMMENT 'Actually Deleted At',
+            PRIMARY KEY (`entity_id`),
+            KEY `CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID` (`customer_id`),
+            KEY `CUSTOMER_ACCOUNT_DELETION_STATUS` (`status`),
+            KEY `CUSTOMER_ACCOUNT_DELETION_SCHEDULED_DELETION_AT` (`scheduled_deletion_at`),
+            CONSTRAINT `CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID`
+                FOREIGN KEY (`customer_id`) REFERENCES `{$setup->getTable('customer_entity')}` (`entity_id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Customer Account Deletion Requests';";
 
-                $attribute = $this->eavConfig->getAttribute(Customer::ENTITY, $code);
-                $attribute->setData('used_in_forms', [
-                    'adminhtml_customer',
-                    'customer_account_create',
-                    'customer_account_edit'
-                ]);
-                $attribute->save();
-            }
-        }
+        $setup->getConnection()->query($sql);
 
         $setup->endSetup();
     }
