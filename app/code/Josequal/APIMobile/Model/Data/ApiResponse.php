@@ -4,7 +4,7 @@ namespace Josequal\APIMobile\Model\Data;
 use Magento\Framework\Api\AbstractSimpleObject;
 use Josequal\APIMobile\Api\Data\ApiResponseInterface;
 
-class ApiResponse extends AbstractSimpleObject implements ApiResponseInterface
+class ApiResponse extends AbstractSimpleObject implements ApiResponseInterface, \JsonSerializable
 {
     public function getStatus() { return $this->_get('status'); }
 
@@ -21,4 +21,14 @@ class ApiResponse extends AbstractSimpleObject implements ApiResponseInterface
     public function getCode() { return $this->_get('code'); }
 
     public function setCode($code) { return $this->setData('code', $code); }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'status' => $this->getStatus(),
+            'message' => $this->getMessage(),
+            'data_field' => $this->getDataField(),
+            'code' => $this->getCode()
+        ];
+    }
 }
