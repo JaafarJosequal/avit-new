@@ -120,10 +120,15 @@ class AccountDeletionService
             $deletionData = $this->getDeletionData($customerId);
 
             if (!$deletionData) {
-                return $this->buildResponse(true, 'No deletion request found', [
-                    'status' => 'active',
-                    'deletion_requested' => false
-                ]);
+                            // Create active status data
+            $activeData = new AccountDeletionData();
+            $activeData->setStatus('active');
+            $activeData->setDeletionRequestedAt(null);
+            $activeData->setScheduledDeletionAt(null);
+            $activeData->setDaysRemaining(null);
+            $activeData->setReason(null);
+
+            return $this->buildResponse(true, 'No deletion request found', $activeData);
             }
 
             $daysRemaining = $this->calculateDaysRemaining($deletionData['scheduled_deletion_at']);
@@ -309,7 +314,7 @@ class AccountDeletionService
         /**
      * Build API response
      */
-    private function buildResponse(bool $success, string $message, $data = null, int $statusCode = 200): ApiResponseInterface
+    private function buildResponse(bool $success, string $message, ?AccountDeletionDataInterface $data = null, int $statusCode = 200): ApiResponseInterface
     {
         $response = $this->responseFactory->create();
         $response->setStatus($success);

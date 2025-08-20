@@ -26,12 +26,12 @@ interface ApiResponseInterface
     public function setMessage($message);
 
     /**
-     * @return mixed
+     * @return \Josequal\APIMobile\Api\Data\AccountDeletionDataInterface|null
      */
     public function getDataField();
 
     /**
-     * @param mixed $data
+     * @param \Josequal\APIMobile\Api\Data\AccountDeletionDataInterface|null $data
      * @return $this
      */
     public function setDataField($data);
