@@ -14,9 +14,9 @@ class ApiResponse extends AbstractSimpleObject implements ApiResponseInterface
 
     public function setMessage($message) { return $this->setData('message', $message); }
 
-    public function getDataField() { return $this->_get('data'); }
+    public function getDataField() { return $this->_get('data_field'); }
 
-    public function setDataField($data) { return $this->setData('data', $data); }
+    public function setDataField($data) { return $this->setData('data_field', $data); }
 
     public function getCode() { return $this->_get('code'); }
 

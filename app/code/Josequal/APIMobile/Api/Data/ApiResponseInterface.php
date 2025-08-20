@@ -28,7 +28,7 @@ interface ApiResponseInterface
     /**
      * @return mixed
      */
-    public function getDataField(); // أو getPayload إذا أردت توحيد الاسم
+    public function getDataField();
 
     /**
      * @param mixed $data
