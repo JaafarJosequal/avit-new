@@ -13,7 +13,8 @@
         "index": {
             "CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID": true,
             "CUSTOMER_ACCOUNT_DELETION_STATUS": true,
-            "CUSTOMER_ACCOUNT_DELETION_SCHEDULED_DELETION_AT": true
+            "CUSTOMER_ACCOUNT_DELETION_SCHEDULED_DELETION_AT": true,
+            "CUSTOMER_ACCOUNT_DELETION_ENTITY_ID": true
         },
         "constraint": {
             "PRIMARY": true,

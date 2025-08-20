@@ -28,5 +28,9 @@
         <index referenceId="CUSTOMER_ACCOUNT_DELETION_SCHEDULED_DELETION_AT" indexType="btree">
             <column name="scheduled_deletion_at"/>
         </index>
+
+        <index referenceId="CUSTOMER_ACCOUNT_DELETION_ENTITY_ID" indexType="btree">
+            <column name="entity_id"/>
+        </index>
     </table>
 </schema>
