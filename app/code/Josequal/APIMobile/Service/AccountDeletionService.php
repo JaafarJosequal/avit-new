@@ -7,6 +7,8 @@ use Magento\Integration\Model\Oauth\TokenFactory;
 use Magento\Framework\Webapi\Rest\Request;
 use Josequal\APIMobile\Api\Data\ApiResponseInterface;
 use Josequal\APIMobile\Api\Data\ApiResponseInterfaceFactory;
+use Josequal\APIMobile\Api\Data\AccountDeletionDataInterface;
+use Josequal\APIMobile\Model\Data\AccountDeletionData;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -62,10 +64,14 @@ class AccountDeletionService
             // Disable customer account
             $this->disableCustomerAccount($customerId);
 
-            return $this->buildResponse(true, 'Account deletion requested successfully. Account will be deleted in 90 days.', [
-                'deletion_date' => $this->dateTime->date('Y-m-d H:i:s', strtotime('+90 days')),
-                'days_remaining' => 90
-            ]);
+            // Create structured data object
+            $deletionData = $this->createDeletionData(
+                $this->dateTime->date('Y-m-d H:i:s'),
+                90,
+                $reason
+            );
+
+            return $this->buildResponse(true, 'Account deletion requested successfully. Account will be deleted in 90 days.', $deletionData);
 
         } catch (\Exception $e) {
             return $this->buildResponse(false, 'Error requesting account deletion: ' . $e->getMessage(), null, 500);
@@ -122,14 +128,15 @@ class AccountDeletionService
 
             $daysRemaining = $this->calculateDaysRemaining($deletionData['scheduled_deletion_at']);
 
-            return $this->buildResponse(true, 'Deletion status retrieved successfully', [
-                'status' => $deletionData['status'],
-                'deletion_requested' => true,
-                'deletion_requested_at' => $deletionData['deletion_requested_at'],
-                'scheduled_deletion_at' => $deletionData['scheduled_deletion_at'],
-                'days_remaining' => $daysRemaining,
-                'reason' => $deletionData['reason']
-            ]);
+            // Create structured data object
+            $statusData = new AccountDeletionData();
+            $statusData->setStatus($deletionData['status'] == 1 ? 'pending' : ($deletionData['status'] == 2 ? 'cancelled' : 'completed'));
+            $statusData->setDeletionRequestedAt($deletionData['deletion_requested_at']);
+            $statusData->setScheduledDeletionAt($deletionData['scheduled_deletion_at']);
+            $statusData->setDaysRemaining($daysRemaining);
+            $statusData->setReason($deletionData['reason']);
+
+            return $this->buildResponse(true, 'Deletion status retrieved successfully', $statusData);
 
         } catch (\Exception $e) {
             return $this->buildResponse(false, 'Error retrieving deletion status: ' . $e->getMessage(), null, 500);
@@ -311,5 +318,17 @@ class AccountDeletionService
         $response->setCode($statusCode);
 
         return $response;
+    }
+
+    private function createDeletionData(string $deletionDate, int $daysRemaining, ?string $reason = null): AccountDeletionDataInterface
+    {
+        $deletionData = new AccountDeletionData();
+        $deletionData->setStatus('pending');
+        $deletionData->setDeletionRequestedAt($deletionDate);
+        $deletionData->setScheduledDeletionAt($this->dateTime->date('Y-m-d H:i:s', strtotime('+90 days')));
+        $deletionData->setDaysRemaining($daysRemaining);
+        $deletionData->setReason($reason);
+
+        return $deletionData;
     }
 }
