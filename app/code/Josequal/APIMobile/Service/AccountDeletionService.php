@@ -269,16 +269,16 @@ class AccountDeletionService
         }
     }
 
-    /**
+        /**
      * Build API response
      */
     private function buildResponse(bool $success, string $message, $data = null, int $statusCode = 200): ApiResponseInterface
     {
         $response = $this->responseFactory->create();
-        $response->setSuccess($success);
+        $response->setStatus($success);
         $response->setMessage($message);
-        $response->setData($data);
-        $response->setStatusCode($statusCode);
+        $response->setDataField($data);
+        $response->setCode($statusCode);
 
         return $response;
     }
