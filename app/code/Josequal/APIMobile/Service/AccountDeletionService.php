@@ -58,6 +58,10 @@ class AccountDeletionService
                 return $this->buildResponse(false, 'Account deletion already requested', null, 400);
             }
 
+            $deletionDate = $this->dateTime->date('Y-m-d H:i:s');
+            $scheduledDeletionDate = $this->dateTime->date('Y-m-d H:i:s', strtotime('+90 days'));
+            $daysRemaining = 90;
+
             // Create deletion request
             $this->createDeletionRequest($customerId, $reason);
 
@@ -65,11 +69,7 @@ class AccountDeletionService
             $this->disableCustomerAccount($customerId);
 
             // Create structured data object
-            $deletionData = $this->createDeletionData(
-                $this->dateTime->date('Y-m-d H:i:s'),
-                90,
-                $reason
-            );
+            $deletionData = $this->createDeletionData($deletionDate, $scheduledDeletionDate, $daysRemaining, $reason);
 
             return $this->buildResponse(true, 'Account deletion requested successfully. Account will be deleted in 90 days.', $deletionData);
 
@@ -320,12 +320,12 @@ class AccountDeletionService
         return $response;
     }
 
-    private function createDeletionData(string $deletionDate, int $daysRemaining, ?string $reason = null): AccountDeletionDataInterface
+    private function createDeletionData(string $deletionDate, string $scheduledDeletionDate, int $daysRemaining, ?string $reason = null): AccountDeletionDataInterface
     {
         $deletionData = new AccountDeletionData();
         $deletionData->setStatus('pending');
         $deletionData->setDeletionRequestedAt($deletionDate);
-        $deletionData->setScheduledDeletionAt($this->dateTime->date('Y-m-d H:i:s', strtotime('+90 days')));
+        $deletionData->setScheduledDeletionAt($scheduledDeletionDate);
         $deletionData->setDaysRemaining($daysRemaining);
         $deletionData->setReason($reason);
 
