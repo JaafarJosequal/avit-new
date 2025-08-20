@@ -19,7 +19,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
     protected $addressFactory;
 
     /**
-     * @var \Magento\Directory\Model\RegionFactory
+     * @var \Magento\Customer\Api\Data\RegionInterfaceFactory
      */
     protected $regionFactory;
 
@@ -35,7 +35,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
         $this->customerSession = $this->objectManager->get('\Magento\Customer\Model\Session');
         $this->addressRepository = $this->objectManager->get('\Magento\Customer\Api\AddressRepositoryInterface');
         $this->addressFactory = $this->objectManager->get('\Magento\Customer\Api\Data\AddressInterfaceFactory');
-        $this->regionFactory = $this->objectManager->get('\Magento\Directory\Model\RegionFactory');
+        $this->regionFactory = $this->objectManager->get('\Magento\Customer\Api\Data\RegionInterfaceFactory');
     }
 
     /**
@@ -197,7 +197,7 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
                 } else {
                     // Fallback: create region object or skip region setting
                     try {
-                        // Try to create a region object
+                        // Try to create a region object using Customer RegionInterface
                         $region = $this->regionFactory->create();
                         $region->setRegion($data['region']);
                         $region->setRegionCode($data['region']);
