@@ -86,21 +86,21 @@
 
     <!-- Account Deletion APIs -->
     <route url="/V1/user/request-account-deletion" method="POST">
-        <service class="Josequal\APIMobile\Api\V1\AccountDeletionInterface" method="requestAccountDeletion"/>
+        <service class="Josequal\APIMobile\Model\AccountDeletion" method="requestAccountDeletion"/>
         <resources>
             <resource ref="self"/>
         </resources>
     </route>
 
     <route url="/V1/user/cancel-account-deletion" method="POST">
-        <service class="Josequal\APIMobile\Api\V1\AccountDeletionInterface" method="cancelAccountDeletion"/>
+        <service class="Josequal\APIMobile\Model\AccountDeletion" method="cancelAccountDeletion"/>
         <resources>
             <resource ref="self"/>
         </resources>
     </route>
 
     <route url="/V1/user/account-deletion-status" method="GET">
-        <service class="Josequal\APIMobile\Api\V1\AccountDeletionInterface" method="getDeletionStatus"/>
+        <service class="Josequal\APIMobile\Model\AccountDeletion" method="getDeletionStatus"/>
         <resources>
             <resource ref="self"/>
         </resources>
