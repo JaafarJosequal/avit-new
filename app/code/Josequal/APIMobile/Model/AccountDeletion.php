@@ -14,16 +14,32 @@ class AccountDeletion implements AccountDeletionInterface
         $this->accountDeletionService = $accountDeletionService;
     }
 
+    /**
+     * Request account deletion
+     *
+     * @param string|null $reason
+     * @return ApiResponseInterface
+     */
     public function requestAccountDeletion(?string $reason = null): ApiResponseInterface
     {
         return $this->accountDeletionService->requestAccountDeletion($reason);
     }
 
+    /**
+     * Cancel account deletion request
+     *
+     * @return ApiResponseInterface
+     */
     public function cancelAccountDeletion(): ApiResponseInterface
     {
         return $this->accountDeletionService->cancelAccountDeletion();
     }
 
+    /**
+     * Get deletion status for current customer
+     *
+     * @return ApiResponseInterface
+     */
     public function getDeletionStatus(): ApiResponseInterface
     {
         return $this->accountDeletionService->getDeletionStatus();

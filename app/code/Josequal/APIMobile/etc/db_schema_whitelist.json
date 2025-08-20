@@ -1,20 +1,23 @@
 {
-    "customer_otp": {
+    "customer_account_deletion": {
         "column": {
-            "otp_id": true,
+            "entity_id": true,
             "customer_id": true,
-            "otp": true,
-            "expires_at": true,
-            "created_at": true
+            "deletion_requested_at": true,
+            "scheduled_deletion_at": true,
+            "status": true,
+            "reason": true,
+            "cancelled_at": true,
+            "deleted_at": true
         },
         "index": {
-            "CUSTOMER_OTP_CUSTOMER_ID": true,
-            "CUSTOMER_OTP_OTP": true,
-            "CUSTOMER_OTP_EXPIRES_AT": true
+            "CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID": true,
+            "CUSTOMER_ACCOUNT_DELETION_STATUS": true,
+            "CUSTOMER_ACCOUNT_DELETION_SCHEDULED_DELETION_AT": true
         },
         "constraint": {
             "PRIMARY": true,
-            "CUSTOMER_OTP_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true
+            "CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true
         }
     }
 }
