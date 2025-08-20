@@ -147,6 +147,18 @@ class AccountDeletionService
         }
 
         $token = str_replace('Bearer ', '', $authorization);
+
+        // Try to decode JWT token first
+        try {
+            $payload = $this->decodeJwtToken($token);
+            if ($payload && isset($payload['uid'])) {
+                return (int) $payload['uid'];
+            }
+        } catch (\Exception $e) {
+            // Fallback to oauth token
+        }
+
+        // Fallback to oauth token validation
         $tokenModel = $this->tokenFactory->create();
         $tokenModel->load($token, 'token');
 
@@ -155,6 +167,24 @@ class AccountDeletionService
         }
 
         return (int) $tokenModel->getCustomerId();
+    }
+
+    /**
+     * Decode JWT token
+     */
+    private function decodeJwtToken(string $token): ?array
+    {
+        try {
+            $parts = explode('.', $token);
+            if (count($parts) !== 3) {
+                return null;
+            }
+
+            $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1])), true);
+            return $payload;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
