@@ -10,11 +10,11 @@
         <column xsi:type="timestamp" name="cancelled_at" on_update="false" nullable="true" comment="Cancelled At"/>
         <column xsi:type="timestamp" name="deleted_at" on_update="false" nullable="true" comment="Actually Deleted At"/>
 
-        <constraint xsi:type="primary" reference="PRIMARY">
+        <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>
         </constraint>
 
-        <constraint xsi:type="foreign" reference="CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID"
+        <constraint xsi:type="foreign" referenceId="CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID"
                     table="customer_account_deletion" column="customer_id" referenceTable="customer_entity" referenceColumn="entity_id" onDelete="CASCADE"/>
 
         <index referenceId="CUSTOMER_ACCOUNT_DELETION_CUSTOMER_ID" indexType="btree">
