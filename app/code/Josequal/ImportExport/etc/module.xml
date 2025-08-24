@@ -5,6 +5,7 @@
             <module name="Magento_Backend"/>
             <module name="Magento_Catalog"/>
             <module name="Magento_CatalogImportExport"/>
+            <module name="Magento_Framework"/>
         </sequence>
     </module>
 </config>
