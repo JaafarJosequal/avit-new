@@ -353,6 +353,24 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
      */
     protected function formatAddress($address, $type)
     {
+        // Handle region - ensure it's always a string or null
+        $region = $address->getRegion();
+        if (is_object($region)) {
+            // If region is an object, get the region name
+            $region = $region->getRegion() ?: null;
+        } elseif (empty($region)) {
+            // If region is empty string or falsy, set to null
+            $region = null;
+        }
+
+        // Handle region_id - ensure it's always an integer or null
+        $regionId = $address->getRegionId();
+        if ($regionId !== null && $regionId !== '') {
+            $regionId = (int) $regionId;
+        } else {
+            $regionId = null;
+        }
+
         return [
             'id' => $address->getId(),
             'type' => $type,
@@ -361,8 +379,8 @@ class Address extends \Josequal\APIMobile\Model\AbstractModel
             'company' => $address->getCompany(),
             'street' => $address->getStreet(),
             'city' => $address->getCity(),
-            'region' => $address->getRegion(),
-            'region_id' => $address->getRegionId(),
+            'region' => $region,
+            'region_id' => $regionId,
             'postcode' => $address->getPostcode(),
             'country_id' => $address->getCountryId(),
             'telephone' => $address->getTelephone(),
