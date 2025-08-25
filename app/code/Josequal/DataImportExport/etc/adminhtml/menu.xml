@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="Josequal_DataImportExport::josequal_dataimportexport" title="Josequal Data Import/Export" module="Josequal_DataImportExport" sortOrder="100" parent="Magento_System::tools" resource="Josequal_DataImportExport::josequal_dataimportexport"/>
+        <add id="Josequal_DataImportExport::josequal_dataimportexport" title="Josequal Data Import/Export" module="Josequal_DataImportExport" sortOrder="100" parent="Magento_Backend::system" resource="Josequal_DataImportExport::josequal_dataimportexport"/>
         <add id="Josequal_DataImportExport::products_import_export" title="Products Import/Export" module="Josequal_DataImportExport" sortOrder="10" parent="Josequal_DataImportExport::josequal_dataimportexport" resource="Josequal_DataImportExport::products_import_export"/>
         <add id="Josequal_DataImportExport::categories_import_export" title="Categories Import/Export" module="Josequal_DataImportExport" sortOrder="20" parent="Josequal_DataImportExport::josequal_dataimportexport" resource="Josequal_DataImportExport::categories_import_export"/>
     </menu>
