@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::system">
+                    <resource id="Magento_System::tools">
+                        <resource id="Josequal_DataImportExport::josequal_dataimportexport" title="Josequal Data Import/Export" sortOrder="100">
+                            <resource id="Josequal_DataImportExport::products_import_export" title="Products Import/Export" sortOrder="10"/>
+                            <resource id="Josequal_DataImportExport::categories_import_export" title="Categories Import/Export" sortOrder="20"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>
