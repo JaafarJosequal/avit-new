@@ -1,53 +1,7 @@
-# ملفات النظام
-.idea/
-.vscode/
-.DS_Store
-Thumbs.db
+# تجاهل كل شيء
+/*
 
-# مجلدات يتم إنشاؤها تلقائيًا
-
-/pub/static/*
-!/pub/static/.htaccess
-
-/generated/*
-!/generated/.htaccess
-
-/pub/media/*
-!/pub/media/.htaccess
-
-# vendor وملفات Composer
-/vendor/*
-!/vendor/.htaccess
-/composer.lock
-
-# بيئة محلية وملفات حساسة
-/app/etc/env.php
-/auth.json
-/auth.json.sample
-
-# Logs
-*.log
-/var/log/*
-/var/report/*
-
-# مجلدات أخرى
-/node_modules/
-/bower_components/
-
-# SASS Cache
-.sass-cache/
-
-# ملفات مؤقتة
-*.tmp
-*.temp
-*.swp
-*.swo
-
-# Backup files
-*.bak
-*.orig
-sm_ecomus_quickstart_pl_m2.4.8_v1.1.0.zip
-sm_ecomus_quickstart_pl_m2.4.8_v1.1.0.zip
-
-
-app/code/Josequal/APIExcample/
+# استثناء app/code و app/design
+!/app/
+!/app/code/**
+!/app/design/**
