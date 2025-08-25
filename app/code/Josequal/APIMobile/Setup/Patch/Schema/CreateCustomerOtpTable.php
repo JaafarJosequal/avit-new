@@ -57,7 +57,7 @@ class CreateCustomerOtpTable implements SchemaPatchInterface
                 )
                 ->addColumn(
                     'otp',
-                    Table::TYPE_VARCHAR,
+                    Table::TYPE_TEXT,
                     10,
                     [
                         'nullable' => false,
