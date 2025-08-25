@@ -84,15 +84,15 @@ class CreateCustomerOtpTable implements SchemaPatchInterface
                     'Created At'
                 )
                 ->addIndex(
-                    $this->moduleDataSetup->getIdxName('customer_otp', ['customer_id']),
+                    $this->moduleDataSetup->getConnection()->getIndexName('customer_otp', ['customer_id']),
                     ['customer_id']
                 )
                 ->addIndex(
-                    $this->moduleDataSetup->getIdxName('customer_otp', ['otp']),
+                    $this->moduleDataSetup->getConnection()->getIndexName('customer_otp', ['otp']),
                     ['otp']
                 )
                 ->addIndex(
-                    $this->moduleDataSetup->getIdxName('customer_otp', ['expires_at']),
+                    $this->moduleDataSetup->getConnection()->getIndexName('customer_otp', ['expires_at']),
                     ['expires_at']
                 )
                 ->setComment('Customer OTP Table');
@@ -101,7 +101,7 @@ class CreateCustomerOtpTable implements SchemaPatchInterface
 
             // Add foreign key constraint
             $this->moduleDataSetup->getConnection()->addForeignKey(
-                $this->moduleDataSetup->getFkName('customer_otp', 'customer_id', 'customer_entity', 'entity_id'),
+                $this->moduleDataSetup->getConnection()->getForeignKeyName('customer_otp', 'customer_id', 'customer_entity', 'entity_id'),
                 $tableName,
                 'customer_id',
                 $this->moduleDataSetup->getTable('customer_entity'),
