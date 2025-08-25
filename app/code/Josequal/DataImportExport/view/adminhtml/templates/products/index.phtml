@@ -6,13 +6,13 @@
         <div class="page-actions">
             <div class="page-actions-buttons">
                 <button type="button" class="action-primary" id="import-products-btn">
-                    <span><?= $block->escapeHtml(__('Import Products')) ?></span>
+                    <span>Import Products</span>
                 </button>
                 <button type="button" class="action-secondary" id="export-products-btn">
-                    <span><?= $block->escapeHtml(__('Export Products')) ?></span>
+                    <span>Export Products</span>
                 </button>
                 <button type="button" class="action-secondary" id="download-sample-btn">
-                    <span><?= $block->escapeHtml(__('Download Sample File')) ?></span>
+                    <span>Download Sample File</span>
                 </button>
             </div>
         </div>
@@ -22,26 +22,26 @@
         <div class="admin__data-grid-wrap">
             <div class="admin__data-grid">
                 <div class="admin__data-grid-header">
-                    <h2><?= $block->escapeHtml(__('Products Import/Export')) ?></h2>
+                    <h2>Products Import/Export</h2>
                 </div>
 
                 <div class="admin__data-grid-content">
                     <div class="import-section" style="display: none;">
-                        <h3><?= $block->escapeHtml(__('Import Products')) ?></h3>
+                        <h3>Import Products</h3>
                         <form id="import-form" enctype="multipart/form-data">
                             <div class="admin__field">
                                 <label class="admin__field-label" for="import_file">
-                                    <span><?= $block->escapeHtml(__('Select File')) ?></span>
+                                    <span>Select File</span>
                                 </label>
                                 <div class="admin__field-control">
                                     <input type="file" id="import_file" name="import_file" accept=".csv,.xlsx,.xls" required />
-                                    <small><?= $block->escapeHtml(__('Supported formats: CSV, XLSX, XLS')) ?></small>
+                                    <small>Supported formats: CSV, XLSX, XLS</small>
                                 </div>
                             </div>
                             <div class="admin__field">
                                 <div class="admin__field-control">
                                     <button type="submit" class="action-primary">
-                                        <span><?= $block->escapeHtml(__('Start Import')) ?></span>
+                                        <span>Start Import</span>
                                     </button>
                                 </div>
                             </div>
@@ -49,45 +49,23 @@
                     </div>
 
                     <div class="export-section" style="display: none;">
-                        <h3><?= $block->escapeHtml(__('Export Products')) ?></h3>
+                        <h3>Export Products</h3>
                         <form id="export-form">
                             <div class="admin__field">
                                 <label class="admin__field-label" for="export_format">
-                                    <span><?= $block->escapeHtml(__('Export Format')) ?></span>
+                                    <span>Export Format</span>
                                 </label>
                                 <div class="admin__field-control">
                                     <select id="export_format" name="format">
-                                        <option value="xlsx"><?= $block->escapeHtml(__('Excel (XLSX)')) ?></option>
-                                        <option value="csv"><?= $block->escapeHtml(__('CSV')) ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="admin__field">
-                                <label class="admin__field-label" for="export_category">
-                                    <span><?= $block->escapeHtml(__('Category Filter')) ?></span>
-                                </label>
-                                <div class="admin__field-control">
-                                    <select id="export_category" name="category_id">
-                                        <option value=""><?= $block->escapeHtml(__('All Categories')) ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="admin__field">
-                                <label class="admin__field-label" for="export_status">
-                                    <span><?= $block->escapeHtml(__('Status Filter')) ?></span>
-                                </label>
-                                <div class="admin__field-control">
-                                    <select id="export_status" name="status">
-                                        <option value=""><?= $block->escapeHtml(__('All Statuses')) ?></option>
-                                        <option value="1"><?= $block->escapeHtml(__('Enabled')) ?></option>
-                                        <option value="2"><?= $block->escapeHtml(__('Disabled')) ?></option>
+                                        <option value="xlsx">Excel (XLSX)</option>
+                                        <option value="csv">CSV</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="admin__field">
                                 <div class="admin__field-control">
                                     <button type="submit" class="action-primary">
-                                        <span><?= $block->escapeHtml(__('Start Export')) ?></span>
+                                        <span>Start Export</span>
                                     </button>
                                 </div>
                             </div>
@@ -95,36 +73,22 @@
                     </div>
 
                     <div class="info-section">
-                        <h3><?= $block->escapeHtml(__('File Format Information')) ?></h3>
-                        <p><?= $block->escapeHtml(__('The import file should contain the following columns:')) ?></p>
+                        <h3>File Format Information</h3>
+                        <p>The import file should contain the following columns:</p>
                         <ul>
-                            <li><strong>sku</strong> - <?= $block->escapeHtml(__('Product SKU (required)')) ?></li>
-                            <li><strong>name</strong> - <?= $block->escapeHtml(__('Product Name')) ?></li>
-                            <li><strong>description</strong> - <?= $block->escapeHtml(__('Product Description')) ?></li>
-                            <li><strong>short_description</strong> - <?= $block->escapeHtml(__('Short Description')) ?></li>
-                            <li><strong>price</strong> - <?= $block->escapeHtml(__('Product Price')) ?></li>
-                            <li><strong>special_price</strong> - <?= $block->escapeHtml(__('Special Price (optional)')) ?></li>
-                            <li><strong>quantity</strong> - <?= $block->escapeHtml(__('Stock Quantity')) ?></li>
-                            <li><strong>status</strong> - <?= $block->escapeHtml(__('Status (1=Enabled, 2=Disabled)')) ?></li>
-                            <li><strong>visibility</strong> - <?= $block->escapeHtml(__('Visibility (1=Not Visible, 2=Catalog, 3=Search, 4=Both)')) ?></li>
-                            <li><strong>category_ids</strong> - <?= $block->escapeHtml(__('Category IDs (comma-separated)')) ?></li>
-                            <li><strong>product_type</strong> - <?= $block->escapeHtml(__('Product Type (simple, configurable, etc.)')) ?></li>
-                            <li><strong>image</strong> - <?= $block->escapeHtml(__('Main Image Path')) ?></li>
-                            <li><strong>small_image</strong> - <?= $block->escapeHtml(__('Small Image Path')) ?></li>
-                            <li><strong>thumbnail</strong> - <?= $block->escapeHtml(__('Thumbnail Path')) ?></li>
+                            <li><strong>sku</strong> - Product SKU (required)</li>
+                            <li><strong>name</strong> - Product Name</li>
+                            <li><strong>description</strong> - Product Description</li>
+                            <li><strong>price</strong> - Product Price</li>
+                            <li><strong>quantity</strong> - Stock Quantity</li>
+                            <li><strong>status</strong> - Status (1=Enabled, 2=Disabled)</li>
                         </ul>
 
-                        <h4><?= $block->escapeHtml(__('Supported Import Formats:')) ?></h4>
+                        <h4>Supported Import Formats:</h4>
                         <ul>
-                            <li><strong>CSV</strong> - <?= $block->escapeHtml(__('Comma-separated values file')) ?></li>
-                            <li><strong>XLSX</strong> - <?= $block->escapeHtml(__('Excel 2007+ file format')) ?></li>
-                            <li><strong>XLS</strong> - <?= $block->escapeHtml(__('Excel 97-2003 file format')) ?></li>
-                        </ul>
-
-                        <h4><?= $block->escapeHtml(__('Export Formats:')) ?></h4>
-                        <ul>
-                            <li><strong>XLSX</strong> - <?= $block->escapeHtml(__('Excel file with auto-sized columns')) ?></li>
-                            <li><strong>CSV</strong> - <?= $block->escapeHtml(__('Comma-separated values file')) ?></li>
+                            <li><strong>CSV</strong> - Comma-separated values file</li>
+                            <li><strong>XLSX</strong> - Excel 2007+ file format</li>
+                            <li><strong>XLS</strong> - Excel 97-2003 file format</li>
                         </ul>
                     </div>
                 </div>
